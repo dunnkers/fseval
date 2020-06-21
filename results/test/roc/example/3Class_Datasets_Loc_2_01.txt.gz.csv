@@ -1,0 +1,21 @@
+feature_rank,cpu_time,ranking_method,replica_no,name,description,recall,precision,fpr,f1
+7,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.16666666666666666,0.5555555555555556,0.2857142857142857
+3,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.5,0.1111111111111111,0.6666666666666666
+11,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.1,1.0,0.18181818181818182
+5,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.25,0.3333333333333333,0.4
+11,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.1,1.0,0.18181818181818182
+10,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.1111111111111111,0.8888888888888888,0.19999999999999998
+10,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.1111111111111111,0.8888888888888888,0.19999999999999998
+4,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.3333333333333333,0.2222222222222222,0.5
+9,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.125,0.7777777777777778,0.2222222222222222
+8,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.14285714285714285,0.6666666666666666,0.25
+8,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.14285714285714285,0.6666666666666666,0.25
+3,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.5,0.1111111111111111,0.6666666666666666
+4,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.3333333333333333,0.2222222222222222,0.5
+9,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.125,0.7777777777777778,0.2222222222222222
+5,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.25,0.3333333333333333,0.4
+6,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.2,0.4444444444444444,0.33333333333333337
+7,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.16666666666666666,0.5555555555555556,0.2857142857142857
+6,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,0.2,0.4444444444444444,0.33333333333333337
+2,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",1.0,1.0,0.0,1.0
+1,6.0559470653533936,RFE w/XGBoost,1,3 Class Balanced Data (2-way Epistasis+ME),"3 Class Balanced Data (2-way Epistasis+ME) [p=20,n=1600,p_=2,h=1,edm=Easy]",0.5,1.0,0.0,0.6666666666666666

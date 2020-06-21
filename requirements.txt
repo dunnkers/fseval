@@ -1,0 +1,7 @@
+sklearn==0.0
+numpy==1.18.3
+skrebate==0.6
+pandas==1.0.3
+xgboost==1.1.0rc2
+tqdm==4.46.0
+seaborn==0.10.1
