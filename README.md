@@ -5,7 +5,7 @@ Feature Selection evaluation framework 💎
 fseval is a framework for evaluating Feature Selection methods. It is built around a new set of metrics, using synthetic datasets for more meaningful evaluation.
 
 ## Usage
-Install locally (not on PyPi yet) by cloning the repo. Execute with `fseval` folder in current working directory:
+Install locally (not on PyPi yet) by cloning the repo. Execute with `fseval` folder in current working directory in a Python 3 environment:
 
 ```shell
 python -m fseval.ranking.rfe ./example/descriptor.csv --batch_id=test
@@ -35,7 +35,7 @@ valdata = pd.concat(valdata)
 sns.lineplot(data=valdata, x='n_features', y='score')
 ```
 
-Resulting in: ✨
+Resulting in ✨:
 
 ![plot example](./example/plot-example.png)
 
@@ -44,6 +44,28 @@ Useful metrics can be computed as part of the evaluation pipeline. e.g. metrics 
 ```shell
 python -m fseval.analysis.roc ./example/descriptor.csv --batch_id=test
 ```
+
+```python
+import os
+import pandas as pd
+import seaborn as sns
+from fseval.analysis.lib.metrics import compute_interpolated_metrics
+
+rocdata = []
+for _, dataset in pd.read_csv('./example/descriptor.csv').iterrows():
+    path = os.path.join('./results/test/roc', dataset.path + '.csv')
+    data = pd.read_csv(path)
+    rocdata.append(data)
+rocdata = pd.concat(rocdata)
+
+metricdata = rocdata\
+    .groupby(['description', 'ranking_method', 'replica_no'])\
+    .apply(compute_interpolated_metrics)\
+    .reset_index()
+sns.lineplot(data=metricdata, x='fpr', y='tpr')
+```
+
+... TODO: explain stability computation.
 
 ## SLURM
 `fseval` works built-in with SLURM clusters. When `fseval` is submitted in a job array, datasets are automatically distributed over a preconfigured amount of jobs and cpus.
