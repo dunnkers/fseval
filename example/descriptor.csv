@@ -1,3 +1,3 @@
 adapter,directory,path,replica_no,replicas,name,p,n,description,p_informative
 rebate,./example,./example/replica1.gz,1,2,3-way Epi,20,1600,"3-way Epi [p=20,n=1600]","17,18,19"
-rebate,./example,./example/replica2.gz,1,2,3-way Epi,20,1600,"3-way Epi [p=20,n=1600]","17,18,19"
+rebate,./example,./example/replica2.gz,2,2,3-way Epi,20,1600,"3-way Epi [p=20,n=1600]","17,18,19"

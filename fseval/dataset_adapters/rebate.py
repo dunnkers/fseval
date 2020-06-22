@@ -13,8 +13,8 @@ def load_dataset(filename):
     columns = None
     rows = []
     _, file_extension = os.path.splitext(filename)
-    opener = gzip.open if file_extension == '.gz' else open
-    with opener(filename, mode='rt') as csvfile:
+    assert file_extension == '.gz', 'file must be gzipped (.gz)'
+    with gzip.open(filename, mode='rt') as csvfile:
         readCSV = csv.reader(csvfile, delimiter='\t')
         for row in tqdm(readCSV):
             if columns == None:
