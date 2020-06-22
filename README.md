@@ -2,7 +2,7 @@
 Feature Selection evaluation framework 💎
 
 ## What
-fseval is a framework for evaluating Feature Selection methods. It is built around a new set of metrics, using synthetic datasets for more meaningful evaluation.
+fseval is a framework for evaluating Feature Selection methods. By knowing _a priori_ what dataset features are informative, more meaningful evaluation can be performed. fseval provides metrics such as ROC- and PR curves, algorithm stability, and classification accuracy. The pipeline can be ran locally or on HPC systems (SLURM), scaling from a couple to testing thousands of benchmark datasets.
 
 ## Install
 
@@ -144,4 +144,4 @@ sns.lineplot(data=stabdata, x='max_features', y='stability', hue='ranking_method
 ## About
 By Jeroen Overschie | University of Groningen
 
-MSc Research Internship 2020.
+Research Internship 2020, MSc Data Science and Systems Complexity.
