@@ -43,7 +43,7 @@ def interpolate_roc(replica):
     interp_tpr[0] = 0.0
     interp_tpr[-1] = 1.0
     auc = np.trapz(interp_tpr, interp_fpr)
-    return interp_fpr, interp_fpr, auc
+    return interp_fpr, interp_tpr, auc
 
 def compute_interpolated_metrics(replica):
     # ROC

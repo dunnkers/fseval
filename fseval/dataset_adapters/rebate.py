@@ -12,7 +12,9 @@ def load_dataset(filename):
     print('Reading dataset `{}`...'.format(filename))
     columns = None
     rows = []
-    with gzip.open(filename, mode='rt') as csvfile:
+    _, file_extension = os.path.splitext(filename)
+    opener = gzip.open if file_extension == '.gz' else open
+    with opener(filename, mode='rt') as csvfile:
         readCSV = csv.reader(csvfile, delimiter='\t')
         for row in tqdm(readCSV):
             if columns == None:

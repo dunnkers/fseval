@@ -32,12 +32,12 @@ for _, dataset in pd.read_csv('./example/descriptor.csv').iterrows():
     valdata.append(data)
 valdata = pd.concat(valdata)
 
-sns.lineplot(data=valdata, x='n_features', y='score')
+sns.lineplot(data=valdata, x='n_features', y='score', hue='ranking_method')
 ```
 
 Resulting in ✨:
 
-![plot example](./example/plot-example.png)
+![acc plot example](./example/plot_accuracy.png)
 
 Useful metrics can be computed as part of the evaluation pipeline. e.g. metrics for computing ROC curves:
 
@@ -62,8 +62,10 @@ metricdata = rocdata\
     .groupby(['description', 'ranking_method', 'replica_no'])\
     .apply(compute_interpolated_metrics)\
     .reset_index()
-sns.lineplot(data=metricdata, x='fpr', y='tpr')
+sns.lineplot(data=metricdata, x='fpr', y='tpr', hue='ranking_method')
 ```
+
+![roc plot example](./example/plot_roc.png)
 
 ... TODO: explain stability computation.
 
