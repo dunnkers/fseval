@@ -101,7 +101,7 @@ from fseval.analysis.lib import stability
 
 bindata = []
 for _, dataset in pd.read_csv('./example/descriptor.csv').iterrows():
-    path = os.path.join('./results/test7/binary_subsets', dataset.path + '.csv')
+    path = os.path.join('./results/test/binary_subsets', dataset.path + '.csv')
     data = pd.read_csv(path)
     bindata.append(data)
 bindata = pd.concat(bindata)
