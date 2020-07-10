@@ -59,18 +59,21 @@ Resulting in ✨:
 
 ![acc plot example](./example/plot_accuracy.png)
 
-### ROC curve
-Useful metrics can be computed as part of the evaluation pipeline. e.g. metrics for computing ROC curves:
+### ROC and PR curve
+Useful metrics can be computed as part of the evaluation pipeline. e.g. metrics for computing ROC or PR curves:
 
 ```shell
 python -m fseval.analysis.roc ./example/descriptor.csv --batch_id=test
 ```
+
+ROC curve:
 
 ```python
 import os
 import pandas as pd
 import seaborn as sns
 from fseval.analysis.lib.metrics import compute_interpolated_metrics
+import matplotlib.pyplot as plt
 
 rocdata = []
 for _, dataset in pd.read_csv('./example/descriptor.csv').iterrows():
@@ -84,9 +87,18 @@ metricdata = rocdata\
     .apply(compute_interpolated_metrics)\
     .reset_index()
 sns.lineplot(data=metricdata, x='fpr', y='tpr', hue='ranking_method')
+plt.show()
+sns.lineplot(data=metricdata, x='recall', y='precision', hue='ranking_method')
+plt.show()
 ```
 
+ROC:
+
 ![roc plot example](./example/plot_roc.png)
+
+Precision/Recall:
+
+![pr plot example](./example/plot_pr.png)
 
 ### Stability
 Compute stability (Nogueira, 2018) using:
