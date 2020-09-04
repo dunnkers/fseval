@@ -130,3 +130,5 @@ dmypy.json
 
 # fseval
 /results
+/dask-worker-space
+/dask/dask-worker-space
