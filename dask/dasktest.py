@@ -35,7 +35,8 @@ if __name__ == '__main__':
     import urllib.parse
     username = urllib.parse.quote_plus('user')
     password = urllib.parse.quote_plus('pass/word')
-    dbclient = MongoClient('mongodb://%s:VxOgKiNI16@127.0.0.1' % (username, password))
+    # helm install my-mongodb --set architecture=standalone,useStatefulSet=true,externalAccess.enabled=true bitnami/mongodb
+    
 
     print('running client.compute')
     def step_1_w_single_GPU(data):
