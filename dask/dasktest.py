@@ -1,6 +1,9 @@
 import pandas as pd
 
-print('initialized worker.')
+if __name__ == '__main__':
+    print('initialized main thread.')
+else:
+    print('initialized worker.')
 
 from sklearn.feature_selection import chi2
 import numpy as np
@@ -11,7 +14,7 @@ def chi2_ranking(X, y):
     return ranking
 
 if __name__ == '__main__':
-    from distributed import Client, LocalCluster
+    from dask.distributed import Client, LocalCluster
     from dask import delayed
     # from dask_jobqueue import SLURMCluster
     # cluster = SLURMCluster(cores=2,
@@ -30,13 +33,21 @@ if __name__ == '__main__':
     X = dataset.drop('Class', axis=1).values
     y = dataset['Class'].values
     feature_names = dataset.drop('Class', axis=1).columns.values
+    ranking = chi2_ranking(X, y)
 
     from pymongo import MongoClient
     import urllib.parse
-    username = urllib.parse.quote_plus('user')
-    password = urllib.parse.quote_plus('pass/word')
-    # helm install my-mongodb --set architecture=standalone,useStatefulSet=true,externalAccess.enabled=true bitnami/mongodb
-    
+    import os
+    # username = urllib.parse.quote_plus('user')
+    password = os.environ['MONGODB_ROOT_PASSWORD']
+    ip = os.environ['MONGODB_IP']
+    connstr = 'mongodb://root:{}@{}'.format(password, ip)
+    dbclient = MongoClient(connstr)
+
+    db = dbclient['results']
+    fstest = db['fstest']
+    result_id = fstest.insert_one({'ranking': ranking.tolist() }).inserted_id
+    print('result_id =', result_id)
 
     print('running client.compute')
     def step_1_w_single_GPU(data):
