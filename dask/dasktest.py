@@ -13,10 +13,10 @@ def chi2_ranking(X, y):
     ranking = np.argsort(-scores)
     return ranking
 
-if __name__ == '__main__':
+from pymongo import MongoClient
+import os
+def run_fs(row, ranking_func):
     # Initialize database
-    from pymongo import MongoClient
-    import os
     password = os.environ['MONGODB_ROOT_PASSWORD']
     ip = os.environ['MONGODB_IP']
     connstr = 'mongodb://root:{}@{}'.format(password, ip)
@@ -24,31 +24,12 @@ if __name__ == '__main__':
     db = dbclient['results']
     fstest = db['fstest']
 
-    # Initialize Dask cluster
-    from dask.distributed import Client, LocalCluster
-    from dask import delayed
-    # from dask_jobqueue import SLURMCluster
-    # cluster = SLURMCluster(cores=2,
-    #                        processes=1,
-    #                        memory="4GB",
-    #                        project="woodshole2",
-    #                        walltime="00:05:00",
-    #                        queue="regular",
-    #                        interface="ib0")
-    # print(cluster.job_script())
-    client = Client()
-
-    # Read data collection
-    data_collection = pd.read_csv('dask/descriptor.csv')
-
     # Perform feature selection
-    row = data_collection.iloc[0]
     dataset = pd.read_csv(row.path, sep='\t')
     X = dataset.drop('Class', axis=1).values
     y = dataset['Class'].values
     feature_names = dataset.drop('Class', axis=1).columns.values
 
-    ranking_func = chi2_ranking
 
     # Execute feature ranking
     import time
@@ -78,11 +59,37 @@ if __name__ == '__main__':
             lambda s: int(s), row['p_informative'].split(',')))
     }
 
-
-
-
     result_id = fstest.insert_one(output).inserted_id
     print('result_id =', result_id)
+    return result_id
+
+if __name__ == '__main__':
+
+    # Initialize Dask cluster
+    from dask.distributed import Client, LocalCluster
+    from dask import delayed
+    # from dask_jobqueue import SLURMCluster
+    # cluster = SLURMCluster(cores=2,
+    #                        processes=1,
+    #                        memory="4GB",
+    #                        project="woodshole2",
+    #                        walltime="00:05:00",
+    #                        queue="regular",
+    #                        interface="ib0")
+    # print(cluster.job_script())
+    client = Client()
+
+    # Read data collection
+    data_collection = pd.read_csv('dask/descriptor.csv')
+    tasks = []
+    for idx, row in data_collection.iterrows():
+        task = delayed(run_fs)(row, chi2_ranking)
+        tasks.append(task)
+        
+    results = client.compute(tasks)
+    print(results)
+    for res in results:
+        print('result=',res.result())
 
     # Dask delayed test
     print('running client.compute')
