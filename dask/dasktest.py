@@ -14,6 +14,17 @@ def chi2_ranking(X, y):
     return ranking
 
 if __name__ == '__main__':
+    # Initialize database
+    from pymongo import MongoClient
+    import os
+    password = os.environ['MONGODB_ROOT_PASSWORD']
+    ip = os.environ['MONGODB_IP']
+    connstr = 'mongodb://root:{}@{}'.format(password, ip)
+    dbclient = MongoClient(connstr)
+    db = dbclient['results']
+    fstest = db['fstest']
+
+    # Initialize Dask cluster
     from dask.distributed import Client, LocalCluster
     from dask import delayed
     # from dask_jobqueue import SLURMCluster
@@ -27,28 +38,53 @@ if __name__ == '__main__':
     # print(cluster.job_script())
     client = Client()
 
+    # Read data collection
     data_collection = pd.read_csv('dask/descriptor.csv')
+
+    # Perform feature selection
     row = data_collection.iloc[0]
     dataset = pd.read_csv(row.path, sep='\t')
     X = dataset.drop('Class', axis=1).values
     y = dataset['Class'].values
     feature_names = dataset.drop('Class', axis=1).columns.values
-    ranking = chi2_ranking(X, y)
 
-    from pymongo import MongoClient
-    import urllib.parse
-    import os
-    # username = urllib.parse.quote_plus('user')
-    password = os.environ['MONGODB_ROOT_PASSWORD']
-    ip = os.environ['MONGODB_IP']
-    connstr = 'mongodb://root:{}@{}'.format(password, ip)
-    dbclient = MongoClient(connstr)
+    ranking_func = chi2_ranking
 
-    db = dbclient['results']
-    fstest = db['fstest']
-    result_id = fstest.insert_one({'ranking': ranking.tolist() }).inserted_id
+    # Execute feature ranking
+    import time
+    start = time.time()
+    ranking_all = ranking_func(X, y)
+    time_elapsed = time.time() - start
+    print('{} feature selection took {} seconds.'.format(\
+        ranking_func.__name__, time_elapsed))
+
+    # Write results to db
+    ranking = pd.Series(ranking_all).dropna()
+    subsets = ranking.map(lambda rank: \
+        ranking[ranking <= rank].index.tolist())
+    output = {
+        'feature_index': ranking.index.tolist(),
+        'feature_rank': ranking.values.tolist(),
+        'subset': subsets.values.tolist(),
+        'cpu_time': time_elapsed,
+        'ranking_method': ranking_func.__name__,
+        'dataset_name': row['name'],
+        'replica_no': int(row['replica_no']),
+        'replicas': int(row['replicas']),
+        'adapter': row['adapter'],
+        'p': int(row['p']),
+        'n': int(row['n']),
+        'p_informative': list(map(\
+            lambda s: int(s), row['p_informative'].split(',')))
+    }
+
+
+
+
+    result_id = fstest.insert_one(output).inserted_id
     print('result_id =', result_id)
 
+    # Dask delayed test
     print('running client.compute')
     def step_1_w_single_GPU(data):
         return "Step 1 done for: %s" % data
@@ -60,7 +96,5 @@ if __name__ == '__main__':
     print(result_stage_2)
     for res in result_stage_2:
         print('result = ',res.result())
-
     print(client.submit(lambda x: x + 1, 10).result())
-
     print('end of script.')
