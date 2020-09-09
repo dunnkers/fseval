@@ -56,7 +56,8 @@ def run_fs(row, ranking_func):
         'p': int(row['p']),
         'n': int(row['n']),
         'p_informative': list(map(\
-            lambda s: int(s), row['p_informative'].split(',')))
+            lambda s: int(s), row['p_informative'].split(','))),
+        'timestamp': time.time()
     }
 
     result_id = fstest.insert_one(output).inserted_id
@@ -90,18 +91,3 @@ if __name__ == '__main__':
     print(results)
     for res in results:
         print('result=',res.result())
-
-    # Dask delayed test
-    print('running client.compute')
-    def step_1_w_single_GPU(data):
-        return "Step 1 done for: %s" % data
-    def step_2_w_local_IO(data):
-        return "Step 2 done for: %s" % data
-    stage_1 = [delayed(step_1_w_single_GPU)(i) for i in range(3)]
-    stage_2 = [delayed(step_2_w_local_IO)(s2) for s2 in stage_1]
-    result_stage_2 = client.compute(stage_2)
-    print(result_stage_2)
-    for res in result_stage_2:
-        print('result = ',res.result())
-    print(client.submit(lambda x: x + 1, 10).result())
-    print('end of script.')
