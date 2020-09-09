@@ -13,26 +13,38 @@ def chi2_ranking(X, y):
     ranking = np.argsort(-scores)
     return ranking
 
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
+
+def KNN_5Fold(X, y):
+    estimator = KNeighborsClassifier(n_neighbors=1, n_jobs=1)
+    scores = cross_val_score(estimator, X, y, cv=5, verbose=1)
+    output = pd.DataFrame(data={
+        'fold_no': range(1, len(scores) + 1),
+        'score': scores
+    })
+    return output
+
 from pymongo import MongoClient
 import os
-def run_fs(row, ranking_func):
+import time
+def run_fs(ranking_func, datacol, batch_id):
     # Initialize database
     password = os.environ['MONGODB_ROOT_PASSWORD']
     ip = os.environ['MONGODB_IP']
     connstr = 'mongodb://root:{}@{}'.format(password, ip)
     dbclient = MongoClient(connstr)
     db = dbclient['results']
-    fstest = db['fstest']
+    rankingcol = db['ranking']
 
     # Perform feature selection
-    dataset = pd.read_csv(row.path, sep='\t')
+    dataset = pd.read_csv(datacol.path, sep='\t')
     X = dataset.drop('Class', axis=1).values
     y = dataset['Class'].values
     feature_names = dataset.drop('Class', axis=1).columns.values
 
 
     # Execute feature ranking
-    import time
     start = time.time()
     ranking_all = ranking_func(X, y)
     time_elapsed = time.time() - start
@@ -49,20 +61,49 @@ def run_fs(row, ranking_func):
         'subset': subsets.values.tolist(),
         'cpu_time': time_elapsed,
         'ranking_method': ranking_func.__name__,
-        'dataset_name': row['name'],
-        'replica_no': int(row['replica_no']),
-        'replicas': int(row['replicas']),
-        'adapter': row['adapter'],
-        'p': int(row['p']),
-        'n': int(row['n']),
+
+        # dataset
+        'dataset_id': datacol['id'],
+        'dataset_name': datacol['name'],
+        'replica_no': int(datacol['replica_no']),
+        'replicas': int(datacol['replicas']),
+        'adapter': datacol['adapter'],
+        'p': int(datacol['p']),
+        'n': int(datacol['n']),
         'p_informative': list(map(\
-            lambda s: int(s), row['p_informative'].split(','))),
-        'timestamp': time.time()
+            lambda s: int(s), datacol['p_informative'].split(','))),
+        'timestamp': time.time(),
+        'batch_id': batch_id
     }
 
-    result_id = fstest.insert_one(output).inserted_id
+    result_id = rankingcol.insert_one(output).inserted_id
     print('result_id =', result_id)
     return result_id
+
+def run_validation(validation_func, datacol, batch_id):
+    # Initialize database
+    password = os.environ['MONGODB_ROOT_PASSWORD']
+    ip = os.environ['MONGODB_IP']
+    connstr = 'mongodb://root:{}@{}'.format(password, ip)
+    dbclient = MongoClient(connstr)
+    db = dbclient['results']
+    rankingcol = db['ranking']
+    validationcol = db['validation']
+
+
+    # Perform feature selection
+    data = rankingcol.find_one({
+        'batch_id': batch_id,
+        'dataset_id': datacol['id'],
+        'replica_no': datacol['replica_no']
+    })
+    # dataset = pd.read_csv(datacol.path, sep='\t')
+    # X = dataset.drop('Class', axis=1).values
+    # y = dataset['Class'].values
+    # feature_names = dataset.drop('Class', axis=1).columns.values
+    
+
+    return
 
 if __name__ == '__main__':
 
@@ -82,12 +123,30 @@ if __name__ == '__main__':
 
     # Read data collection
     data_collection = pd.read_csv('dask/descriptor.csv')
+    # batch_id = time.time()
+    # print('batch_id =', batch_id)
+    # tasks = []
+    # for _, datacol in data_collection.iterrows():
+    #     task = delayed(run_fs)(chi2_ranking, datacol, batch_id)
+    #     tasks.append(task)
+        
+    # results = client.compute(tasks)
+    # print(results)
+    # for res in results:
+    #     print('result=',res.result())
+    # print('end. batch_id =',batch_id)
+
+    # k-NN validation
+    batch_id = 1599644276.1216607
+    print('batch_id =', batch_id)
     tasks = []
-    for idx, row in data_collection.iterrows():
-        task = delayed(run_fs)(row, chi2_ranking)
+    for _, datacol in data_collection.iterrows():
+        task = delayed(run_validation)(KNN_5Fold, datacol, batch_id)
         tasks.append(task)
+        break
         
     results = client.compute(tasks)
     print(results)
     for res in results:
         print('result=',res.result())
+    print('end. batch_id =',batch_id)
