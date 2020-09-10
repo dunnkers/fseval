@@ -1,0 +1,46 @@
+---
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: restheart
+    spec:
+      serviceName: "restheart"
+      replicas: 1
+      selector:
+        matchLabels:
+          app: restheart
+      template:
+        metadata:
+          labels:
+            app: restheart
+        spec:
+          containers:
+          - name: restheart
+            image: softinstigate/restheart
+            ports:
+            - containerPort: 8080
+            env:
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mongodb-root-password
+                  name: my-mongodb
+            - name: MONGO_URI
+              value: mongodb://root:$(MONGODB_ROOT_PASSWORD)@my-mongodb:27017
+
+---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: restheart
+  spec:
+    ports:
+    - name: restheart
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: restheart
+    sessionAffinity: None
+    type: ClusterIP
+              
