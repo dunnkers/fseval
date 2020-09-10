@@ -7,6 +7,7 @@ else:
 
 from sklearn.feature_selection import chi2
 import numpy as np
+from dask import delayed
 
 def chi2_ranking(X, y):
     scores, _ = chi2(X, y)
@@ -80,6 +81,13 @@ def run_fs(ranking_func, datacol, batch_id):
     print('result_id =', result_id)
     return result_id
 
+def validate_subset(validation_func):
+    print('Validating {} rank {}'.format(ranking_method, feature_rank))
+    start = time.time()
+    scores = validation_func(X, y)
+    time_elapsed = time.time() - start
+
+
 def run_validation(validation_func, datacol, batch_id):
     # Initialize database
     password = os.environ['MONGODB_ROOT_PASSWORD']
@@ -97,19 +105,54 @@ def run_validation(validation_func, datacol, batch_id):
         'dataset_id': datacol['id'],
         'replica_no': datacol['replica_no']
     })
-    # dataset = pd.read_csv(datacol.path, sep='\t')
-    # X = dataset.drop('Class', axis=1).values
-    # y = dataset['Class'].values
-    # feature_names = dataset.drop('Class', axis=1).columns.values
-    
+    assert(len(data['feature_rank']) == \
+           len(data['feature_index']) == \
+           len(data['subset']))
+    dataset = pd.read_csv(datacol.path, sep='\t')
+    X = dataset.drop('Class', axis=1).values
+    y = dataset['Class'].values
+    feature_names = dataset.drop('Class', axis=1).columns.values
+    # tasks = []
+    results = []
+    for subset in data['subset']:
+        X_subset = np.take(X, subset, axis=1)
+        start = time.time()
+        scores = validation_func(X_subset, y)
+        time_elapsed = time.time() - start
+        n_features = np.size(X_subset, axis=1)
+        print('k-NN validation took {:.4f} sec'.format(time_elapsed), 
+            ' n_features =', n_features)
+            
+        scores['n_features'] = n_features
+        scores['ranking_method'] = data['ranking_method']
+        scores['cpu_time'] = time_elapsed
+        scores['validation_method'] = validation_func.__name__
 
-    return
+            # dataset
+        scores['dataset_id'] = datacol['id']
+        # scores['dataset_name'] = datacol['name']
+        scores['replica_no'] = int(datacol['replica_no'])
+        # scores['replicas'] = int(datacol['replicas'])
+        # scores['adapter'] = datacol['adapter']
+        # scores['p'] = int(datacol['p'])
+        # scores['n'] = int(datacol['n'])
+        # scores['p_informative'] = list(map(
+        #     lambda s: int(s), datacol['p_informative'].split(',')))
+        scores['timestamp'] = time.time()
+        scores['batch_id'] = batch_id
+
+        outputs = [row.to_dict() for _, row in scores.iterrows()]
+        result = validationcol.insert_many(outputs)
+        results.append(result.inserted_ids)
+        # task = delayed(validate_subset)(validation_func)
+        # tasks.append(task)
+
+    return results
 
 if __name__ == '__main__':
 
     # Initialize Dask cluster
     from dask.distributed import Client, LocalCluster
-    from dask import delayed
     # from dask_jobqueue import SLURMCluster
     # cluster = SLURMCluster(cores=2,
     #                        processes=1,
@@ -143,7 +186,6 @@ if __name__ == '__main__':
     for _, datacol in data_collection.iterrows():
         task = delayed(run_validation)(KNN_5Fold, datacol, batch_id)
         tasks.append(task)
-        break
         
     results = client.compute(tasks)
     print(results)
