@@ -35,7 +35,7 @@ def run_fs(ranking_func, datacol, batch_id):
     ip = os.environ['MONGODB_IP']
     connstr = 'mongodb://root:{}@{}'.format(password, ip)
     dbclient = MongoClient(connstr)
-    db = dbclient['results']
+    db = dbclient['restheart']
     rankingcol = db['ranking']
 
     # Perform feature selection
@@ -94,7 +94,7 @@ def run_validation(validation_func, datacol, batch_id):
     ip = os.environ['MONGODB_IP']
     connstr = 'mongodb://root:{}@{}'.format(password, ip)
     dbclient = MongoClient(connstr)
-    db = dbclient['results']
+    db = dbclient['restheart']
     rankingcol = db['ranking']
     validationcol = db['validation']
 
@@ -166,26 +166,27 @@ if __name__ == '__main__':
 
     # Read data collection
     data_collection = pd.read_csv('dask/descriptor.csv')
-    # batch_id = time.time()
-    # print('batch_id =', batch_id)
-    # tasks = []
-    # for _, datacol in data_collection.iterrows():
-    #     task = delayed(run_fs)(chi2_ranking, datacol, batch_id)
-    #     tasks.append(task)
+    batch_id = time.time()
+    print('batch_id =', batch_id)
+    tasks = []
+    for _, datacol in data_collection.iterrows():
+        task = delayed(run_fs)(chi2_ranking, datacol, batch_id)
+        tasks.append(task)
         
-    # results = client.compute(tasks)
-    # print(results)
-    # for res in results:
-    #     print('result=',res.result())
-    # print('end. batch_id =',batch_id)
+    results = client.compute(tasks)
+    print(results)
+    for res in results:
+        print('result=',res.result())
+    print('end. batch_id =',batch_id)
 
     # k-NN validation
-    batch_id = 1599644276.1216607
+    # batch_id = 1599644276.1216607
     print('batch_id =', batch_id)
     tasks = []
     for _, datacol in data_collection.iterrows():
         task = delayed(run_validation)(KNN_5Fold, datacol, batch_id)
         tasks.append(task)
+        break
         
     results = client.compute(tasks)
     print(results)
