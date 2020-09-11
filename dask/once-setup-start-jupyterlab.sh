@@ -1,6 +1,7 @@
 # on cluster
 conda activate dask-env
 cd dasktest
+module load git
 jupyter lab --no-browser --ip="*" --port 8888
 
 # locally
