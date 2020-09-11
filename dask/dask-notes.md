@@ -48,3 +48,8 @@ Possibly, add git functionality to Jupyter Lab:
 Possibly, add server proxying functionality to Jupyter Lab: 
 1. `conda install jupyter-server-proxy -c conda-forge`.
 🙌 When starting a cluster the dashboard is now visible at http://localhost:8888/proxy/8787/status
+
+
+## Config
+`fseval` wants to be able to know whether running on a HPC cluster or on some local machine, so we want to set an environment variable:
+

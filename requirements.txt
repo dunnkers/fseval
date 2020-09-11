@@ -2,6 +2,7 @@ click==7.1.2
 cloudpickle==1.6.0
 cycler==0.10.0
 dask==2.25.0
+dask-jobqueue==0.7.1
 distributed==2.25.0
 HeapDict==1.0.1
 joblib==0.15.1
