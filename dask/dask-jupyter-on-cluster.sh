@@ -9,8 +9,8 @@ jupyter lab --no-browser --ip="*" --port 8888
 
 
 # execute in another terminal
-# ssh -L 8787:peregrine.hpc.rug.nl:8787 s2995697@peregrine.hpc.rug.nl
-ssh -L 8888:peregrine.hpc.rug.nl:8888 s2995697@peregrine.hpc.rug.nl
+# ssh -L 8787:peregrine.hpc.rug.nl:8787 $PEREGRINE_USERNAME@peregrine.hpc.rug.nl
+ssh -L 8888:peregrine.hpc.rug.nl:8888 $PEREGRINE_USERNAME@peregrine.hpc.rug.nl
 
 
 
