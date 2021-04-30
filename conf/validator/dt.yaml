@@ -1,0 +1,4 @@
+# @package _group_
+name: Decision Tree
+estimator:
+  _target_: sklearn.tree.DecisionTreeClassifier

@@ -1,0 +1,9 @@
+# @package _group_
+name: ReliefF
+compatibility:
+  - classification
+  - regression
+  - multiclass
+estimator:
+  _target_: skrebate.ReliefF
+  n_features_to_select: 1

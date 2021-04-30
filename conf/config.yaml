@@ -1,0 +1,15 @@
+project: toy-wandb-fs
+task:
+  fold: 0
+cv:
+  random_state: 0
+  test_size: 0.25
+bootstrap:
+  random_state: 0
+  replace: true
+defaults:
+  - task: rank
+  - ranker: tabnet_regressor
+  - validator: dt
+  - datasrc: xor
+  - cv: train_test_split

@@ -1,0 +1,7 @@
+# @package _group_
+_target_: mleval.datasrc.WandbArtifact
+name: Switch (Chen et al.)
+type: regression
+multivariate: true
+entity: dunnkers
+artifact_id: dunnkers/msc-thesis-exploration/switch:v0

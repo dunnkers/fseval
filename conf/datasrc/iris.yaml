@@ -1,0 +1,6 @@
+# @package _group_
+_target_: mleval.datasrc.OpenML
+name: Iris Flowers
+type: classification
+id: 61
+target_column: class
