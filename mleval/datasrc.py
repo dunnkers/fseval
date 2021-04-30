@@ -5,6 +5,7 @@ import numpy as np
 from typing import Tuple, List
 import wandb
 
+
 @dataclass
 class DataSource:
     """
@@ -12,12 +13,15 @@ class DataSource:
         type (str): Either 'classification' or 'regression'.
         name (str): A human-friendly name for this data source.
     """
+
     name: str
     type: str
     multivariate: bool = False
     relevant_features: List[int] = None
 
-    def load(self) -> Tuple[List, List]: raise NotImplementedError
+    def load(self) -> Tuple[List, List]:
+        raise NotImplementedError
+
     def get_data(self) -> Tuple[List, List]:
         X, y = self.load()
 
@@ -27,6 +31,7 @@ class DataSource:
         self.p = p
 
         return X, y
+
 
 @dataclass
 class OpenML(DataSource):
@@ -43,18 +48,19 @@ class OpenML(DataSource):
 
         # quantitatively encode target
         y, _ = pd.factorize(y)
-        
+
         return X, y
+
 
 @dataclass
 class WandbArtifact(DataSource):
     artifact_id: str = None
-    artifact_type: str = 'dataset'
+    artifact_type: str = "dataset"
     entity: str = None
 
     def load(self) -> Tuple[List, List]:
         api = wandb.Api()
         artifact = api.artifact(self.artifact_id)
-        X = artifact.get('X').data
-        Y = artifact.get('Y').data
+        X = artifact.get("X").data
+        Y = artifact.get("Y").data
         return np.array(X), np.array(Y)

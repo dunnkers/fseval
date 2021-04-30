@@ -6,10 +6,12 @@ from sklearn.feature_selection import chi2
 from skrebate import ReliefF
 from pytorch_tabnet.tab_model import TabNetRegressor, TabNetClassifier
 
+
 @dataclass
 class AbstractRanker(BaseEstimator):
     n_features_to_select: int = 1
     feature_importances_: List[float] = None
+
 
 @dataclass
 class Chi2(SelectKBest):
@@ -21,9 +23,11 @@ class Chi2(SelectKBest):
     def feature_importances_(self):
         return self.scores_
 
+
 @dataclass
 class skrebate(AbstractRanker):
     pass
+
 
 @dataclass
 class TabNetRegressionRanker(TabNetRegressor):

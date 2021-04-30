@@ -1,6 +1,7 @@
 # @package _group_
-_target_: mleval.datasrc.OpenML
+_target_: fseval.datasrc.openml.OpenML
 name: Iris Flowers
-type: classification
-id: 61
-target_column: class
+identifier: 61
+task: classification
+misc:
+  target_column: class
