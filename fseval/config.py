@@ -38,7 +38,7 @@ class ExperimentConfig:
     cv_fold: int = 0
     bootstrap: BootstrapConfig = MISSING
     ranker: RankerConfig = MISSING
-    validator: Any = MISSING # _target_ must be a BaseEstimator
+    validator: Any = MISSING  # _target_ must be a BaseEstimator
 
 
 cs = ConfigStore.instance()

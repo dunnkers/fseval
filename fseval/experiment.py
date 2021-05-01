@@ -13,12 +13,10 @@ class Experiment:
         self.ranker = instantiate(cfg.ranker)
         self.validator = instantiate(cfg.validator)
 
-
     def get_splits(self, X) -> Tuple[List, List]:
         splits = list(self.cv.split(X))
         train_index, test_index = splits[self.cv_fold]
         return train_index, test_index
-
 
     def run(self):
         print(self.cfg)
