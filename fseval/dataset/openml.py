@@ -5,6 +5,7 @@ from openml.datasets import get_dataset
 import numpy as np
 import pandas as pd
 
+
 @dataclass
 class OpenML(DatasetConfig):
     def load(self) -> Tuple[List, List]:
