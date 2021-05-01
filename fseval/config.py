@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from omegaconf import MISSING
 from hydra.core.config_store import ConfigStore
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, Optional
 
 
 @dataclass
@@ -15,7 +15,22 @@ class DatasetConfig:
 
 
 @dataclass
-class BootstrapConfig:
+class CrossValidatorConfig:
+    """
+    Parameters of both BaseCrossValidator and BaseShuffleSplit.
+    """
+
+    _target_: str = MISSING
+    n_splits: int = 5
+    shuffle: bool = False
+    test_size: Optional[float] = None
+    train_size: Optional[float] = None
+    random_state: Optional[int] = None
+    fold: int = 0
+
+
+@dataclass
+class ResampleConfig:
     replace: bool = True
     n_samples: Union[int, None] = None
     random_state: Union[int, None] = None
@@ -34,11 +49,11 @@ class RankerConfig:
 class ExperimentConfig:
     project: str = MISSING
     dataset: DatasetConfig = MISSING
-    cv: Any = MISSING  # _target_ must be a BaseCrossValidator
-    cv_fold: int = 0
-    bootstrap: BootstrapConfig = MISSING
+    cv: CrossValidatorConfig = MISSING
+    resample: ResampleConfig = MISSING
     ranker: RankerConfig = MISSING
-    validator: Any = MISSING  # _target_ must be a BaseEstimator
+    """ validator must have _target_ of BaseEstimator type. """
+    validator: Any = MISSING
 
 
 cs = ConfigStore.instance()

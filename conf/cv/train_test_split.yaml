@@ -1,5 +1,5 @@
 # @package _group_
-_target_: sklearn.model_selection.ShuffleSplit
+_target_: fseval.cv.shuffle_split.ShuffleSplit
 n_splits: 1
 test_size: 0.25
 random_state: 0

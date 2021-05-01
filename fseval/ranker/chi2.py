@@ -1,4 +1,4 @@
-from fseval.types import Ranker
+from fseval.ranker import Ranker
 from sklearn.feature_selection import chi2
 
 
