@@ -1,6 +1,5 @@
 # @package _group_
+_target_: fseval.ranker.chi2.Chi2
 name: Chi-Squared
 compatibility:
   - classification
-estimator:
-  _target_: mleval.rankers.Chi2

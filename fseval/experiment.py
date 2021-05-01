@@ -4,10 +4,11 @@ from hydra.utils import instantiate
 class Experiment:
     def __init__(self, cfg: ExperimentConfig):
         self.cfg = cfg
-        self.datasrc = instantiate(cfg.datasrc)
-        self.cv = instantiate(cfg.cv)
+        self.dataset    = instantiate(cfg.dataset)
+        self.cv         = instantiate(cfg.cv)
+        self.ranker     = instantiate(cfg.ranker)
 
     def run(self):
         print(self.cfg)
-        print(self.datasrc)
+        print(self.dataset)
         print(self.cv)

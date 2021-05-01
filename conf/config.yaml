@@ -3,8 +3,9 @@ cv_fold: 0
 bootstrap:
   random_state: 0
 defaults:
-  - datasrc: iris
+  - dataset: iris
   - cv: train_test_split
+  - ranker: chi2
 # task:
 #   fold: 0
 # cv:

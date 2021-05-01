@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from fseval.config import DataSource
+from fseval.config import DatasetConfig
 from typing import Tuple, List
 from openml.datasets import get_dataset
 import numpy as np
 import pandas as pd
 
 @dataclass
-class OpenML(DataSource):
+class OpenML(DatasetConfig):
     def load(self) -> Tuple[List, List]:
         dataset = get_dataset(self.identifier)
         X, y, cat, _ = dataset.get_data(target=self.misc.target_column)

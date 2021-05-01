@@ -4,7 +4,7 @@ from hydra.core.config_store import ConfigStore
 from typing import Dict, Any, List, Union
 
 @dataclass
-class DataSource:
+class DatasetConfig:
     _target_: str = MISSING
     name: str = MISSING
     identifier: str = MISSING
@@ -12,29 +12,29 @@ class DataSource:
     multivariate: bool = False
     misc: Any = None
 
-# @dataclass
-# class CrossValidator:
-#     _target_: str = MISSING
-#     n_splits: int = MISSING
-#     test_size: float = 0.1
-#     random_state: int = 0
-#     fold: int = 0
-
 @dataclass
-class Bootstrap:
+class BootstrapConfig:
     replace: bool = True
     n_samples: Union[int, None] = None
     random_state: Union[int, None] = None
     stratify: Union[List, None] = None
 
 @dataclass
+class RankerConfig:
+    _target_: str = MISSING
+    name: str = MISSING
+    compatibility: List[str] = field(default_factory=lambda: [])
+    n_features_to_select: int = 1
+
+@dataclass
 class ExperimentConfig:
     project: str = MISSING
-    datasrc: DataSource = MISSING
+    dataset: DatasetConfig = MISSING
     cv: Any = MISSING # _target_ must be a BaseCrossValidator
     cv_fold: int = 0
+    bootstrap: BootstrapConfig = MISSING
+    ranker: RankerConfig = MISSING
     task: str = MISSING
-    bootstrap: Bootstrap = MISSING
 
 cs = ConfigStore.instance()
 cs.store(name="config", node=ExperimentConfig)
