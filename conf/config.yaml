@@ -1,9 +1,10 @@
 project: toy-wandb-fs
 cv_fold: 0
+bootstrap:
+  random_state: 0
 defaults:
   - datasrc: iris
   - cv: train_test_split
-
 # task:
 #   fold: 0
 # cv:
