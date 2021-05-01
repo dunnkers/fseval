@@ -5,13 +5,14 @@ from fseval.config import RankerConfig
 import pytest
 from omegaconf import OmegaConf
 
-@pytest.fixture(scope='module', autouse=True)
+
+@pytest.fixture(scope="module", autouse=True)
 def ranker():
     ranker_cfg = RankerConfig(
-        _target_='fseval.ranker.chi2.Chi2',
-        name='Chi Squared',
+        _target_="fseval.ranker.chi2.Chi2",
+        name="Chi Squared",
         n_features_to_select=10,
-        compatibility=['multiclass', 'multivariate']
+        compatibility=["multiclass", "multivariate"],
     )
     cfg = OmegaConf.create(ranker_cfg)
     ranker = instantiate(cfg)
@@ -19,9 +20,10 @@ def ranker():
 
 
 def test_initialization(ranker):
-    assert ranker.name == 'Chi Squared'
+    assert ranker.name == "Chi Squared"
     assert len(ranker.compatibility) == 2
     assert ranker.n_features_to_select == 10
+
 
 def test_fit():
     ranker = Chi2()
