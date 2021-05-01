@@ -1,7 +1,5 @@
 from hydra.experimental import initialize, compose
-from fseval.experiment import Experiment
 from fseval.config import ExperimentConfig
-from fseval.types import Ranker
 from omegaconf import OmegaConf, DictConfig
 import pytest
 
@@ -24,9 +22,3 @@ def test_config_attributes(cfg) -> None:
     assert cfg.cv is not None
     assert cfg.bootstrap is not None
     assert cfg.ranker is not None
-
-
-def test_instantiate_experiment(cfg) -> None:
-    experiment = Experiment(cfg)
-    assert experiment is not None
-    assert isinstance(experiment.ranker, Ranker)
