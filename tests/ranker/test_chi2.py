@@ -4,6 +4,7 @@ from typing import List
 from fseval.config import RankerConfig
 import pytest
 from omegaconf import OmegaConf
+import numpy as np
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -29,4 +30,5 @@ def test_fit():
     ranker = Chi2()
     ranker.fit([[1, 2, 3], [4, 5, 6]], [0, 1])
     assert len(ranker.feature_importances_) == 3
-    assert ranker.feature_importances_.sum() > 0
+    total = sum(ranker.feature_importances_)
+    assert np.isclose(total, 1)

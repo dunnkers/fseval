@@ -8,7 +8,7 @@ import pandas as pd
 
 @dataclass
 class OpenML(Dataset):
-    def load(self) -> Tuple[List, List]:
+    def get_data(self) -> Tuple[List, List]:
         dataset = get_dataset(self.identifier)
         X, y, cat, _ = dataset.get_data(target=self.misc.target_column)
 

@@ -4,6 +4,7 @@ from fseval.dataset import Dataset
 from fseval.cv import CrossValidator
 from fseval.ranker import Ranker
 from sklearn.base import BaseEstimator
+from sklearn.feature_selection import SelectKBest
 from hydra.utils import instantiate
 from typing import Tuple, List
 import numpy as np
@@ -24,9 +25,13 @@ class Experiment:
         self.validator: BaseEstimator = instantiate(cfg.validator)
 
     def run(self):
-        X, y = self.dataset.load()
-        train_index, test_index = self.cv.get_split(X)
 
+        self.dataset.load()
+        splits = self.cv.get_split(self.dataset.X)
+        # X, y = self.dataset.load()
+        X_train, X_test, y_train, y_test = self.dataset.get_subsets(*splits)
+
+        return
         # resample
         resample_cfg = OmegaConf.to_container(self.resample)
         train_index = sklearn.utils.resample(train_index, **resample_cfg)
@@ -39,5 +44,16 @@ class Experiment:
         print(f"Feature ranking with (n={n}, p={p}).")
         self.ranker.fit(X_train, y_train)
         ranking = self.ranker.feature_importances_
-        ranking = ranking / np.sum(ranking)  # normalize as probability vector
+        # ranking = ranking / np.sum(ranking)  # normalize as probability vector
         print(ranking)
+
+        # validation
+        # TODO classifier when `classification` and regressor when `regression`
+        for k in np.arange(min(p, 100)) + 1:
+            selector = SelectKBest(score_func=lambda *_: ranking, k=k)
+            X_train_selected = selector.fit_transform(X_train, y_train)
+            X_test_selected = selector.fit_transform(X_test, y_test)
+
+            self.validator.fit(X_train_selected, y_train)
+            score = self.validator.score(X_test_selected, y_test)
+            print(f"k={k} {score}")

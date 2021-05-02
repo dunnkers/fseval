@@ -1,0 +1,7 @@
+# @package _group_
+_target_: fseval.dataset.openml.OpenML
+name: Boston house prices
+identifier: 531
+task: regression
+misc:
+  target_column: MEDV

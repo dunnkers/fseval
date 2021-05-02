@@ -6,7 +6,7 @@ import numpy as np
 
 def test_cross_validator_split():
     cv = CrossValidator()
-    with pytest.raises(NotImplementedError) as e_info:
+    with pytest.raises(NotImplementedError):
         cv.split([[]])
 
 

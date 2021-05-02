@@ -2,7 +2,6 @@
 _target_: mleval.datasrc.WandbArtifact
 name: XOR (Chen et al.)
 type: regression
-multivariate: true
 entity: dunnkers
 artifact_id: dunnkers/msc-thesis-exploration/xor:v0
 relevant_features:

@@ -2,6 +2,12 @@ from dataclasses import dataclass, field
 from omegaconf import MISSING
 from hydra.core.config_store import ConfigStore
 from typing import Dict, Any, List, Union, Optional
+from enum import Enum
+
+
+class Task(Enum):
+    regression = 1
+    classification = 2
 
 
 @dataclass
@@ -9,8 +15,7 @@ class DatasetConfig:
     _target_: str = MISSING
     name: str = MISSING
     identifier: str = MISSING
-    task: str = MISSING
-    multivariate: bool = False
+    task: Task = MISSING
     misc: Any = None
 
 
@@ -31,7 +36,7 @@ class CrossValidatorConfig:
 
 @dataclass
 class ResampleConfig:
-    replace: bool = True
+    replace: bool = False
     n_samples: Union[int, None] = None
     random_state: Union[int, None] = None
     stratify: Union[List, None] = None

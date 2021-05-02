@@ -9,4 +9,4 @@ class Chi2(Ranker):
 
     @property
     def feature_importances_(self):
-        return self.scores_
+        return self.scores_ / sum(self.scores_)
