@@ -36,6 +36,7 @@ class CrossValidatorConfig:
 
 @dataclass
 class ResampleConfig:
+    _target_: str = MISSING
     replace: bool = False
     n_samples: Union[int, None] = None
     random_state: Union[int, None] = None

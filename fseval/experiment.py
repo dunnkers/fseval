@@ -2,6 +2,7 @@ import sklearn
 from fseval.config import ExperimentConfig, ResampleConfig
 from fseval.dataset import Dataset
 from fseval.cv import CrossValidator
+from fseval.resample import Resample
 from fseval.ranker import Ranker
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectKBest
@@ -16,11 +17,11 @@ class Experiment:
         # constants
         self.cfg = cfg
         self.project = cfg.project
-        self.resample: ResampleConfig = cfg.resample
 
         # create instances using _target_ properties
         self.dataset: Dataset = instantiate(cfg.dataset)
         self.cv: CrossValidator = instantiate(cfg.cv)
+        self.resample: Resample = instantiate(cfg.resample)
         self.ranker: Ranker = instantiate(cfg.ranker)
         self.validator: BaseEstimator = instantiate(cfg.validator)
 

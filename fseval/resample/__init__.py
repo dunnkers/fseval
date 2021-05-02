@@ -9,4 +9,6 @@ class Resample(ResampleConfig, TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, X):
-        return resample(X, **self.get_params())
+        kwargs = self.get_params()
+        kwargs.pop("_target_")
+        return resample(X, **kwargs)
