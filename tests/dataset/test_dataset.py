@@ -28,6 +28,13 @@ def test_loading(ds):
     assert ds.p == 1
 
 
+def test_params(ds):
+    ds.load()
+    params = ds.get_params()
+    params["n"] == 2
+    params["p"] == 1
+
+
 def test_ensure_loaded(ds):
     with pytest.raises(AssertionError):
         ds._ensure_loaded()
@@ -43,3 +50,6 @@ def test_get_subsets(ds):
     assert X_test.shape[0] == 1
     assert y_train.shape[0] == 1
     assert y_test.shape[0] == 1
+
+
+# TODO add failing test for getting OpenML params

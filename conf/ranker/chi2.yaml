@@ -1,5 +1,10 @@
 # @package _group_
 _target_: fseval.ranker.chi2.Chi2
 name: Chi-Squared
+# classifier:
+#   _target_: fseval.ranker.chi2.Chi2
+# estimator:
+#   _target_: ...
+# regressor: none
 compatibility:
   - classification

@@ -10,6 +10,7 @@ from hydra.utils import instantiate
 from typing import Tuple, List
 import numpy as np
 from omegaconf import OmegaConf
+import wandb
 
 
 class Experiment:
@@ -25,6 +26,15 @@ class Experiment:
         self.ranker: Ranker = instantiate(cfg.ranker)
         self.validator: BaseEstimator = instantiate(cfg.validator)
 
+    def get_params(self):
+        return dict(
+            dataset=self.dataset.get_params(),
+            cv=self.cv.get_params(),
+            resample=self.resample.get_params(),
+            ranker=self.ranker.get_params(),
+            validator=self.validator.get_params(),
+        )
+
     def run(self):
         self.dataset.load()
         train_index, test_index = self.cv.get_split(self.dataset.X)
@@ -34,13 +44,14 @@ class Experiment:
         )
 
         # perform feature ranking
-        n, p = X_train.shape
+        wandb.init(project=self.project, config=self.get_params())
         self.ranker.fit(X_train, y_train)
         ranking = self.ranker.feature_importances_
         print(ranking)
 
         # validation
         # TODO classifier when `classification` and regressor when `regression`
+        n, p = X_train.shape
         for k in np.arange(min(p, 100)) + 1:
             selector = SelectKBest(score_func=lambda *_: ranking, k=k)
             X_train_selected = selector.fit_transform(X_train, y_train)

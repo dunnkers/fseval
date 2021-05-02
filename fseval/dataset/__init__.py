@@ -1,14 +1,19 @@
 import logging
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from dataclasses import dataclass
 from fseval.config import DatasetConfig
 import numpy as np
+from sklearn.base import BaseEstimator
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Dataset(DatasetConfig):
+class Dataset(DatasetConfig, BaseEstimator):
+    n: Optional[int] = None
+    p: Optional[int] = None
+    multivariate: Optional[bool] = None
+
     def get_data(self) -> Tuple[List, List]:
         raise NotImplementedError
 
