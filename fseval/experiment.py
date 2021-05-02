@@ -26,26 +26,17 @@ class Experiment:
         self.validator: BaseEstimator = instantiate(cfg.validator)
 
     def run(self):
-
         self.dataset.load()
-        splits = self.cv.get_split(self.dataset.X)
-        # X, y = self.dataset.load()
-        X_train, X_test, y_train, y_test = self.dataset.get_subsets(*splits)
-
-        return
-        # resample
-        resample_cfg = OmegaConf.to_container(self.resample)
-        train_index = sklearn.utils.resample(train_index, **resample_cfg)
-
-        X_train, y_train = X[train_index], y[train_index]
-        X_test, y_test = X[test_index], y[test_index]
+        train_index, test_index = self.cv.get_split(self.dataset.X)
+        train_index = self.resample.transform(train_index)
+        X_train, X_test, y_train, y_test = self.dataset.get_subsets(
+            train_index, test_index
+        )
 
         # perform feature ranking
         n, p = X_train.shape
-        print(f"Feature ranking with (n={n}, p={p}).")
         self.ranker.fit(X_train, y_train)
         ranking = self.ranker.feature_importances_
-        # ranking = ranking / np.sum(ranking)  # normalize as probability vector
         print(ranking)
 
         # validation
