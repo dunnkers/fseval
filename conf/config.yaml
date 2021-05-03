@@ -2,8 +2,12 @@ project: toy-wandb-fs
 dataset:
   _target_: fseval.datasets.Dataset
   task: classification
+cv:
+  _target_: fseval.cv.CrossValidator
+resample:
+  _target_: fseval.resampling.Resample
 ranker:
-  _target_: fseval.ranker.Ranker
+  _target_: fseval.rankers.Ranker
   task: ${dataset.task}
 defaults:
   - dataset: iris

@@ -1,4 +1,4 @@
-from fseval.resample import Resample
+from fseval.resampling import Resample
 import numpy as np
 
 

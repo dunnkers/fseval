@@ -1,5 +1,5 @@
 from fseval.experiment import Experiment
-from fseval.ranker import Ranker
+from fseval.rankers import Ranker
 
 
 def test_instantiate_experiment(cfg) -> None:

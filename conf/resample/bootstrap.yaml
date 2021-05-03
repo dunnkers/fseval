@@ -1,4 +1,3 @@
 # @package _group_
-_target_: fseval.resample.Resample
 replace: true
 random_state: 0

@@ -1,0 +1,6 @@
+# @package _group_
+name: K-Fold
+splitter:
+  _target_: sklearn.model_selection.KFold
+  n_splits: 5
+  random_state: 0

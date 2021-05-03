@@ -1,9 +1,0 @@
-# @package _group_
-name: TabNet
-compatibility:
-  - regression
-  - multiclass
-  - multivariate
-estimator:
-  _target_: mleval.rankers.TabNetRegressionRanker
-  n_features_to_select: 1

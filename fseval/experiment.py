@@ -2,8 +2,8 @@ import sklearn
 from fseval.config import ExperimentConfig, ResampleConfig
 from fseval.datasets import Dataset
 from fseval.cv import CrossValidator
-from fseval.resample import Resample
-from fseval.ranker import Ranker
+from fseval.resampling import Resample
+from fseval.rankers import Ranker
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectKBest
 from hydra.utils import instantiate
@@ -13,7 +13,7 @@ from omegaconf import OmegaConf
 import wandb
 
 
-class Experiment:
+class Experiment(BaseEstimator):
     def __init__(self, cfg: ExperimentConfig):
         # constants
         self.cfg = cfg
@@ -26,14 +26,14 @@ class Experiment:
         self.ranker: Ranker = instantiate(cfg.ranker)
         self.validator: BaseEstimator = instantiate(cfg.validator)
 
-    def get_params(self):
-        return dict(
-            dataset=self.dataset.get_params(),
-            cv=self.cv.get_params(),
-            resample=self.resample.get_params(),
-            ranker=self.ranker.get_params(),
-            validator=self.validator.get_params(),
-        )
+    # def get_params(self):
+    #     return dict(
+    #         dataset=self.dataset.get_params(),
+    #         cv=self.cv.get_params(),
+    #         resample=self.resample.get_params(),
+    #         ranker=self.ranker.get_params(),
+    #         validator=self.validator.get_params(),
+    #     )
 
     def run(self):
         self.dataset.load()

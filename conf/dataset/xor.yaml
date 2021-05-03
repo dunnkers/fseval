@@ -1,11 +1,6 @@
 # @package _group_
-_target_: mleval.datasrc.WandbArtifact
 name: XOR (Chen et al.)
-type: regression
-entity: dunnkers
-artifact_id: dunnkers/msc-thesis-exploration/xor:v0
-relevant_features:
-  - 0
-  - 1
-  - 2
-  - 3
+task: regression
+adapter:
+  _target_: fseval.adapters.Wandb
+  artifact_id: dunnkers/msc-thesis-exploration/xor:v0

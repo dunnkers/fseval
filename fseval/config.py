@@ -29,11 +29,10 @@ class CrossValidatorConfig:
     """
 
     _target_: str = MISSING
-    n_splits: int = 5
-    shuffle: bool = False
-    test_size: Optional[float] = None
-    train_size: Optional[float] = None
-    random_state: Optional[int] = None
+    name: str = MISSING
+    """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
+        implement a `split()` and `get_n_splits()` function. """
+    splitter: Any = None
     fold: int = 0
 
 
@@ -51,6 +50,7 @@ class RankerConfig:
     _target_: str = MISSING
     name: str = MISSING
     task: Task = MISSING
+    multivariate: bool = False
     """ classifier. must have _target_ of BaseEstimator type with fit() method. """
     classifier: Any = None
     """ regressor. must have _target_ of BaseEstimator type with fit() method. """

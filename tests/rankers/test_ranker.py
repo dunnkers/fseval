@@ -8,9 +8,9 @@ from dataclasses import dataclass
 
 @pytest.fixture(scope="module")
 def ranker():
-    classifier = dict(_target_="fseval.ranker.chi2.Chi2")
+    classifier = dict(_target_="fseval.rankers.Chi2")
     ranker_cfg = RankerConfig(
-        _target_="fseval.ranker.Ranker",
+        _target_="fseval.rankers.Ranker",
         name="some_ranker",
         classifier=classifier,
         task=Task.classification,

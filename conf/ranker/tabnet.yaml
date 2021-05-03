@@ -1,0 +1,7 @@
+# @package _group_
+name: TabNet
+regressor:
+  _target_: pytorch_tabnet.tab_model.TabNetRegressor
+classifier:
+  _target_: pytorch_tabnet.tab_model.TabNetClassifier
+multivariate: true
