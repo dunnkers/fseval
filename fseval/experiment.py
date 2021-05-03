@@ -50,7 +50,6 @@ class Experiment:
         print(ranking)
 
         # validation
-        # TODO classifier when `classification` and regressor when `regression`
         n, p = X_train.shape
         for k in np.arange(min(p, 100)) + 1:
             selector = SelectKBest(score_func=lambda *_: ranking, k=k)

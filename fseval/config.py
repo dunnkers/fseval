@@ -51,7 +51,6 @@ class RankerConfig:
     _target_: str = MISSING
     name: str = MISSING
     task: Task = MISSING
-    compatibility: List[str] = field(default_factory=lambda: [])
     """ classifier. must have _target_ of BaseEstimator type with fit() method. """
     classifier: Any = None
     """ regressor. must have _target_ of BaseEstimator type with fit() method. """
