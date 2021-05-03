@@ -1,6 +1,6 @@
 import sklearn
 from fseval.config import ExperimentConfig, ResampleConfig
-from fseval.dataset import Dataset
+from fseval.datasets import Dataset
 from fseval.cv import CrossValidator
 from fseval.resample import Resample
 from fseval.ranker import Ranker

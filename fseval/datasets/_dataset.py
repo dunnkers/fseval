@@ -2,8 +2,10 @@ import logging
 from typing import Tuple, List, Optional
 from dataclasses import dataclass
 from fseval.config import DatasetConfig
+from fseval.adapters import Adapter
 import numpy as np
 from sklearn.base import BaseEstimator
+from hydra.utils import instantiate
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +16,11 @@ class Dataset(DatasetConfig, BaseEstimator):
     p: Optional[int] = None
     multivariate: Optional[bool] = None
 
-    def get_data(self) -> Tuple[List, List]:
-        raise NotImplementedError
+    def __post_init__(self):
+        self.adapter: Adapter = instantiate(self.adapter)
 
     def load(self) -> None:
-        X, y = self.get_data()
+        X, y = self.adapter.get_data()
         self.X = np.asarray(X)
         self.n = self.X.shape[0]
         self.p = self.X.shape[1]

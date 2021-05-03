@@ -1,4 +1,10 @@
 project: toy-wandb-fs
+dataset:
+  _target_: fseval.datasets.Dataset
+  task: classification
+ranker:
+  _target_: fseval.ranker.Ranker
+  task: ${dataset.task}
 defaults:
   - dataset: iris
   - cv: train_test_split

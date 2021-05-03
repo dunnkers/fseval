@@ -1,16 +1,22 @@
 from dataclasses import dataclass
-from fseval.dataset import Dataset
-from typing import Tuple, List
-from openml.datasets import get_dataset
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
+from omegaconf import MISSING
+from openml.datasets import get_dataset
+
+from ._adapter import Adapter
 
 
 @dataclass
-class OpenML(Dataset):
+class OpenML(Adapter):
+    dataset_id: int = MISSING
+    target_column: str = MISSING
+
     def get_data(self) -> Tuple[List, List]:
-        dataset = get_dataset(self.identifier)
-        X, y, cat, _ = dataset.get_data(target=self.misc.target_column)
+        dataset = get_dataset(self.dataset_id)
+        X, y, cat, _ = dataset.get_data(target=self.target_column)
 
         # drop qualitative columns
         to_drop = X.columns[np.array(cat)]

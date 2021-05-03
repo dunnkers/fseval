@@ -14,9 +14,12 @@ class Task(Enum):
 class DatasetConfig:
     _target_: str = MISSING
     name: str = MISSING
-    identifier: str = MISSING
     task: Task = MISSING
-    misc: Any = None
+    """
+        dataset adapter. must be of fseval.adapters.Adapter type, i.e. must implement a
+        get_data() -> (X, y) method. 
+    """
+    adapter: Any = MISSING
 
 
 @dataclass
@@ -47,8 +50,12 @@ class ResampleConfig:
 class RankerConfig:
     _target_: str = MISSING
     name: str = MISSING
+    task: Task = MISSING
     compatibility: List[str] = field(default_factory=lambda: [])
-    n_features_to_select: int = 1
+    """ classifier. must have _target_ of BaseEstimator type with fit() method. """
+    classifier: Any = None
+    """ regressor. must have _target_ of BaseEstimator type with fit() method. """
+    regressor: Any = None
 
 
 @dataclass
@@ -58,7 +65,7 @@ class ExperimentConfig:
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
     ranker: RankerConfig = MISSING
-    """ validator must have _target_ of BaseEstimator type. """
+    """ validator. must have _target_ of BaseEstimator type with fit() method. """
     validator: Any = MISSING
 
 
