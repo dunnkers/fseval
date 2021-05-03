@@ -1,4 +1,5 @@
 import sklearn
+from dataclasses import dataclass
 from fseval.config import ExperimentConfig, ResampleConfig
 from fseval.datasets import Dataset
 from fseval.cv import CrossValidator
@@ -13,28 +14,8 @@ from omegaconf import OmegaConf
 import wandb
 
 
-class Experiment(BaseEstimator):
-    def __init__(self, cfg: ExperimentConfig):
-        # constants
-        self.cfg = cfg
-        self.project = cfg.project
-
-        # create instances using _target_ properties
-        self.dataset: Dataset = instantiate(cfg.dataset)
-        self.cv: CrossValidator = instantiate(cfg.cv)
-        self.resample: Resample = instantiate(cfg.resample)
-        self.ranker: Ranker = instantiate(cfg.ranker)
-        self.validator: BaseEstimator = instantiate(cfg.validator)
-
-    # def get_params(self):
-    #     return dict(
-    #         dataset=self.dataset.get_params(),
-    #         cv=self.cv.get_params(),
-    #         resample=self.resample.get_params(),
-    #         ranker=self.ranker.get_params(),
-    #         validator=self.validator.get_params(),
-    #     )
-
+@dataclass
+class Experiment(ExperimentConfig, BaseEstimator):
     def run(self):
         self.dataset.load()
         train_index, test_index = self.cv.get_split(self.dataset.X)

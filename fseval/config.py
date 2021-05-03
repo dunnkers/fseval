@@ -59,6 +59,7 @@ class RankerConfig:
 
 @dataclass
 class ExperimentConfig:
+    _target_: str = MISSING
     project: str = MISSING
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING

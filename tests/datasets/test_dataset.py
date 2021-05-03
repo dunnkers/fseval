@@ -1,4 +1,5 @@
 from fseval.datasets import Dataset
+from fseval.adapters import Adapter
 from fseval.config import DatasetConfig, Task
 import numpy as np
 import pytest
@@ -13,23 +14,20 @@ def cfg():
         _target_="fseval.datasets.Dataset",
         name="some_ds",
         task=Task.classification,
+        adapter=dict(
+            _target_="fseval.adapters.OpenML",
+            dataset_id=61,
+            target_column="class",
+        ),
     )
     cfg = OmegaConf.create(ds_cfg)
     return cfg
 
 
-def test_no_adapter(cfg):
-    with pytest.raises(HydraException):
-        instantiate(cfg)  # no adapter configured yet
-
-
 def test_instantiate(cfg):
-    adapter = dict(
-        _target_="fseval.adapters.OpenML", dataset_id=531, target_column="MEDV"
-    )
-    cfg.adapter = adapter
     ds = instantiate(cfg)
     assert isinstance(ds, Dataset)
+    assert isinstance(ds.adapter, Adapter)
 
 
 # class SomeAdapter:

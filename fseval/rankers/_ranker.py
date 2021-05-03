@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from fseval.config import RankerConfig
 from typing import List, Any
 from sklearn.base import BaseEstimator
-from hydra.utils import instantiate
 
 
 @dataclass
@@ -14,11 +13,11 @@ class Ranker(RankerConfig, BaseEstimator):
         task_estimator_mapping = dict(
             classification=self.classifier, regression=self.regressor
         )
-        estimator_config = task_estimator_mapping[self.task.name]
+        estimator = task_estimator_mapping[self.task.name]
 
         # make sure ranker has the correct estimator defined
         assert (
-            estimator_config is not None
+            estimator is not None
         ), f"{self.name} does not support {self.task.name} datasets!"
 
         """ remove these: `BaseEstimator.get_params()` tries to recursively get 
@@ -28,7 +27,7 @@ class Ranker(RankerConfig, BaseEstimator):
         self.regressor = None
 
         # set `estimator` attribute for easy access.
-        self.estimator = instantiate(estimator_config)
+        self.estimator = estimator
 
     def fit(self, X: List[List[float]], y: List) -> None:
         self.estimator.fit(X, y)

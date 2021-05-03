@@ -5,7 +5,6 @@ from fseval.config import DatasetConfig
 from fseval.adapters import Adapter
 import numpy as np
 from sklearn.base import BaseEstimator
-from hydra.utils import instantiate
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +14,6 @@ class Dataset(DatasetConfig, BaseEstimator):
     n: Optional[int] = None
     p: Optional[int] = None
     multivariate: Optional[bool] = None
-
-    def __post_init__(self):
-        self.adapter: Adapter = instantiate(self.adapter)
 
     def load(self) -> None:
         X, y = self.adapter.get_data()

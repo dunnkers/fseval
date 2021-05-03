@@ -3,16 +3,12 @@ from typing import Tuple, List, Generator
 from dataclasses import dataclass
 from fseval.config import CrossValidatorConfig
 from sklearn.base import BaseEstimator
-from hydra.utils import instantiate
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class CrossValidator(CrossValidatorConfig, BaseEstimator):
-    def __post_init__(self):
-        self.splitter = instantiate(self.splitter)
-
     def split(self, X, y=None, groups=None) -> Generator[Tuple[List, List], None, None]:
         return self.splitter.split(X, y, groups)
 
