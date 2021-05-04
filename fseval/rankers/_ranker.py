@@ -1,38 +1,40 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from fseval.config import RankerConfig
 from typing import List, Any, Optional
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import ClassifierMixin
+from fseval.base import Configurable
 from sklearn.metrics import log_loss
 
 
 @dataclass
-class Ranker(RankerConfig, ClassifierMixin, BaseEstimator):
+class Ranker(RankerConfig, ClassifierMixin, Configurable):
     """
     Feature ranker. Given a dataset X and its target variables, a feature ranker
     constructs a feature importance score for each feature. The ranker is considered
     a binary classifier, allowing us to use all sklearn utilities accordingly.
     """
 
-    estimator: Any = None
+    @classmethod
+    def _get_config_names(cls):
+        params = super()._get_param_names()
+        params.remove("classifier")
+        params.remove("regressor")
+        params.append("estimator")
+        return params
 
-    def __post_init__(self):
+    @property
+    def estimator(self) -> Any:
         # choose estimator according to task (classifier or regressor)
-        task_estimator_mapping = dict(
-            classification=self.classifier, regression=self.regressor
-        )
-        self.estimator = task_estimator_mapping[self.task.name]
+        estimators = dict(classification=self.classifier, regression=self.regressor)
+        estimator = estimators[self.task.name]
 
         # make sure ranker has the correct estimator defined
         assert (
-            self.estimator is not None
+            estimator is not None
         ), f"{self.name} does not support {self.task.name} datasets!"
 
-        """ remove these: `BaseEstimator.get_params()` tries to recursively get 
-            params from these objects. i.e., hasattr(self.classifier, 'get_params') 
-            returns true. """
-        self.classifier = None
-        self.regressor = None
+        return estimator
 
     def fit(self, X: List[List[float]], y: List) -> None:
         self.estimator.fit(X, y)

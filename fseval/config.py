@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
-from omegaconf import MISSING
-from hydra.core.config_store import ConfigStore
-from typing import Dict, Any, List, Optional
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from hydra.core.config_store import ConfigStore
+from omegaconf import MISSING
 
 
 class Task(Enum):

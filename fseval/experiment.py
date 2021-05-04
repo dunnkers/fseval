@@ -5,7 +5,7 @@ from fseval.datasets import Dataset
 from fseval.cv import CrossValidator
 from fseval.resampling import Resample
 from fseval.rankers import Ranker
-from sklearn.base import BaseEstimator
+from fseval.base import Configurable
 from sklearn.feature_selection import SelectKBest
 from hydra.utils import instantiate
 from typing import Tuple, List
@@ -15,7 +15,7 @@ import wandb
 
 
 @dataclass
-class Experiment(ExperimentConfig, BaseEstimator):
+class Experiment(ExperimentConfig, Configurable):
     def run(self):
         self.dataset.load()
         train_index, test_index = self.cv.get_split(self.dataset.X)
@@ -25,7 +25,7 @@ class Experiment(ExperimentConfig, BaseEstimator):
         )
 
         # perform feature ranking
-        wandb.init(project=self.project, config=self.get_params())
+        wandb.init(project=self.project, config=self.get_config())
         self.ranker.fit(X_train, y_train)
         ranking = self.ranker.feature_importances_
         print(ranking)
