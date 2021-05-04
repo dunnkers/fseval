@@ -1,4 +1,3 @@
-# @package _group_
 name: Train/test split
 splitter:
   _target_: sklearn.model_selection.ShuffleSplit

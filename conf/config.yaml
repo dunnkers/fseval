@@ -1,6 +1,7 @@
 _target_: fseval.experiment.Experiment
 project: toy-wandb-fs
 defaults:
+  - base_config
   - _self_
   - dataset: iris
   - cv: train_test_split
@@ -9,7 +10,6 @@ defaults:
   - validator: dt
 dataset:
   _target_: fseval.datasets.Dataset
-  # task: classification
 cv:
   _target_: fseval.cv.CrossValidator
 resample:

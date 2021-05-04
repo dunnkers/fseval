@@ -1,4 +1,3 @@
-# @package _group_
 name: Chi-Squared
 classifier:
   _target_: fseval.rankers.Chi2

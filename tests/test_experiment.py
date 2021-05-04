@@ -13,8 +13,3 @@ def test_experiment_params(cfg) -> None:
     experiment = instantiate(cfg)
     params = experiment.get_params()
     assert params["dataset"] is not None
-
-
-# def test_experiment_run(cfg) -> None:
-#     experiment = Experiment(cfg)
-# experiment.run()

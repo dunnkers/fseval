@@ -70,4 +70,4 @@ class ExperimentConfig:
 
 
 cs = ConfigStore.instance()
-cs.store(name="config", node=ExperimentConfig)
+cs.store(name="base_config", node=ExperimentConfig)

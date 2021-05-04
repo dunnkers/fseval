@@ -1,4 +1,3 @@
-# @package _group_
 name: TabNet
 regressor:
   _target_: pytorch_tabnet.tab_model.TabNetRegressor

@@ -1,4 +1,3 @@
-# @package _group_
 name: ReliefF
 classifier:
   _target_: skrebate.ReliefF
