@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from omegaconf import MISSING
 from hydra.core.config_store import ConfigStore
-from typing import Dict, Any, List, Union, Optional
+from typing import Dict, Any, List, Optional
 from enum import Enum
 
 
@@ -20,6 +20,8 @@ class DatasetConfig:
         get_data() -> (X, y) method. 
     """
     adapter: Any = MISSING
+    """ relevant features or instances. """
+    relevant_features: Optional[Dict] = None
 
 
 @dataclass
@@ -40,9 +42,9 @@ class CrossValidatorConfig:
 class ResampleConfig:
     _target_: str = MISSING
     replace: bool = False
-    n_samples: Union[int, None] = None
-    random_state: Union[int, None] = None
-    stratify: Union[List, None] = None
+    n_samples: Optional[int] = None
+    random_state: Optional[int] = None
+    stratify: Optional[List] = None
 
 
 @dataclass

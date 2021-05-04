@@ -27,3 +27,13 @@ def test_initialization(ranker):
 def test_fit(ranker):
     ranker.fit([[1, 1], [2, 1], [3, 3]], [0, 1, 1])
     assert np.isclose(sum(ranker.feature_importances_), 1)
+    relevant_features = [0, 1]
+    assert ranker.score(None, [0, 1]) > 0
+
+
+def test_learning_curve(ranker):
+    pass
+    # test using model_selection.learning_curve
+
+
+# test metrics.confusion_matrix?

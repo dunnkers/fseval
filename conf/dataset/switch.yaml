@@ -1,5 +1,5 @@
-_target_: mleval.datasrc.WandbArtifact
 name: Switch (Chen et al.)
-type: regression
-entity: dunnkers
-artifact_id: dunnkers/msc-thesis-exploration/switch:v0
+task: regression
+adapter:
+  _target_: fseval.adapters.Wandb
+  artifact_id: dunnkers/msc-thesis-exploration/switch:v0
