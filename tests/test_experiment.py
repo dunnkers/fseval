@@ -22,3 +22,5 @@ def test_experiment_config(cfg) -> None:
     assert config["dataset"] is not None
     assert isinstance(config["ranker"]["estimator"], dict)
     assert isinstance(config["dataset"]["adapter"], dict)
+    # None should be removed, just like MISSING
+    assert not hasattr(config["validator"], "min_impurity_split")

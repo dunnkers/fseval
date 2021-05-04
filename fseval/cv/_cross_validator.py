@@ -2,13 +2,13 @@ import logging
 from typing import Tuple, List, Generator
 from dataclasses import dataclass
 from fseval.config import CrossValidatorConfig
-from sklearn.base import BaseEstimator
+from fseval.base import Configurable
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CrossValidator(CrossValidatorConfig, BaseEstimator):
+class CrossValidator(CrossValidatorConfig, Configurable):
     def split(self, X, y=None, groups=None) -> Generator[Tuple[List, List], None, None]:
         return self.splitter.split(X, y, groups)
 

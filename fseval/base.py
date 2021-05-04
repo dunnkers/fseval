@@ -10,7 +10,7 @@ class Configurable(BaseEstimator):
         return super()._get_param_names()
 
     def _omitted_values(self):
-        return [MISSING]
+        return [MISSING, None]
 
     def get_config(self, deep: bool = True):
         keys = self._get_config_names()

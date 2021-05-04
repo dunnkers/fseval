@@ -4,13 +4,13 @@ from dataclasses import dataclass
 from fseval.config import DatasetConfig
 from fseval.adapters import Adapter
 import numpy as np
-from sklearn.base import BaseEstimator
+from fseval.base import Configurable
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Dataset(DatasetConfig, BaseEstimator):
+class Dataset(DatasetConfig, Configurable):
     n: Optional[int] = None
     p: Optional[int] = None
     multivariate: Optional[bool] = None
