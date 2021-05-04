@@ -9,4 +9,5 @@ class Chi2(BaseEstimator):
 
     @property
     def feature_importances_(self):
+        assert hasattr(self, "scores_"), "ranker not fitted yet!"
         return self.scores_ / sum(self.scores_)

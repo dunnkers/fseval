@@ -38,10 +38,6 @@ def test_fit(ranker):
     relevant_features = [0, 1]
     assert ranker.score(None, [0, 1]) > 0
 
-
-def test_learning_curve(ranker):
-    # test using model_selection.learning_curve
-    pass
-
-
-# test metrics.confusion_matrix?
+def test_can_clone(ranker):
+    cloned_ranker = clone(ranker)
+    assert cloned_ranker is not None

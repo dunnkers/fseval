@@ -72,7 +72,7 @@ class Ranker(RankerConfig, ClassifierMixin, Configurable):
             {self.name} ranker: the ranker did not return an instance-based 
             feature ranking."""
 
-        return log_loss(y, importance_scores)
+        return log_loss(y, importance_scores, labels=[0, 1])
 
     @property
     def feature_importances_(self) -> List:

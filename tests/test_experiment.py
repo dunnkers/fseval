@@ -24,3 +24,8 @@ def test_experiment_config(cfg) -> None:
     assert isinstance(config["dataset"]["adapter"], dict)
     # None should be removed, just like MISSING
     assert not hasattr(config["validator"], "min_impurity_split")
+
+
+def test_sklearn_methods(cfg) -> None:
+    experiment = instantiate(cfg)
+    pass
