@@ -6,7 +6,7 @@ setup(
     name="fseval",
     version="2.0",
     packages=find_packages(include=["fseval"]),
-    entry_points={"console_scripts": ["fseval = fseval.main:main"]},
+    entry_points={"console_scripts": ["fseval = fseval.main:run"]},
     author="Jeroen Overschie",
     url="https://dunnkers.com/",
     include_package_data=True,
@@ -18,5 +18,7 @@ setup(
         "pandas==1.2.4",
         "scikit-learn==0.24.2",
         "wandb==0.10.28",
+        "pytorch-tabnet==3.1.1",
+        "skrebate==0.62",
     ],
 )
