@@ -61,6 +61,18 @@ class RankerConfig:
 
 
 @dataclass
+class ValidatorConfig:
+    _target_: str = MISSING
+    name: str = MISSING
+    task: Task = MISSING
+    multivariate: bool = False
+    """ classifier. must have _target_ of BaseEstimator type with fit() method. """
+    classifier: Any = None
+    """ regressor. must have _target_ of BaseEstimator type with fit() method. """
+    regressor: Any = None
+
+
+@dataclass
 class ExperimentConfig:
     _target_: str = MISSING
     project: str = MISSING
@@ -68,8 +80,7 @@ class ExperimentConfig:
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
     ranker: RankerConfig = MISSING
-    """ validator. must have _target_ of BaseEstimator type with fit() method. """
-    validator: Any = MISSING
+    validator: ValidatorConfig = MISSING
 
 
 cs = ConfigStore.instance()

@@ -22,7 +22,9 @@ class Dataset(DatasetConfig, Configurable):
         self.p = self.X.shape[1]
         self.y = np.asarray(y)
         self.multivariate = self.y.ndim > 1
-        logger.info(f"loaded {self.name} (n={self.n}, p={self.p})")
+        logger.info(
+            f"loaded {self.name} {self.task.name} dataset (n={self.n}, p={self.p})"
+        )
 
     def _ensure_loaded(self) -> None:
         assert hasattr(self, "X"), "please load the dataset first (use `load()`)."

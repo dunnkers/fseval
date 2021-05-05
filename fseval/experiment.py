@@ -10,8 +10,18 @@ from sklearn.feature_selection import SelectKBest
 from hydra.utils import instantiate
 from typing import Tuple, List
 import numpy as np
+from time import time
 from omegaconf import OmegaConf
 import wandb
+from wandb.sklearn import (
+    plot_feature_importances,
+    plot_summary_metrics,
+    plot_roc,
+    plot_precision_recall,
+)
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -26,17 +36,41 @@ class Experiment(ExperimentConfig, Configurable):
 
         # perform feature ranking
         wandb.init(project=self.project, config=self.get_config())
+        start_time = time()
         self.ranker.fit(X_train, y_train)
+        end_time = time()
         ranking = self.ranker.feature_importances_
-        print(ranking)
+        logger.info(f"{self.ranker.name} feature ranking: {ranking}")
+        # log using wandb
+        plot_feature_importances(self.ranker)
+        if self.dataset.relevant_features is not None:
+            assert y_true is not None, "not implemented yet"
+            wandb.log(
+                {
+                    "ranker_log_loss": self.ranker.score(X=None, y=y_true),
+                    "ranker_fit_time": end_time - start_time,
+                }
+            )
 
         # validation
         n, p = X_train.shape
-        for k in np.arange(min(p, 100)) + 1:
-            selector = SelectKBest(score_func=lambda *_: ranking, k=k)
-            X_train_selected = selector.fit_transform(X_train, y_train)
-            X_test_selected = selector.fit_transform(X_test, y_test)
-
-            self.validator.fit(X_train_selected, y_train)
-            score = self.validator.score(X_test_selected, y_test)
-            print(f"k={k} {score}")
+        k_best = np.arange(min(p, 50)) + 1
+        best_score = 0
+        for k in k_best:
+            self.validator.select_fit_score(
+                X_train,
+                X_test,
+                y_train,
+                y_test,
+                ranking,
+                k,
+            )
+            wandb.log({"validator_p": k, "validator_score": score})
+            if score > best_score:
+                best_score = score
+                wandb.run.summary["best_validator_score"] = best_score
+                wandb.run.summary["best_k"] = k
+        logger.info(
+            f"{self.validator.name} validation summary: {wandb.run.summary._as_dict()}"
+        )
+        wandb.finish()

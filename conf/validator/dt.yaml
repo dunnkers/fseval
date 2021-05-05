@@ -1,1 +1,5 @@
-_target_: sklearn.tree.DecisionTreeClassifier
+name: Decision Tree
+classifier:
+  _target_: sklearn.tree.DecisionTreeClassifier
+regressor:
+  _target_: sklearn.tree.DecisionTreeRegressor

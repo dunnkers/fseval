@@ -17,3 +17,6 @@ resample:
 ranker:
   _target_: fseval.rankers.Ranker
   task: ${dataset.task}
+validator:
+  _target_: fseval.validators.Validator
+  task: ${dataset.task}
