@@ -35,7 +35,7 @@ class Configurable(BaseEstimator):
 class ConfigurableEstimator(Configurable):
     @classmethod
     def _get_config_names(cls):
-        params = super()._get_param_names()
+        params = super()._get_config_names()
         params.remove("classifier")
         params.remove("regressor")
         params.append("estimator")
@@ -65,15 +65,6 @@ class ConfigurableEstimator(Configurable):
 
     def score(self, X: List[List[float]], y: List, sample_weight=None) -> float:
         return self.estimator.score(X, y, sample_weight=sample_weight)
-
-    # def score(self, X, y, sample_weight=None) -> float:
-    #     scorings = dict(
-    #         classification=accuracy_score(
-    #             y, self.predict(X), sample_weight=sample_weight
-    #         ),
-    #         regression=r2_score(y, self.predict(X), sample_weight=sample_weight),
-    #     )
-    #     return scorings[self.task.name]
 
     @property
     def _estimator_type(self):

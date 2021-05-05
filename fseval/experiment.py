@@ -43,21 +43,18 @@ class Experiment(ExperimentConfig, Configurable):
         logger.info(f"{self.ranker.name} feature ranking: {ranking}")
         # log using wandb
         plot_feature_importances(self.ranker)
+        ranker_log = {"ranker_fit_time": end_time - start_time}
         if self.dataset.relevant_features is not None:
             assert y_true is not None, "not implemented yet"
-            wandb.log(
-                {
-                    "ranker_log_loss": self.ranker.score(X=None, y=y_true),
-                    "ranker_fit_time": end_time - start_time,
-                }
-            )
+            ranker_log["ranker_log_loss"] = self.ranker.score(X=None, y=y_true)
+        wandb.log(ranker_log)
 
         # validation
         n, p = X_train.shape
         k_best = np.arange(min(p, 50)) + 1
         best_score = 0
         for k in k_best:
-            self.validator.select_fit_score(
+            score = self.validator.select_fit_score(
                 X_train,
                 X_test,
                 y_train,

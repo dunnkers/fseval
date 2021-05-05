@@ -5,6 +5,9 @@ import numpy as np
 from sklearn.base import ClassifierMixin
 from fseval.base import ConfigurableEstimator
 from sklearn.metrics import log_loss
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -20,10 +23,11 @@ class Ranker(RankerConfig, ConfigurableEstimator, ClassifierMixin):
         Returns:
             y: array-like of shape (n_features,)
         """
-        # assert hasattr(
-        #     self.estimator, "selected_features_"
-        # ), f"{self.name} ranker does not select subsets; but `predict()` was still called."
         if not hasattr(self.estimator, "selected_features_"):
+            logger.warn(
+                f"{self.name} ranker does not select feature subsets, "
+                + "but its `predict()` method was still called."
+            )
             # if no subset selection method available, just remove any feature that
             # ranks below the average score.
             scores = np.asarray(self.estimator.feature_importances_)

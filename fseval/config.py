@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
@@ -43,7 +43,7 @@ class CrossValidatorConfig:
 class ResampleConfig:
     _target_: str = MISSING
     replace: bool = False
-    n_samples: Optional[int] = None
+    sample_size: Any = None  # float [0.0 to 1.0] or int [1 to n_samples]
     random_state: Optional[int] = None
     stratify: Optional[List] = None
 
