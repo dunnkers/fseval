@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 setup(
     name="fseval",
     version="2.0",
-    packages=find_packages(include=["fseval"]),
+    packages=find_packages(include=["fseval", "fseval.*"]),
     entry_points={"console_scripts": ["fseval = fseval.main:main"]},
     author="Jeroen Overschie",
     url="https://dunnkers.com/",
