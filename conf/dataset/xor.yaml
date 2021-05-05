@@ -3,9 +3,9 @@ task: regression
 adapter:
   _target_: fseval.adapters.Wandb
   artifact_id: dunnkers/msc-thesis-exploration/xor:v0
-relevant_features:
-  - 0:n:
-    - 0:3: true
+# relevant_features:
+#   - 0:n:
+#     - 0:3: true
   # - 0:3: true
 # relevant_instances:
 #   - 0:n:
