@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "hydra-core==1.1.0.dev6",
-        "-e git+https://github.com/dunnkers/hydra.git@fe322a8f95eb6badcdce001375c727567545e97b#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher",
+        "hydra_rq_launcher @ git+https://github.com/dunnkers/hydra.git@master#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher",
         "numpy==1.20.2",
         "openml==0.12.1",
         "pandas==1.2.4",
