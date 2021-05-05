@@ -5,10 +5,10 @@ from fseval.config import ExperimentConfig
 
 
 @hydra.main(config_path="../conf", config_name="config")
-def run(cfg: ExperimentConfig) -> None:
+def main(cfg: ExperimentConfig) -> None:
     experiment = instantiate(cfg)
     experiment.run()
 
 
 if __name__ == "__main__":
-    run()
+    main()

@@ -6,7 +6,7 @@ setup(
     name="fseval",
     version="2.0",
     packages=find_packages(include=["fseval"]),
-    entry_points={"console_scripts": ["fseval = fseval.main:run"]},
+    entry_points={"console_scripts": ["fseval = fseval.main:main"]},
     author="Jeroen Overschie",
     url="https://dunnkers.com/",
     include_package_data=True,
