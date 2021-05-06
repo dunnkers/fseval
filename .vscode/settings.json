@@ -9,5 +9,6 @@
     "python.linting.pylintEnabled": false,
     "python.linting.mypyEnabled": true,
     "python.formatting.provider": "black",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "python.pythonPath": "/Users/dunnkers/.pyenv/versions/fseval/bin/python"
 }

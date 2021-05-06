@@ -30,6 +30,22 @@ def test_instantiate(cfg):
     assert isinstance(ds.adapter, Adapter)
 
 
+def test_switch():
+    ds_cfg = DatasetConfig(
+        _target_="fseval.datasets.Dataset",
+        name="some_ds",
+        task=Task.regression,
+        adapter=dict(
+            _target_="fseval.adapters.Wandb",
+            artifact_id="dunnkers/msc-thesis-exploration/switch:v0",
+        ),
+    )
+    cfg = OmegaConf.create(ds_cfg)
+    ds = instantiate(cfg)
+    pass
+    # return cfg
+
+
 # class SomeAdapter:
 #     def get_data(self):
 #         return [[1], [2]], [0, 1]
