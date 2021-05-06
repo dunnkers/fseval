@@ -1,14 +1,13 @@
-from omegaconf import OmegaConf, DictConfig
-from hydra.utils import instantiate
+import numpy as np
+import pytest
 from fseval.config import ExperimentConfig
 from fseval.rankers import Ranker
-import pytest
-from hydra import initialize, compose
-
-from hydra.core.global_hydra import GlobalHydra
+from hydra import compose, initialize
 from hydra.core.default_element import ResultDefault
+from hydra.core.global_hydra import GlobalHydra
 from hydra.types import RunMode
-import numpy as np
+from hydra.utils import instantiate
+from omegaconf import DictConfig, OmegaConf
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -18,32 +17,60 @@ def cfg() -> ExperimentConfig:
     return cfg
 
 
-def test_single_config_loading(cfg):
-    gh = GlobalHydra.instance()
-    groups = gh.hydra.list_all_config_groups()
+@pytest.fixture(scope="module", autouse=True)
+def config_loader(cfg):
+    gh = GlobalHydra.instance()  # is initialized by initialize/compose in `cfg`
     config_loader = gh.hydra.config_loader
-    repo = config_loader.repository
-    for group in groups:
-        print("group=", group)
-        for option in repo.get_group_options(group):
-            print("\toption=", option)
-            item = repo.load_config(f"{group}/{option}")
-            print("\t\titem=", item.config)
-    pass
+    return config_loader
 
-    # merge with:
-    defaults_list = config_loader.compute_defaults_list("config", [], RunMode.RUN)
+
+def extract_default(config_loader, config_path, config_name="config"):
+    repo = config_loader.repository
+    defaults_list = config_loader.compute_defaults_list(config_name, [], RunMode.RUN)
     defaults = defaults_list.defaults
-    is_config_default = [default.config_path == "config" for default in defaults]
+    is_config_default = [default.config_path == config_path for default in defaults]
     config_default = np.extract(is_config_default, defaults)[0]
     default_config = config_loader._load_single_config(config_default, repo=repo)
-    print("defaults to merge=", default_config.config)
-    # cfg = OmegaConf.create()
-    # cfg.merge_with(loaded.config)
+    return default_config
+
+
+# how to parametrize pytest with group_options??
+
+
+def get_base_config(config_loader):
+    structured_config = extract_default(config_loader, "base_config")
+    yaml_config = extract_default(config_loader, "config")
+    return structured_config.merge_with(yaml_config)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def group_options(config_loader, group):
+    return config_loader.repository.get_group_options(group)
+
+
+# @pytest.fixture(scope="module", autouse=True)
+# def entire_config(config_loader):
+#     base_config = get_base_config(config_loader)
+#     group_options = group_options(config_loader, "ranker")
+
+#     # groups = gh.hydra.list_all_config_groups()
+#     # repo = config_loader.repository
+#     # for group in groups:
+#     #     print("group=", group)
+#     #     for option in repo.get_group_options(group):
+#     #         print("\toption=", option)
+#     #         item = repo.load_config(f"{group}/{option}")
+#     #         print("\t\titem=", item.config)
+#     # pass
+
+#     # base_config = get_base_config(config_loader, repo)
+#     # cfg = OmegaConf.create()
+#     # cfg.merge_with(loaded.config)
+#     return
+
+
+def test_all_rankers(group_options):
     pass
-
-
-# get defaults config_loader.compute_defaults_list('config', [], run_mode=RunMode.RUN)
 
 
 def test_config_loading(cfg) -> None:
