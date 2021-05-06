@@ -1,22 +1,12 @@
-_target_: fseval.experiment.Experiment
 project: toy-wandb-fs
 defaults:
   - base_config
-  # - _self_
   - dataset: iris
   - cv: train_test_split
   - resample: bootstrap
   - ranker: chi2
   - validator: dt
-dataset:
-  _target_: fseval.datasets.Dataset
-cv:
-  _target_: fseval.cv.CrossValidator
-resample:
-  _target_: fseval.resampling.Resample
 ranker:
-  _target_: fseval.rankers.Ranker
   task: ${dataset.task}
 validator:
-  _target_: fseval.validators.Validator
   task: ${dataset.task}

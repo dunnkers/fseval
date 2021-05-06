@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from fseval.config import ExperimentConfig
+from fseval.config import ExperimentConfig, Task
 from fseval.rankers import Ranker
 from hydra import compose, initialize
 from hydra.core.default_element import ResultDefault
@@ -57,41 +57,6 @@ def ranker_options(config_loader):
     return group_options(config_loader, "ranker")
 
 
-# @pytest.fixture(scope="module", autouse=True)
-# def entire_config(config_loader):
-#     base_config = get_base_config(config_loader)
-#     group_options = group_options(config_loader, "ranker")
-
-#     # groups = gh.hydra.list_all_config_groups()
-#     # repo = config_loader.repository
-#     # for group in groups:
-#     #     print("group=", group)
-#     #     for option in repo.get_group_options(group):
-#     #         print("\toption=", option)
-#     #         item = repo.load_config(f"{group}/{option}")
-#     #         print("\t\titem=", item.config)
-#     # pass
-
-#     # base_config = get_base_config(config_loader, repo)
-#     # cfg = OmegaConf.create()
-#     # cfg.merge_with(loaded.config)
-#     return
-
-# @pytest.fixture
-# def a():
-#     return 'a'
-
-# @pytest.fixture
-# def b():
-#     return 'b'
-
-# @pytest.fixture(params=['group_options'])
-# def (request):
-#     return request.getfuncargvalue(request.param)
-
-# def test_foo(arg):
-#     assert len(arg) == 1
-
 ALL_RANKERS = ["chi2", "relieff", "tabnet"]
 
 
@@ -109,13 +74,19 @@ def get_config(config_loader, group, path):
 
 
 @pytest.fixture(params=ALL_RANKERS)
-def ranker(config_loader, request):
+def ranker_config(config_loader, request):
     ranker_config = get_config(config_loader, "ranker", request.param)
+    return ranker_config
+
+
+@pytest.fixture
+def classification_ranker(ranker_config):
+    ranker_config["task"] = Task.classification
     ranker_object = instantiate(ranker_config)
     return ranker_object
 
 
-def test_ranker(ranker):
+def test_ranker(classification_ranker):
     pass
 
 

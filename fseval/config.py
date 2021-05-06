@@ -13,7 +13,7 @@ class Task(Enum):
 
 @dataclass
 class DatasetConfig:
-    _target_: str = MISSING
+    _target_: str = "fseval.datasets.Dataset"
     name: str = MISSING
     task: Task = MISSING
     """
@@ -31,7 +31,7 @@ class CrossValidatorConfig:
     Parameters of both BaseCrossValidator and BaseShuffleSplit.
     """
 
-    _target_: str = MISSING
+    _target_: str = "fseval.cv.CrossValidator"
     name: str = MISSING
     """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
         implement a `split()` and `get_n_splits()` function. """
@@ -41,7 +41,7 @@ class CrossValidatorConfig:
 
 @dataclass
 class ResampleConfig:
-    _target_: str = MISSING
+    _target_: str = "fseval.resampling.Resample"
     replace: bool = False
     sample_size: Any = None  # float [0.0 to 1.0] or int [1 to n_samples]
     random_state: Optional[int] = None
@@ -50,7 +50,7 @@ class ResampleConfig:
 
 @dataclass
 class RankerConfig:
-    _target_: str = MISSING
+    _target_: str = "fseval.rankers.Ranker"
     name: str = MISSING
     task: Task = MISSING
     multivariate: bool = False
@@ -62,7 +62,7 @@ class RankerConfig:
 
 @dataclass
 class ValidatorConfig:
-    _target_: str = MISSING
+    _target_: str = "fseval.validators.Validator"
     name: str = MISSING
     task: Task = MISSING
     multivariate: bool = False
@@ -74,7 +74,7 @@ class ValidatorConfig:
 
 @dataclass
 class ExperimentConfig:
-    _target_: str = MISSING
+    _target_: str = "fseval.experiment.Experiment"
     project: str = MISSING
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING

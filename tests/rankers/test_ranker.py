@@ -1,9 +1,10 @@
-from hydra.utils import instantiate
-from fseval.config import RankerConfig, Task
-import pytest
-from omegaconf import OmegaConf, MISSING
-import numpy as np
 from dataclasses import dataclass
+
+import numpy as np
+import pytest
+from fseval.config import RankerConfig, Task
+from hydra.utils import instantiate
+from omegaconf import MISSING, OmegaConf
 from sklearn.base import clone
 
 
@@ -23,11 +24,9 @@ def ranker():
 
 def test_initialization(ranker):
     assert isinstance(ranker.name, str)
-    assert ranker._target_ == MISSING
 
     config = ranker.get_config()
     assert "estimator" in config
-    assert "_target_" not in config  # removed because value is missing
     # should recursively get_params from other BaseEstimator or Configurable's
     assert isinstance(config["estimator"], dict)
 
@@ -37,6 +36,7 @@ def test_fit(ranker):
     assert np.isclose(sum(ranker.feature_importances_), 1)
     relevant_features = [0, 1]
     assert ranker.score(None, [0, 1]) > 0
+
 
 def test_can_clone(ranker):
     cloned_ranker = clone(ranker)
