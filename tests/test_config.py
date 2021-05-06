@@ -34,18 +34,27 @@ def extract_default(config_loader, config_path, config_name="config"):
     return default_config
 
 
-# how to parametrize pytest with group_options??
-
-
 def get_base_config(config_loader):
-    structured_config = extract_default(config_loader, "base_config")
-    yaml_config = extract_default(config_loader, "config")
-    return structured_config.merge_with(yaml_config)
+    cfg = OmegaConf.create()
+
+    # config.py types and defaults
+    structured_config = extract_default(config_loader, "base_config").config
+    cfg.merge_with(structured_config)
+
+    # config.yaml defaults
+    # yaml_config = extract_default(config_loader, "config").config
+    # cfg.merge_with(yaml_config)
+
+    return cfg
 
 
-@pytest.fixture(scope="module", autouse=True)
 def group_options(config_loader, group):
     return config_loader.repository.get_group_options(group)
+
+
+@pytest.fixture(scope="module")
+def ranker_options(config_loader):
+    return group_options(config_loader, "ranker")
 
 
 # @pytest.fixture(scope="module", autouse=True)
@@ -68,8 +77,45 @@ def group_options(config_loader, group):
 #     # cfg.merge_with(loaded.config)
 #     return
 
+# @pytest.fixture
+# def a():
+#     return 'a'
 
-def test_all_rankers(group_options):
+# @pytest.fixture
+# def b():
+#     return 'b'
+
+# @pytest.fixture(params=['group_options'])
+# def (request):
+#     return request.getfuncargvalue(request.param)
+
+# def test_foo(arg):
+#     assert len(arg) == 1
+
+ALL_RANKERS = ["chi2", "relieff", "tabnet"]
+
+
+def get_config(config_loader, group, path):
+    cfg = OmegaConf.create()
+
+    repo = config_loader.repository
+    item_config = repo.load_config(f"{group}/{path}").config
+    cfg[group] = item_config
+
+    general_config = get_base_config(config_loader)
+    general_config.merge_with(cfg)
+
+    return general_config[group]
+
+
+@pytest.fixture(params=ALL_RANKERS)
+def ranker(config_loader, request):
+    ranker_config = get_config(config_loader, "ranker", request.param)
+    ranker_object = instantiate(ranker_config)
+    return ranker_object
+
+
+def test_ranker(ranker):
     pass
 
 

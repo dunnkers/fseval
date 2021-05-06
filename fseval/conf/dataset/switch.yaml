@@ -3,3 +3,6 @@ task: regression
 adapter:
   _target_: fseval.adapters.Wandb
   artifact_id: dunnkers/msc-thesis-exploration/switch:v0
+feature_weights:
+  - X[:n//2, 0:3]: 1.0
+  - X[n//2:, 4:8]: 1.0
