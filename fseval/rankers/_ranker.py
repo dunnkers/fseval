@@ -1,11 +1,13 @@
-from dataclasses import dataclass, field
-from fseval.config import RankerConfig
-from typing import List, Any, Optional
+import logging
+from dataclasses import dataclass
+from typing import List
+
 import numpy as np
 from sklearn.base import ClassifierMixin
-from fseval.base import ConfigurableEstimator
 from sklearn.metrics import log_loss
-import logging
+
+from fseval.base import ConfigurableEstimator
+from fseval.config import RankerConfig
 
 logger = logging.getLogger(__name__)
 

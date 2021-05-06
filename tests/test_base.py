@@ -1,9 +1,11 @@
-from fseval.base import ConfigurableEstimator
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.base import is_classifier, is_regressor
-from fseval.config import Task
-from typing import Any
 from dataclasses import dataclass
+from typing import Any
+
+from sklearn.base import is_classifier, is_regressor
+from sklearn.tree import DecisionTreeClassifier
+
+from fseval.base import ConfigurableEstimator
+from fseval.config import Task
 
 
 @dataclass

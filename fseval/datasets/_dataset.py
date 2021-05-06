@@ -1,10 +1,12 @@
 import logging
-from typing import Tuple, List, Optional
 from dataclasses import dataclass
-from fseval.config import DatasetConfig
-from fseval.adapters import Adapter
+from typing import List, Optional, Tuple
+
 import numpy as np
+
+from fseval.adapters import Adapter
 from fseval.base import Configurable
+from fseval.config import DatasetConfig
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,6 @@
-from typing import Tuple, List, Optional
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
+
 from fseval.base import Configurable
 
 

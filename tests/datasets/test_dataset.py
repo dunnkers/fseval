@@ -1,11 +1,12 @@
-from fseval.datasets import Dataset
-from fseval.adapters import Adapter
-from fseval.config import DatasetConfig, Task
 import numpy as np
 import pytest
-from omegaconf import OmegaConf
 from hydra.errors import HydraException
 from hydra.utils import instantiate
+from omegaconf import OmegaConf
+
+from fseval.adapters import Adapter
+from fseval.config import DatasetConfig, Task
+from fseval.datasets import Dataset
 
 
 @pytest.fixture
@@ -41,8 +42,7 @@ def test_switch():
         ),
     )
     cfg = OmegaConf.create(ds_cfg)
-    ds = instantiate(cfg)
-    pass
+    instantiate(cfg)
     # return cfg
 
 

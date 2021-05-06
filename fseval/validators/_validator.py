@@ -1,9 +1,11 @@
 import logging
 from dataclasses import dataclass
-from fseval.config import ValidatorConfig
-from fseval.base import ConfigurableEstimator
 from typing import List
+
 from sklearn.feature_selection import SelectKBest
+
+from fseval.base import ConfigurableEstimator
+from fseval.config import ValidatorConfig
 
 logger = logging.getLogger(__name__)
 

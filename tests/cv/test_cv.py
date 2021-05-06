@@ -1,7 +1,7 @@
-from fseval.cv import CrossValidator
-import pytest
 import numpy as np
+import pytest
 
+from fseval.cv import CrossValidator
 
 # def test_cross_validator_split():
 #     cv = CrossValidator()

@@ -1,13 +1,14 @@
 import numpy as np
 import pytest
-from fseval.config import ExperimentConfig, Task
-from fseval.rankers import Ranker
 from hydra import compose, initialize
 from hydra.core.default_element import ResultDefault
 from hydra.core.global_hydra import GlobalHydra
 from hydra.types import RunMode
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
+
+from fseval.config import ExperimentConfig, Task
+from fseval.rankers import Ranker
 
 
 @pytest.fixture(scope="module", autouse=True)

@@ -1,11 +1,11 @@
-from dataclasses import dataclass
 
 import numpy as np
 import pytest
-from fseval.config import RankerConfig, Task
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
 from sklearn.base import clone
+
+from fseval.config import RankerConfig, Task
 
 
 @pytest.fixture(scope="module")
@@ -34,7 +34,6 @@ def test_initialization(ranker):
 def test_fit(ranker):
     ranker.fit([[1, 1], [2, 1], [3, 3]], [0, 1, 1])
     assert np.isclose(sum(ranker.feature_importances_), 1)
-    relevant_features = [0, 1]
     assert ranker.score(None, [0, 1]) > 0
 
 

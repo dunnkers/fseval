@@ -1,8 +1,9 @@
 import logging
-from typing import Tuple, List, Generator
 from dataclasses import dataclass
-from fseval.config import CrossValidatorConfig
+from typing import Generator, List, Tuple
+
 from fseval.base import Configurable
+from fseval.config import CrossValidatorConfig
 
 logger = logging.getLogger(__name__)
 

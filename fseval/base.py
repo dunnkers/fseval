@@ -1,7 +1,8 @@
+from typing import Any, List
+
+from omegaconf import MISSING
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score, r2_score
-from typing import Dict, Any, List
-from omegaconf import MISSING
 
 
 class Configurable(BaseEstimator):

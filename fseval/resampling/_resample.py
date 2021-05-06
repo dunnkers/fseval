@@ -1,12 +1,12 @@
-from dataclasses import dataclass
-from fseval.config import ResampleConfig
-from sklearn.utils import resample
-from sklearn.base import TransformerMixin
-from fseval.base import Configurable
 import logging
-import numpy as np
 from typing import Optional
 
+import numpy as np
+from sklearn.base import TransformerMixin
+from sklearn.utils import resample
+
+from fseval.base import Configurable
+from fseval.config import ResampleConfig
 
 logger = logging.getLogger(__name__)
 

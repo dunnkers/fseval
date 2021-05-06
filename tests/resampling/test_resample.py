@@ -1,6 +1,7 @@
-from fseval.resampling import Resample
 import numpy as np
 import pytest
+
+from fseval.resampling import Resample
 
 
 @pytest.fixture

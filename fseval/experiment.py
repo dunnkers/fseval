@@ -1,25 +1,22 @@
-import sklearn
-from dataclasses import dataclass
-from fseval.config import ExperimentConfig, ResampleConfig
-from fseval.datasets import Dataset
-from fseval.cv import CrossValidator
-from fseval.resampling import Resample
-from fseval.rankers import Ranker
-from fseval.base import Configurable
-from sklearn.feature_selection import SelectKBest
-from hydra.utils import instantiate
-from typing import Tuple, List
-import numpy as np
-from time import time
-from omegaconf import OmegaConf
-import wandb
-from wandb.sklearn import (
-    plot_feature_importances,
-    plot_summary_metrics,
-    plot_roc,
-    plot_precision_recall,
-)
 import logging
+from dataclasses import dataclass
+from time import time
+
+import numpy as np
+import sklearn
+from hydra.utils import instantiate
+from omegaconf import OmegaConf
+from sklearn.feature_selection import SelectKBest
+
+import wandb
+from fseval.base import Configurable
+from fseval.config import ExperimentConfig, ResampleConfig
+from fseval.cv import CrossValidator
+from fseval.datasets import Dataset
+from fseval.rankers import Ranker
+from fseval.resampling import Resample
+from wandb.sklearn import (plot_feature_importances, plot_precision_recall,
+                           plot_roc, plot_summary_metrics)
 
 logger = logging.getLogger(__name__)
 
