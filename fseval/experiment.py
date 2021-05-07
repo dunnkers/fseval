@@ -59,6 +59,9 @@ class Experiment(ExperimentConfig, Configurable):
                 ranking,
                 k,
             )
+            # FIXME `validator_score` should be `validation_accuracy`
+            # and `validation_r2_score`: we must not combine them into a single
+            # metric
             wandb.log({"validator_p": k, "validator_score": score})
             if score > best_score:
                 best_score = score

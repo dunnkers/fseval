@@ -1,4 +1,3 @@
-
 import numpy as np
 import pytest
 from hydra.utils import instantiate

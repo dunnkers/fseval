@@ -2,10 +2,9 @@ import logging
 from dataclasses import dataclass
 from typing import List
 
-from sklearn.feature_selection import SelectKBest
-
 from fseval.base import ConfigurableEstimator
 from fseval.config import ValidatorConfig
+from sklearn.feature_selection import SelectKBest
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +34,7 @@ class Validator(ValidatorConfig, ConfigurableEstimator):
         self.fit(X_train_selected, y_train)
 
         # score
+        # FIXME do not rely on `score`, explicitly use accuracy or r2 manually.
         score = self.score(X_test_selected, y_test)
         logger.info(f"{self.name} test set validation score: {score} (p={k})")
         return score
