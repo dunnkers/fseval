@@ -13,16 +13,29 @@ class Task(Enum):
 
 @dataclass
 class DatasetConfig:
+    """
+    Args:
+        name: human-readable name of dataset.
+
+        task: either Task.classification or Task.regression.
+
+        adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must implement a
+        get_data() -> (X, y) method.
+
+        feature_relevancy: relevant features or instances. should be a list of dict's. each dict
+        should have as its key the following pattern:
+            X[<numpy selector>] = <float>
+        Example:
+            X[:, 0:3] = 1.0
+        which sets the 0-3 features as maximally relevant and all others
+        minimally relevant.
+    """
+
     _target_: str = "fseval.datasets.Dataset"
     name: str = MISSING
     task: Task = MISSING
-    """
-        dataset adapter. must be of fseval.adapters.Adapter type, i.e. must implement a
-        get_data() -> (X, y) method. 
-    """
     adapter: Any = MISSING
-    """ relevant features or instances. """
-    relevant_features: Optional[Dict] = None
+    feature_relevancy: Optional[List] = None
 
 
 @dataclass
@@ -34,7 +47,7 @@ class CrossValidatorConfig:
     _target_: str = "fseval.cv.CrossValidator"
     name: str = MISSING
     """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
-        implement a `split()` and `get_n_splits()` function. """
+        implement a `split()` function. """
     splitter: Any = None
     fold: int = 0
 

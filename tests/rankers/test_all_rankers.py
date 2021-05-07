@@ -1,13 +1,23 @@
-# ALL_RANKERS = ["chi2", "relieff", "tabnet"]
+import pytest
+from fseval.config import Task
+from fseval.rankers import Ranker
+from hydra.utils import instantiate
+from tests.utils import get_single_config
 
-# @pytest.fixture(params=ALL_RANKERS)
-# def ranker_config(config_loader, request):
-#     ranker_config = get_config(config_loader, "ranker", request.param)
-#     return ranker_config
+ALL_RANKERS = ["chi2", "relieff", "tabnet"]
 
 
-# @pytest.fixture
-# def classification_ranker(ranker_config):
-#     ranker_config["task"] = Task.classification
-#     ranker_object = instantiate(ranker_config)
-#     return ranker_object
+@pytest.fixture(params=ALL_RANKERS)
+def ranker_cfg(config_repo, request):
+    single_config = get_single_config(config_repo, "ranker", request.param)
+    return single_config
+
+
+def test_initialization(ranker_cfg):
+    ranker_cfg["task"] = Task.classification
+    ranker = instantiate(ranker_cfg)
+    assert isinstance(ranker, Ranker)
+
+    ranker_cfg["task"] = Task.regression
+    ranker = instantiate(ranker_cfg)
+    assert isinstance(ranker, Ranker)

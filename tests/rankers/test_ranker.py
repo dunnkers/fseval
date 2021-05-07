@@ -1,28 +1,36 @@
+from dataclasses import dataclass
+from typing import Any
+
 import numpy as np
 import pytest
-from hydra.utils import instantiate
-from omegaconf import MISSING, OmegaConf
-from sklearn.base import clone
-
-from fseval.config import RankerConfig, Task
+from fseval.config import Task
+from fseval.rankers import Ranker
+from sklearn.base import BaseEstimator, clone, is_classifier, is_regressor
 
 
-@pytest.fixture(scope="module")
+class SomeRankingEstimator(BaseEstimator):
+    def fit(self, X, y):
+        n, p = np.shape(X)
+        self.feature_importances_ = np.ones(p)  # uniform ranking
+
+
+@dataclass
+class SomeRanker(Ranker):
+    classifier: Any = SomeRankingEstimator()
+    regressor: Any = SomeRankingEstimator()
+
+
+@pytest.fixture
 def ranker():
-    classifier = dict(_target_="fseval.rankers.Chi2")
-    ranker_cfg = RankerConfig(
-        _target_="fseval.rankers.Ranker",
-        name="some_ranker",
-        classifier=classifier,
-        task=Task.classification,
-    )
-    cfg = OmegaConf.create(ranker_cfg)
-    ranker = instantiate(cfg)
-    return ranker
+    return SomeRanker()
 
 
 def test_initialization(ranker):
-    assert isinstance(ranker.name, str)
+    ranker.task = Task.classification
+    assert is_classifier(ranker)
+
+    ranker.task = Task.regression
+    assert is_regressor(ranker)
 
     config = ranker.get_config()
     assert "estimator" in config
@@ -31,9 +39,9 @@ def test_initialization(ranker):
 
 
 def test_fit(ranker):
+    ranker.task = Task.classification
     ranker.fit([[1, 1], [2, 1], [3, 3]], [0, 1, 1])
-    assert np.isclose(sum(ranker.feature_importances_), 1)
-    assert ranker.score(None, [0, 1]) > 0
+    assert sum(ranker.feature_importances_) >= 0
 
 
 def test_can_clone(ranker):

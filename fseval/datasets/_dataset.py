@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 import numpy as np
-
 from fseval.adapters import Adapter
 from fseval.base import Configurable
 from fseval.config import DatasetConfig
@@ -24,9 +23,8 @@ class Dataset(DatasetConfig, Configurable):
         self.p = self.X.shape[1]
         self.y = np.asarray(y)
         self.multivariate = self.y.ndim > 1
-        logger.info(
-            f"loaded {self.name} {self.task.name} dataset (n={self.n}, p={self.p})"
-        )
+        task_name = self.task.name if hasattr(self.task, "name") else self.task
+        logger.info(f"loaded {self.name} {task_name} dataset (n={self.n}, p={self.p})")
 
     def _ensure_loaded(self) -> None:
         assert hasattr(self, "X"), "please load the dataset first (use `load()`)."
