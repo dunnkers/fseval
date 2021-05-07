@@ -15,8 +15,12 @@ from fseval.cv import CrossValidator
 from fseval.datasets import Dataset
 from fseval.rankers import Ranker
 from fseval.resampling import Resample
-from wandb.sklearn import (plot_feature_importances, plot_precision_recall,
-                           plot_roc, plot_summary_metrics)
+from wandb.sklearn import (
+    plot_feature_importances,
+    plot_precision_recall,
+    plot_roc,
+    plot_summary_metrics,
+)
 
 logger = logging.getLogger(__name__)
 
