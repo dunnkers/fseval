@@ -141,6 +141,7 @@ cython_debug/
 wandb
 outputs
 multirun
+artifacts
 
 # VSCode
 .vscode

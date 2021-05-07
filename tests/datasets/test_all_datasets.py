@@ -1,5 +1,4 @@
-import re
-
+import numpy as np
 import pytest
 from fseval.datasets import Dataset
 from hydra.utils import instantiate
@@ -21,14 +20,10 @@ def test_initialization(dataset_cfg):
 
 def test_feature_relevancy(dataset_cfg):
     ds = instantiate(dataset_cfg)
+    ds.load()
     if not ds.feature_relevancy:
         return
-
-    # ground truth
-    gt = ds.feature_relevancy
-    for obj in ds.feature_relevancy:  # e.g. { 'X[:]': 1.0 }
-        for key, value in obj.items():  # e.g. key='X[:]' and value=1.0
-            match = re.search("X\[(.*)\]", key)
-            assert match is not None
-            selector = match.group(1)
-            pass
+    else:
+        relevances = ds.feature_relevances
+        assert relevances is not None
+        assert relevances.shape == ds.X.shape
