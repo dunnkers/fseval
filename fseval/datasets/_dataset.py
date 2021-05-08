@@ -91,7 +91,7 @@ class Dataset(DatasetConfig, Configurable):
         return selector_list
 
     @property
-    def feature_relevances(self) -> np.ndarray:
+    def relevant_features(self) -> np.ndarray:
         self._ensure_loaded()
 
         # make variables accessible in current context

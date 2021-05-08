@@ -15,6 +15,7 @@ class SomeAdapter(Adapter):
 @dataclass
 class SomeDataset(Dataset):
     adapter: Any = SomeAdapter()
+    # feature_importances:
 
 
 @pytest.fixture
@@ -53,3 +54,8 @@ def test_get_subsets(ds):
     assert X_test.shape[0] == 1
     assert y_train.shape[0] == 1
     assert y_test.shape[0] == 1
+
+
+def test_relevant_features(ds):
+    ds.load()
+    # TODO

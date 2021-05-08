@@ -24,6 +24,6 @@ def test_feature_relevancy(dataset_cfg):
     if not ds.feature_relevancy:
         return
     else:
-        relevances = ds.feature_relevances
+        relevances = ds.relevant_features
         assert relevances is not None
         assert relevances.shape == ds.X.shape

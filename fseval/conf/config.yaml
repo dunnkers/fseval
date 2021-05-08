@@ -1,10 +1,10 @@
 project: toy-wandb-fs
 defaults:
   - base_config
-  - dataset: iris
+  - dataset: switch
   - cv: train_test_split
   - resample: bootstrap
-  - ranker: chi2
+  - ranker: tabnet
   - validator: dt
 ranker:
   task: ${dataset.task}

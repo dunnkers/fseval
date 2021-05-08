@@ -3,11 +3,10 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy as np
-from sklearn.base import ClassifierMixin
-from sklearn.metrics import log_loss
-
 from fseval.base import ConfigurableEstimator
 from fseval.config import RankerConfig
+from sklearn.base import ClassifierMixin
+from sklearn.metrics import log_loss
 
 logger = logging.getLogger(__name__)
 
@@ -63,3 +62,9 @@ class Ranker(RankerConfig, ConfigurableEstimator, ClassifierMixin):
             feature ranking."""
 
         return log_loss(y, importance_scores, labels=[0, 1])
+
+    @property
+    def feature_importances_(self) -> List:
+        importances = self.estimator.feature_importances_
+        importances /= sum(importances)
+        return importances
