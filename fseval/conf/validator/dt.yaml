@@ -3,3 +3,5 @@ classifier:
   _target_: sklearn.tree.DecisionTreeClassifier
 regressor:
   _target_: sklearn.tree.DecisionTreeRegressor
+multivariate_clf: true
+multivariate_reg: true

@@ -9,6 +9,7 @@ from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from sklearn.base import is_classifier, is_regressor
 from sklearn.feature_selection import SelectKBest
+from sklearn.metrics import log_loss, mean_absolute_error
 from wandb.sklearn import (
     plot_feature_importances,
     plot_precision_recall,
@@ -54,11 +55,19 @@ class Experiment(ExperimentConfig, Configurable):
         elif np.ndim(X_importances) == 2:
             logger.warn("instance-based feature importance scores not supported yet.")
         else:
-            log_loss = self.ranker.score(X=None, y=X_importances)
-            ranker_log["ranker_log_loss"] = log_loss
-            logger.info(
-                f"{self.ranker.name} feature importances log loss score: {log_loss}"
-            )
+            # mean absolute error
+            y_true = X_importances
+            y_pred = ranking
+            mae = mean_absolute_error(y_true, y_pred)
+            ranker_log["ranker_mean_absolute_error"] = mae
+            logger.info(f"{self.ranker.name} mean absolute error: {mae}")
+
+            # log loss
+            y_true = X_importances > 0
+            y_pred = ranking
+            log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
+            ranker_log["ranker_log_loss"] = log_loss_score
+            logger.info(f"{self.ranker.name} log loss score: {log_loss_score}")
         wandb.log(ranker_log)
 
         # validation

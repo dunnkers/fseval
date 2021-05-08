@@ -65,6 +65,6 @@ class Ranker(RankerConfig, ConfigurableEstimator, ClassifierMixin):
 
     @property
     def feature_importances_(self) -> List:
-        importances = self.estimator.feature_importances_
+        importances = np.asarray(self.estimator.feature_importances_)
         importances /= sum(importances)
         return importances

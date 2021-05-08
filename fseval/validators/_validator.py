@@ -36,5 +36,5 @@ class Validator(ValidatorConfig, ConfigurableEstimator):
         # score
         # FIXME do not rely on `score`, explicitly use accuracy or r2 manually.
         score = self.score(X_test_selected, y_test)
-        logger.info(f"{self.name} test set validation score: {score} (p={k})")
+        logger.info(f"{self.task.name} {self.name} score: {score} (p={k})")
         return score
