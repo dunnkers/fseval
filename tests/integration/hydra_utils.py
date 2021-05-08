@@ -34,6 +34,7 @@ def get_single_config(group_name: str, option_name: str) -> DictConfig:
     cfg = OmegaConf.create()
 
     structured_config = cl.load_configuration("base_config", [], RunMode.RUN)
+    OmegaConf.set_struct(structured_config, False)
     cfg.merge_with(structured_config)
 
     item_config = cl.load_configuration(f"{group_name}/{option_name}", [], RunMode.RUN)
@@ -62,7 +63,7 @@ def get_group_configs(
 
 class TestGroupItem:
     @staticmethod
-    def get_cfg(cfg: DictConfig) -> DictConfig:
+    def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
         return cfg
 
 
@@ -74,7 +75,7 @@ def generate_group_tests(group_name: str, metafunc):
 
     for cfg in all_cfgs:
         cfg = metafunc.cls.get_cfg(cfg)
-        if cfg:
+        if cfg is not None:
             assert (
                 hasattr(cfg, "name") and cfg.name is not None
             ), "group item has no name"

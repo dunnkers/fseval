@@ -3,4 +3,3 @@ classifier:
   _target_: skrebate.ReliefF
 regressor:
   _target_: skrebate.ReliefF
-multivariate: false

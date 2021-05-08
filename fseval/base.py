@@ -1,5 +1,6 @@
 from typing import Any, List
 
+import numpy as np
 from omegaconf import MISSING
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score, r2_score
@@ -56,6 +57,17 @@ class ConfigurableEstimator(Configurable):
         return estimator
 
     def fit(self, X: List[List[float]], y: List) -> None:
+        target_is_multivariate = np.ndim(y) > 1
+        if target_is_multivariate:
+            multivariate_configs = dict(
+                classification=self.multivariate_clf, regression=self.multivariate_reg
+            )
+            estimator_has_multivariate_support = multivariate_configs[self.task.name]
+
+            assert (
+                estimator_has_multivariate_support
+            ), f"{self.name} estimator does not support multivariate datasets."
+
         self.estimator.fit(X, y)
 
     def predict(self, X: List[List[float]] = None) -> List:

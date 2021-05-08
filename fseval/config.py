@@ -18,7 +18,7 @@ class GroupItem:
 
 
 @dataclass
-class DatasetConfig:
+class DatasetConfig(GroupItem):
     """
     Args:
         name: human-readable name of dataset.
@@ -28,8 +28,8 @@ class DatasetConfig:
         adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must implement a
         get_data() -> (X, y) method.
 
-        feature_relevancy: relevant features or instances. should be a list of dict's. each dict
-        should have as its key the following pattern:
+        feature_importances: weightings indicating relevant features or instances.
+        should be a dict with each key and value like the following pattern:
             X[<numpy selector>] = <float>
         Example:
             X[:, 0:3] = 1.0
@@ -38,20 +38,18 @@ class DatasetConfig:
     """
 
     _target_: str = "fseval.datasets.Dataset"
-    name: str = MISSING
     task: Task = MISSING
     adapter: Any = MISSING
-    feature_relevancy: Optional[List] = None
+    feature_importances: Optional[Dict[str, float]] = None
 
 
 @dataclass
-class CrossValidatorConfig:
+class CrossValidatorConfig(GroupItem):
     """
     Parameters of both BaseCrossValidator and BaseShuffleSplit.
     """
 
     _target_: str = "fseval.cv.CrossValidator"
-    name: str = MISSING
     """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
         implement a `split()` function. """
     splitter: Any = None
@@ -59,7 +57,7 @@ class CrossValidatorConfig:
 
 
 @dataclass
-class ResampleConfig:
+class ResampleConfig(GroupItem):
     _target_: str = "fseval.resampling.Resample"
     replace: bool = False
     sample_size: Any = None  # float [0.0 to 1.0] or int [1 to n_samples]
@@ -68,27 +66,25 @@ class ResampleConfig:
 
 
 @dataclass
-class RankerConfig:
-    _target_: str = "fseval.rankers.Ranker"
-    name: str = MISSING
+class EstimatorConfig(GroupItem):
     task: Task = MISSING
-    multivariate: bool = False
     """ classifier. must have _target_ of BaseEstimator type with fit() method. """
     classifier: Any = None
+    multivariate_clf: bool = False
     """ regressor. must have _target_ of BaseEstimator type with fit() method. """
     regressor: Any = None
+    multivariate_reg: bool = False
 
 
 @dataclass
-class ValidatorConfig:
+class RankerConfig(EstimatorConfig):
+    _target_: str = "fseval.rankers.Ranker"
+    instance_based: bool = False
+
+
+@dataclass
+class ValidatorConfig(EstimatorConfig):
     _target_: str = "fseval.validators.Validator"
-    name: str = MISSING
-    task: Task = MISSING
-    multivariate: bool = False
-    """ classifier. must have _target_ of BaseEstimator type with fit() method. """
-    classifier: Any = None
-    """ regressor. must have _target_ of BaseEstimator type with fit() method. """
-    regressor: Any = None
 
 
 @dataclass
