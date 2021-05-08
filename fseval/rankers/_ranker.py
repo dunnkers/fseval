@@ -38,7 +38,7 @@ class Ranker(RankerConfig, ConfigurableEstimator, ClassifierMixin):
 
         return self.estimator.selected_features_
 
-    def predict_proba(self, X: List[List[float]] = None) -> List:
+    def predict_proba(self, X: List[List[float]] = None) -> np.ndarray:
         """
         Feature importance scores. Global or per-instance.
 
@@ -64,7 +64,7 @@ class Ranker(RankerConfig, ConfigurableEstimator, ClassifierMixin):
         return log_loss(y, importance_scores, labels=[0, 1])
 
     @property
-    def feature_importances_(self) -> List:
+    def feature_importances_(self) -> np.ndarray:
         importances = np.asarray(self.estimator.feature_importances_)
         importances /= sum(importances)
         return importances

@@ -73,7 +73,7 @@ class ConfigurableEstimator(Configurable):
     def predict(self, X: List[List[float]] = None) -> List:
         return self.estimator.predict(X)
 
-    def predict_proba(self, X: List[List[float]] = None) -> List:
+    def predict_proba(self, X: List[List[float]] = None) -> np.ndarray:
         return self.estimator.predict_proba(X)
 
     def score(self, X: List[List[float]], y: List, sample_weight=None) -> float:
@@ -88,5 +88,5 @@ class ConfigurableEstimator(Configurable):
         return {"requires_y": True}
 
     @property
-    def feature_importances_(self) -> List:
+    def feature_importances_(self) -> np.ndarray:
         return self.estimator.feature_importances_

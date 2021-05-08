@@ -90,12 +90,14 @@ class ValidatorConfig(EstimatorConfig):
 @dataclass
 class ExperimentConfig:
     _target_: str = "fseval.experiment.Experiment"
-    project: str = MISSING
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
     ranker: RankerConfig = MISSING
     validator: ValidatorConfig = MISSING
+    # wandb configuration semantics
+    project: str = MISSING
+    group: Optional[str] = None
 
 
 cs = ConfigStore.instance()
