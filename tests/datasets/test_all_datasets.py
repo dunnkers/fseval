@@ -2,28 +2,30 @@ import numpy as np
 import pytest
 from fseval.datasets import Dataset
 from hydra.utils import instantiate
-from tests.utils import get_single_config
-
-ALL_DATASETS = ["boston", "iris", "switch", "xor"]
+from tests.hydra_utils import TestGroupItem, generate_group_tests
 
 
-@pytest.fixture(params=ALL_DATASETS)
-def dataset_cfg(config_repo, request):
-    single_config = get_single_config(config_repo, "dataset", request.param)
-    return single_config
+def pytest_generate_tests(metafunc):
+    generate_group_tests("dataset", metafunc)
 
 
-def test_initialization(dataset_cfg):
-    ds = instantiate(dataset_cfg)
-    assert isinstance(ds, Dataset)
+class TestDataset(TestGroupItem):
+    def test_initialization(self, cfg):
+        ds = instantiate(cfg)
+        assert isinstance(ds, Dataset)
 
+    @pytest.fixture
+    def ds(self, cfg):
+        ds = instantiate(cfg)
+        return ds
 
-def test_feature_relevancy(dataset_cfg):
-    ds = instantiate(dataset_cfg)
-    ds.load()
-    if not ds.feature_relevancy:
-        return
-    else:
-        relevances = ds.relevant_features
-        assert relevances is not None
-        assert relevances.shape == ds.X.shape
+    def test_load(self, ds):
+        ds.load()
+        assert len(ds.X) > 0
+        assert len(ds.y) > 0
+
+    def test_feature_relevancy(self, ds):
+        ds.load()
+        if ds.feature_relevancy:
+            assert ds.relevant_features is not None
+            assert ds.relevant_features.shape == ds.X.shape

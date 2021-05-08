@@ -12,6 +12,12 @@ class Task(Enum):
 
 
 @dataclass
+class GroupItem:
+    _target_: str = MISSING
+    name: str = MISSING
+
+
+@dataclass
 class DatasetConfig:
     """
     Args:
