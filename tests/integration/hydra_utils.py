@@ -1,6 +1,6 @@
 from typing import List, Optional, cast
 
-from hydra import compose, initialize
+from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
 from hydra.core.object_type import ObjectType
@@ -11,7 +11,7 @@ from omegaconf import DictConfig, OmegaConf
 def _ensure_hydra_initialized() -> None:
     gh = GlobalHydra()
     if not gh.is_initialized():
-        initialize(config_path="../fseval/conf")
+        initialize_config_module(config_module="fseval.conf", job_name="fseval_tests")
 
 
 def _get_config_loader() -> ConfigLoader:

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from fseval.datasets import Dataset
 from hydra.utils import instantiate
-from tests.hydra_utils import TestGroupItem, generate_group_tests
+from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
 
 
 def pytest_generate_tests(metafunc):

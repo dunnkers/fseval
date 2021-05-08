@@ -8,7 +8,7 @@ from hydra._internal.hydra import Hydra
 from hydra.core.global_hydra import GlobalHydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig
-from tests.hydra_utils import TestGroupItem, generate_group_tests
+from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
 
 
 def pytest_generate_tests(metafunc):

@@ -7,8 +7,7 @@ from fseval.experiment import Experiment
 from fseval.rankers import Ranker
 from hydra.utils import instantiate
 from omegaconf import DictConfig
-
-from tests.hydra_utils import get_config
+from tests.integration.hydra_utils import get_config
 
 
 @pytest.fixture
