@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import Any, List
 
 import numpy as np
-from omegaconf import MISSING
+from omegaconf import MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score, r2_score
 
@@ -26,7 +27,11 @@ class Configurable(BaseEstimator):
                 out[key] = value.get_config()
             elif deep and hasattr(value, "get_params"):
                 out[key] = value.get_params()
-            elif deep and hasattr(value, "__dict__"):
+            elif isinstance(value, Enum):
+                out[key] = value.name
+            elif isinstance(value, DictConfig):
+                out[key] = OmegaConf.to_container(value)
+            elif hasattr(value, "__dict__"):
                 out[key] = value.__dict__
             else:
                 out[key] = value
@@ -38,6 +43,9 @@ class ConfigurableEstimator(Configurable):
     @classmethod
     def _get_config_names(cls):
         params = super()._get_config_names()
+        assert (
+            "classifier" in params and "regressor" in params
+        ), "configurable estimator has no classifier and regressor fields"
         params.remove("classifier")
         params.remove("regressor")
         params.append("estimator")

@@ -30,16 +30,25 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Experiment(ExperimentConfig, Configurable):
     def run(self):
-        # load dataset and do cross-validation split
+        # start wandb right away to capture any errors to its logging system
+        wandb.init(project=self.project, config=self.get_config())
+
+        # load dataset, update config
         self.dataset.load()
+        wandb.config.update(self.get_config(), allow_val_change=True)
+
+        # cross-validation split
         train_index, test_index = self.cv.get_split(self.dataset.X)
+
+        # resampling; with- or without replacement
         train_index = self.resample.transform(train_index)
+
+        # cross-validation subsets
         X_train, X_test, y_train, y_test = self.dataset.get_subsets(
             train_index, test_index
         )
 
         # perform feature ranking
-        wandb.init(project=self.project, config=self.get_config())
         start_time = time()
         self.ranker.fit(X_train, y_train)
         end_time = time()
