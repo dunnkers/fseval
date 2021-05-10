@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -73,6 +73,7 @@ class ResampleConfig(GroupItem):
 
 @dataclass
 class EstimatorConfig(GroupItem):
+    _target_: str = "fseval.base.ConfigurableEstimator"
     task: Task = MISSING
     """ classifier. must have _target_ of BaseEstimator type with fit() method. """
     classifier: Any = None
@@ -96,15 +97,46 @@ class ValidatorConfig(EstimatorConfig):
 @dataclass
 class ExperimentConfig:
     _target_: str = "fseval.experiment.Experiment"
+    pipeline: Any = MISSING
+    # pipeline specific
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
-    ranker: RankerConfig = MISSING
-    validator: ValidatorConfig = MISSING
     # wandb configuration semantics
     project: str = MISSING
     group: Optional[str] = None
+    id: Optional[str] = None
+
+
+@dataclass
+class PipelineConfig:
+    target_class: str = MISSING
+
+
+@dataclass
+class RunEstimatorConfig:
+    estimator: EstimatorConfig = MISSING
+
+
+@dataclass
+class FeatureRankingConfig(PipelineConfig):
+    target_class: str = "fseval.pipeline.FeatureRanking"
+
+
+@dataclass
+class BaseConfig:
+    _target_: str = MISSING
+    dataset: DatasetConfig = MISSING
+    cv: CrossValidatorConfig = MISSING
+    resample: ResampleConfig = MISSING
+    estimator: EstimatorConfig = MISSING
+
+    # pipeline
+    pipeline: Any = MISSING
+    wandb: Dict = field(default_factory=lambda: dict())
 
 
 cs = ConfigStore.instance()
-cs.store(name="base_config", node=ExperimentConfig)
+cs.store(group="pipeline", name="feature_ranking", node=FeatureRankingConfig)
+cs.store(name="estimator", node=EstimatorConfig)
+cs.store(name="base_config", node=BaseConfig)

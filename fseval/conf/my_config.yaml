@@ -1,0 +1,28 @@
+hydra:
+  help:
+    app_name: fseval
+    header: |
+      fseval benchmarking library.
+
+defaults:
+  - base_config
+  - dataset: xor
+  - cv: train_test_split
+  - resample: bootstrap
+  - estimator: chi2
+  - pipeline: feature_ranking
+  # - estimator@pipeline.ranker: chi2
+_target_: ${pipeline.target_class}
+# pipeline:
+#   dataset: ${defaults.datataset}
+  # cv: ${defaults.cv}
+  # resample: ${defaults.resample}
+  # task: ${defaults.dataset.task}
+wandb:
+  project: toy-wandb-fs
+#   - ranker: tabnet
+#   - validator: dt
+# ranker:
+#   task: ${dataset.task}
+# validator:
+#   task: ${dataset.task}
