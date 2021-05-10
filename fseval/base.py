@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List
+from typing import Any, Dict, List
 
 import numpy as np
 from omegaconf import MISSING, DictConfig, OmegaConf
@@ -9,14 +9,14 @@ from sklearn.metrics import accuracy_score, r2_score
 
 class Configurable(BaseEstimator):
     @classmethod
-    def _get_config_names(cls):
+    def _get_config_names(cls) -> List:
         """Get config names for this configurable estimator"""
         return super()._get_param_names()
 
-    def _omitted_values(self):
+    def _omitted_values(self) -> List:
         return [MISSING, None]
 
-    def get_config(self, deep: bool = True):
+    def get_config(self, deep: bool = True) -> Dict:
         keys = self._get_config_names()
         values = [getattr(self, key) for key in keys]
         out = dict()
@@ -41,7 +41,7 @@ class Configurable(BaseEstimator):
 
 class ConfigurableEstimator(Configurable):
     @classmethod
-    def _get_config_names(cls):
+    def _get_config_names(cls) -> List:
         params = super()._get_config_names()
         assert (
             "classifier" in params and "regressor" in params

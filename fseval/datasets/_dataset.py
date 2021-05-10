@@ -95,7 +95,7 @@ class Dataset(DatasetConfig, Configurable):
         X = np.zeros_like(self.X)
         for selector, value in self.feature_importances.items():
             assert (
-                re.match("X\[.*\]", selector) is not None
+                re.match(r"X\[.*\]", selector) is not None
             ), f"incorrect feature_importances pattern: {selector} = {value}"
 
             exec(f"{selector} = {value}")
