@@ -1,7 +1,8 @@
 name: XOR (Chen et al.)
 task: regression
 adapter:
-  _target_: fseval.adapters.Wandb
-  artifact_id: dunnkers/synthetic-datasets/xor:v0
+  _target_: l2x_synthetic.XORGenerator
+  n_samples: 10000
+  random_state: 0
 feature_importances:
   X[:, 0:3]: 1.0

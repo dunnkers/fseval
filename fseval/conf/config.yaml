@@ -1,4 +1,10 @@
 project: toy-wandb-fs
+hydra:
+  help:
+    app_name: fseval
+    header: |
+      fseval benchmarking library.
+
 defaults:
   - base_config
   - dataset: xor

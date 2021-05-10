@@ -25,8 +25,12 @@ class DatasetConfig(GroupItem):
 
         task: either Task.classification or Task.regression.
 
-        adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must implement a
-        get_data() -> (X, y) method.
+        adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must
+        implement a get_data() -> (X, y) method.
+
+        adapter_callable: adapter class callable. the function to be called on the
+        instantiated class to fetch the data (X, y). is ignored when the target itself
+        is a function callable.
 
         feature_importances: weightings indicating relevant features or instances.
         should be a dict with each key and value like the following pattern:
@@ -38,8 +42,10 @@ class DatasetConfig(GroupItem):
     """
 
     _target_: str = "fseval.datasets.Dataset"
+    _recursive_: bool = False  # prevent adapter from getting initialized
     task: Task = MISSING
     adapter: Any = MISSING
+    adapter_callable: str = "get_data"
     feature_importances: Optional[Dict[str, float]] = None
 
 

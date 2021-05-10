@@ -2,6 +2,7 @@ antlr4-python3-runtime==4.8
 appdirs==1.4.4
 arrow==1.1.0
 attrs==20.3.0
+autoflake==1.4
 black==21.4b2
 certifi==2020.12.5
 chardet==4.0.0
@@ -17,9 +18,11 @@ hydra-core==1.1.0.dev6
 -e git+https://github.com/dunnkers/hydra.git@fe322a8f95eb6badcdce001375c727567545e97b#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher
 idna==2.10
 iniconfig==1.1.1
+isort==5.8.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
 joblib==1.0.1
+l2x-synthetic==2.0.0
 liac-arff==2.5.0
 MarkupSafe==1.1.1
 minio==7.0.3
@@ -38,6 +41,7 @@ protobuf==3.15.8
 psutil==5.8.0
 py==1.10.0
 pyarrow==4.0.0
+pyflakes==2.3.1
 pyparsing==2.4.7
 pytest==6.2.3
 python-dateutil==2.8.1

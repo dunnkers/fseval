@@ -20,5 +20,6 @@ setup(
         "wandb==0.10.28",
         "pytorch-tabnet==3.1.1",
         "skrebate==0.62",
+        "l2x-synthetic==2.0.0",
     ],
 )

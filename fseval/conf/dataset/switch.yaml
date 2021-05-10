@@ -1,8 +1,9 @@
 name: Switch (Chen et al.)
 task: regression
 adapter:
-  _target_: fseval.adapters.Wandb
-  artifact_id: dunnkers/synthetic-datasets/switch:v0
+  _target_: l2x_synthetic.SwitchGenerator
+  n_samples: 10000
+  random_state: 0
 feature_importances:
   X[:n//2, 0:3]: 1.0
   X[n//2:, 4:7]: 1.0

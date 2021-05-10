@@ -4,6 +4,7 @@ from typing import List, Tuple
 import numpy as np
 import pandas as pd
 from omegaconf import MISSING
+
 from openml.datasets import get_dataset
 
 from ._adapter import Adapter
