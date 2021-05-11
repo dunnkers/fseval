@@ -1,3 +1,4 @@
 name: Chi-Squared
 classifier:
-  _target_: fseval.estimators.Chi2
+  estimator:
+    _target_: fseval.estimators.Chi2

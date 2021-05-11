@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class FeatureRanking(Pipeline):
-    ranker: Any = None
+class RunEstimator(Pipeline):
+    validator: Any = None
 
     def run(self, input: Any, callback_list: CallbackList) -> Any:
         # load dataset
@@ -41,13 +41,13 @@ class FeatureRanking(Pipeline):
             train_index, test_index
         )
 
-        # feature ranking
+        # run estimator
         start_time = time()
-        self.ranker.estimator.fit(X_train, y_train)
+        self.validator.estimator.fit(X_train, y_train)
         end_time = time()
-        ranking = self.ranker.estimator.feature_importances_
-        ranking = np.asarray(ranking)
-        ranking /= sum(ranking)
+        score = self.validator.estimator.score(X_test, y_test)
 
-        logger.info(f"{self.ranker.name} feature ranking: {ranking}")
-        callback_list.on_log({"ranker_fit_time": end_time - start_time})
+        logger.info(f"{self.validator.name} score: {score}")
+        callback_list.on_log(
+            {"validator_score": score, "validator_fit_time": end_time - start_time}
+        )

@@ -6,13 +6,23 @@ hydra:
 
 defaults:
   - base_config
-  - dataset: xor
+  - dataset: iris
   - cv: train_test_split
   - resample: bootstrap
-  - estimator: chi2
+  # - estimator: chi2
   - pipeline: feature_ranking
+  - callbacks:
+    - stdout
+    - wandb
+  # - task: ${dataset.task}
+  # - estimator@pipeline/ranker/estimator: ${dataset.task}/giezer
+  # - pipeline/adapter: ${dataset.adapter}
+  # - pipeline/ranker/estimator: 
+# pipeline:
+#   # adapter: ${dataset.adapter}
+#   task: ${dataset.task}
   # - estimator@pipeline.ranker: chi2
-_target_: ${pipeline.target_class}
+# _target_: ${pipeline.target_class}
 # pipeline:
 #   dataset: ${defaults.datataset}
   # cv: ${defaults.cv}
@@ -20,6 +30,9 @@ _target_: ${pipeline.target_class}
   # task: ${defaults.dataset.task}
 wandb:
   project: toy-wandb-fs
+# pipeline:
+#   callbacks:
+#     - wandb
 #   - ranker: tabnet
 #   - validator: dt
 # ranker:

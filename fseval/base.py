@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
+from hydra.utils import instantiate
 from omegaconf import MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score, r2_score
+
+from fseval.config import EstimatorConfig, Task
 
 
 class Configurable(BaseEstimator):
@@ -29,6 +32,7 @@ class Configurable(BaseEstimator):
                 out[key] = value.get_params()
             elif isinstance(value, Enum):
                 out[key] = value.name
+            # TODO recurse with dict keys/values
             elif isinstance(value, DictConfig):
                 out[key] = OmegaConf.to_container(value)
             elif hasattr(value, "__dict__"):
@@ -37,6 +41,20 @@ class Configurable(BaseEstimator):
                 out[key] = value
 
         return out
+
+
+def instantiate_estimator(
+    name: str,
+    task: Task,
+    classifier: Optional[EstimatorConfig] = None,
+    regressor: Optional[EstimatorConfig] = None,
+):
+    estimators = dict(classification=classifier, regression=regressor)
+    estimator = estimators[task.name]
+    assert (
+        estimator is not None
+    ), f"selected estimator does not support {task.name} datasets!"
+    return instantiate(estimator, name=name)
 
 
 class ConfigurableEstimator(Configurable):

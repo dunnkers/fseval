@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Dataset(DatasetConfig, Configurable):
+    # these are "runtime" properties: they are only set once the dataset is loaded.
     n: Optional[int] = None
     p: Optional[int] = None
     multivariate: Optional[bool] = None

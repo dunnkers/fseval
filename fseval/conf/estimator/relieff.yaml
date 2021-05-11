@@ -1,5 +1,7 @@
 name: ReliefF
 classifier:
-  _target_: skrebate.ReliefF
+  estimator:
+    _target_: skrebate.ReliefF
 regressor:
-  _target_: skrebate.ReliefF
+  estimator:
+    _target_: skrebate.ReliefF

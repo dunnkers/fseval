@@ -1,0 +1,2 @@
+wandb:
+  _target_: fseval.pipeline.WandbCallback

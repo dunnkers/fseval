@@ -1,7 +1,9 @@
 name: Decision Tree
 classifier:
-  _target_: sklearn.tree.DecisionTreeClassifier
+  estimator:
+    _target_: sklearn.tree.DecisionTreeClassifier
+  multivariate: true
 regressor:
-  _target_: sklearn.tree.DecisionTreeRegressor
-multivariate_clf: true
-multivariate_reg: true
+  estimator:
+    _target_: sklearn.tree.DecisionTreeRegressor
+  multivariate: true

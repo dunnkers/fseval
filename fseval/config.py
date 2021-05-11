@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from hydra.core.config_store import ConfigStore
-from omegaconf import MISSING
+from omegaconf import II, MISSING
 
 
 class Task(Enum):
@@ -13,7 +13,6 @@ class Task(Enum):
 
 @dataclass
 class GroupItem:
-    _target_: str = MISSING
     name: str = MISSING
 
 
@@ -73,70 +72,87 @@ class ResampleConfig(GroupItem):
 
 @dataclass
 class EstimatorConfig(GroupItem):
-    _target_: str = "fseval.base.ConfigurableEstimator"
+    estimator: Any = None  # must have _target_ of type BaseEstimator.
+    multivariate: bool = False
+
+
+@dataclass
+class TaskedEstimatorConfig(GroupItem):
+    _target_: str = "fseval.base.instantiate_estimator"
+    _recursive_: bool = False  # don't instantiate classifier/regressor
     task: Task = MISSING
-    """ classifier. must have _target_ of BaseEstimator type with fit() method. """
-    classifier: Any = None
-    multivariate_clf: bool = False
-    """ regressor. must have _target_ of BaseEstimator type with fit() method. """
-    regressor: Any = None
-    multivariate_reg: bool = False
+    classifier: Optional[EstimatorConfig] = None
+    regressor: Optional[EstimatorConfig] = None
+    # instance_based_ranking: bool = False
 
 
 @dataclass
-class RankerConfig(EstimatorConfig):
-    _target_: str = "fseval.rankers.Ranker"
-    instance_based: bool = False
-
-
-@dataclass
-class ValidatorConfig(EstimatorConfig):
-    _target_: str = "fseval.validators.Validator"
-
-
-@dataclass
-class ExperimentConfig:
-    _target_: str = "fseval.experiment.Experiment"
-    pipeline: Any = MISSING
-    # pipeline specific
-    dataset: DatasetConfig = MISSING
-    cv: CrossValidatorConfig = MISSING
-    resample: ResampleConfig = MISSING
-    # wandb configuration semantics
-    project: str = MISSING
-    group: Optional[str] = None
-    id: Optional[str] = None
+class CallbacksConfig:
+    stdout: bool = False
+    wandb: bool = False
 
 
 @dataclass
 class PipelineConfig:
-    target_class: str = MISSING
+    _target_: str = MISSING  # will be main class of entire program
+    # callbacks: List[CallbackConfig] = field(default_factory=lambda: [])
 
 
-@dataclass
-class RunEstimatorConfig:
-    estimator: EstimatorConfig = MISSING
+# FEATURE_RANKING_DEFAULTS = [
+#     {"/estimator@ranker": "chi2"},
+# ]
 
 
 @dataclass
 class FeatureRankingConfig(PipelineConfig):
-    target_class: str = "fseval.pipeline.FeatureRanking"
+    # defaults: List[Any] = field(default_factory=lambda: FEATURE_RANKING_DEFAULTS)
+
+    _target_: str = "fseval.pipeline.FeatureRanking"
+    job_type: str = "feature-ranking"
+    # in CLI, use: estimator@pipeline.ranker=chi2
+    ranker: TaskedEstimatorConfig = MISSING
+    # task: Task = II("dataset.task")
+    # adapter: Any = None
+
+
+RUN_ESTIMATOR_DEFAULTS = [
+    {"/estimator": "dt"},
+]
+
+
+@dataclass
+class RunEstimatorConfig:
+    _target_: str = "fseval.pipeline.RunEstimator"
+    job_type: str = "run-estimator"
+    # in CLI, use: estimator@pipeline.ranker=chi2
+    validator: TaskedEstimatorConfig = MISSING
+
+
+# RANK_AND_VALIDATE_DEFAULTS = FEATURE_RANKING_DEFAULTS + RUN_ESTIMATOR_DEFAULTS
+
+
+# @dataclass
+# class RankAndValidateConfig(FeatureRankingConfig, RunEstimatorConfig):
+#     defaults: List[Any] = field(default_factory=lambda: RANK_AND_VALIDATE_DEFAULTS)
 
 
 @dataclass
 class BaseConfig:
     _target_: str = MISSING
+    # these are passed into pipeline class
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
-    estimator: EstimatorConfig = MISSING
-
-    # pipeline
-    pipeline: Any = MISSING
     wandb: Dict = field(default_factory=lambda: dict())
+    callbacks: Dict = field(default_factory=lambda: dict())
+    # pipeline; is instantiated with all above objects
+    pipeline: Any = MISSING
 
 
 cs = ConfigStore.instance()
-cs.store(group="pipeline", name="feature_ranking", node=FeatureRankingConfig)
-cs.store(name="estimator", node=EstimatorConfig)
+cs.store(group="pipeline", name="base_feature_ranking", node=FeatureRankingConfig)
+cs.store(group="pipeline", name="base_run_estimator", node=RunEstimatorConfig)
+# cs.store(group="pipeline", name="rank_and_validate", node=RankAndValidateConfig)
+# cs.store(group="task", name="")
+# cs.store(name="estimator", node=EstimatorConfig)
 cs.store(name="base_config", node=BaseConfig)
