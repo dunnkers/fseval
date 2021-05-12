@@ -4,7 +4,6 @@ from time import time
 from typing import Any, List
 
 import numpy as np
-from fseval.config import PipelineConfig
 
 from ._callbacks import CallbackList
 from ._pipeline import Pipeline

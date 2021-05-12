@@ -31,7 +31,7 @@ def main(cfg: BaseConfig) -> None:
 
     # set config and pipeline on callbacks
     callback_list = CallbackList(callbacks)
-    callback_list.set_config(pipeline.get_config())
+    callback_list.set_pipeline_config(pipeline.get_config())
     callback_list.set_pipeline(pipeline)
 
     # run pipeline

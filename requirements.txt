@@ -8,12 +8,14 @@ certifi==2020.12.5
 chardet==4.0.0
 click==7.1.2
 cloudpickle==1.6.0
+colorlog==5.0.1
 configparser==5.0.2
 docker-pycreds==0.4.0
 fakeredis==1.5.0
 Flask==1.1.2
 gitdb==4.0.7
 GitPython==3.1.14
+hydra-colorlog==1.1.0.dev1
 hydra-core==1.1.0.dev6
 -e git+https://github.com/dunnkers/hydra.git@fe322a8f95eb6badcdce001375c727567545e97b#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher
 idna==2.10
@@ -70,6 +72,6 @@ tqdm==4.60.0
 typed-ast==1.4.3
 typing-extensions==3.7.4.3
 urllib3==1.26.4
-wandb==0.10.29
+wandb==0.10.30
 Werkzeug==1.0.1
 xmltodict==0.12.0

@@ -83,7 +83,6 @@ class TaskedEstimatorConfig(GroupItem):
     task: Task = MISSING
     classifier: Optional[EstimatorConfig] = None
     regressor: Optional[EstimatorConfig] = None
-    # instance_based_ranking: bool = False
 
 
 @dataclass
@@ -93,47 +92,31 @@ class CallbacksConfig:
 
 
 @dataclass
-class PipelineConfig:
-    _target_: str = MISSING  # will be main class of entire program
-    # callbacks: List[CallbackConfig] = field(default_factory=lambda: [])
-
-
-# FEATURE_RANKING_DEFAULTS = [
-#     {"/estimator@ranker": "chi2"},
-# ]
-
-
-@dataclass
-class FeatureRankingConfig(PipelineConfig):
-    # defaults: List[Any] = field(default_factory=lambda: FEATURE_RANKING_DEFAULTS)
-
+class FeatureRankingConfig:
     _target_: str = "fseval.pipeline.FeatureRanking"
-    job_type: str = "feature-ranking"
     # in CLI, use: estimator@pipeline.ranker=chi2
     ranker: TaskedEstimatorConfig = MISSING
-    # task: Task = II("dataset.task")
-    # adapter: Any = None
 
-
-RUN_ESTIMATOR_DEFAULTS = [
-    {"/estimator": "dt"},
-]
+    # wandb
+    name: str = "feature-ranking"
 
 
 @dataclass
 class RunEstimatorConfig:
     _target_: str = "fseval.pipeline.RunEstimator"
-    job_type: str = "run-estimator"
     # in CLI, use: estimator@pipeline.ranker=chi2
-    validator: TaskedEstimatorConfig = MISSING
+    estimator: TaskedEstimatorConfig = MISSING
+
+    # wandb
+    name: str = "run-estimator"
 
 
-# RANK_AND_VALIDATE_DEFAULTS = FEATURE_RANKING_DEFAULTS + RUN_ESTIMATOR_DEFAULTS
+@dataclass
+class RankAndValidateConfig(FeatureRankingConfig, RunEstimatorConfig):
+    _target_: str = "fseval.pipeline.RankAndValidate"
 
-
-# @dataclass
-# class RankAndValidateConfig(FeatureRankingConfig, RunEstimatorConfig):
-#     defaults: List[Any] = field(default_factory=lambda: RANK_AND_VALIDATE_DEFAULTS)
+    # wandb
+    name: str = "rank-and-validate"
 
 
 @dataclass
@@ -143,7 +126,6 @@ class BaseConfig:
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
-    wandb: Dict = field(default_factory=lambda: dict())
     callbacks: Dict = field(default_factory=lambda: dict())
     # pipeline; is instantiated with all above objects
     pipeline: Any = MISSING
@@ -152,7 +134,5 @@ class BaseConfig:
 cs = ConfigStore.instance()
 cs.store(group="pipeline", name="base_feature_ranking", node=FeatureRankingConfig)
 cs.store(group="pipeline", name="base_run_estimator", node=RunEstimatorConfig)
-# cs.store(group="pipeline", name="rank_and_validate", node=RankAndValidateConfig)
-# cs.store(group="task", name="")
-# cs.store(name="estimator", node=EstimatorConfig)
+cs.store(group="pipeline", name="base_rank_and_validate", node=RankAndValidateConfig)
 cs.store(name="base_config", node=BaseConfig)

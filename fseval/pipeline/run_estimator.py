@@ -4,7 +4,6 @@ from time import time
 from typing import Any, List
 
 import numpy as np
-from fseval.config import PipelineConfig
 
 from ._callbacks import CallbackList
 from ._pipeline import Pipeline
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RunEstimator(Pipeline):
-    validator: Any = None
+    estimator: Any = None
 
     def run(self, input: Any, callback_list: CallbackList) -> Any:
         # load dataset
@@ -43,11 +42,11 @@ class RunEstimator(Pipeline):
 
         # run estimator
         start_time = time()
-        self.validator.estimator.fit(X_train, y_train)
+        self.estimator.estimator.fit(X_train, y_train)
         end_time = time()
-        score = self.validator.estimator.score(X_test, y_test)
+        score = self.estimator.estimator.score(X_test, y_test)
 
-        logger.info(f"{self.validator.name} score: {score}")
+        logger.info(f"{self.estimator.name} score: {score}")
         callback_list.on_log(
-            {"validator_score": score, "validator_fit_time": end_time - start_time}
+            {"estimator_score": score, "estimator_fit_time": end_time - start_time}
         )

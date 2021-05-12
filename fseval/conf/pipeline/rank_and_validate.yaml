@@ -1,0 +1,8 @@
+defaults:
+  - base_rank_and_validate
+  - /estimator@ranker: chi2
+  - /estimator@estimator: dt
+ranker:
+  task: ${dataset.task}
+estimator:
+  task: ${dataset.task}

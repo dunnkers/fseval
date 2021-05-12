@@ -1,4 +1,6 @@
-import collections
+import copy
+import inspect
+import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger, getLogger
@@ -6,23 +8,25 @@ from typing import Dict, List
 
 import wandb
 from fseval.base import Configurable
+from fseval.utils import dict_merge
+from omegaconf import OmegaConf
 
 
 class Callback(ABC):
     """Abstract class for implementing a pipeline callback.
 
     Args:
-        config: Dict. A copy of the config passed to `pipeline`.
+        pipeline_config: Dict. A copy of the config passed to `pipeline`.
         pipeline: Instance of `fseval.pipeline.Pipeline`. Represents the current
             pipeline being executed.
     """
 
     def __init__(self):
+        self.pipeline_config = None
         self.pipeline = None
-        self.config = None
 
-    def set_config(self, config: Dict):
-        self.config = config
+    def set_pipeline_config(self, pipeline_config: Dict):
+        self.pipeline_config = pipeline_config
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline
@@ -30,7 +34,7 @@ class Callback(ABC):
     def on_pipeline_begin(self, logs: Dict = None):
         ...
 
-    def on_config_update(self, config, logs: Dict = None):
+    def on_pipeline_config_update(self, pipeline_config: Dict, logs: Dict = None):
         ...
 
     def on_log(self, logs: Dict = None):
@@ -48,9 +52,9 @@ class CallbackList(Callback):
         super(CallbackList, self).__init__()
         self.callbacks = list(callbacks)
 
-    def set_config(self, config: Dict):
+    def set_pipeline_config(self, pipeline_config: Dict):
         for callback in self.callbacks:
-            callback.set_config(config)
+            callback.set_pipeline_config(pipeline_config)
 
     def set_pipeline(self, pipeline):
         for callback in self.callbacks:
@@ -60,9 +64,9 @@ class CallbackList(Callback):
         for callback in self.callbacks:
             callback.on_pipeline_begin(logs)
 
-    def on_config_update(self, config, logs: Dict = None):
+    def on_pipeline_config_update(self, pipeline_config: Dict, logs: Dict = None):
         for callback in self.callbacks:
-            callback.on_config_update(config, logs)
+            callback.on_pipeline_config_update(pipeline_config, logs)
 
     def on_log(self, logs: Dict = None):
         for callback in self.callbacks:
@@ -85,8 +89,8 @@ class StdoutCallback(Callback):
     def on_pipeline_begin(self, logs: Dict = None):
         self.logger.info("pipeline started.")
 
-    def on_config_update(self, config, logs: Dict = None):
-        self.logger.info("config changed: %s", config)
+    def on_pipeline_config_update(self, pipeline_config: Dict, logs: Dict = None):
+        self.logger.info("pipeline config changed: %s", pipeline_config)
 
     def on_log(self, logs: Dict = None):
         self.logger.info("received a log: %s", logs)
@@ -99,36 +103,63 @@ class StdoutCallback(Callback):
 
 
 class WandbCallback(Callback):
+    def __init__(self, **kwargs):
+        super(WandbCallback, self).__init__()
+        # make sure any nested objects are casted from DictConfig's to regular dict's.
+        kwargs = OmegaConf.create(kwargs)
+        kwargs = OmegaConf.to_container(kwargs)
+
+        self.callback_config = kwargs
+
     def on_pipeline_begin(self, logs: Dict = None):
-        wandb.init(config=self.config)
-        # TODO use `inspect.signature` to populate other kwargs using
-        # `config.pop(argname, None)`
+        # init_signature = inspect.signature(wandb.init)
+        # wandb_init_params = inspect.signature(wandb.init).parameters
+        # wandb_init_params = dict(wandb_init_params)
 
-        # TODO make sure `job_type` and `group`, etc, are passed on correctly.
+        # # parse `wandb.init()` kwargs according to its signature
+        # init_kwargs = dict()
+        # callback_config = copy.deepcopy(self.callback_config)
+        # for key, param in wandb_init_params.items():
+        #     init_kwargs[key] = callback_config.pop(key, param.default)
+        # init_kwargs = dict()
+        # try:
+        #     bound_arguments = init_signature.bind(**self.callback_config)
+        #     init_kwargs.update(bound_arguments.arguments)
+        # except TypeError as e:
 
-    def on_config_update(self, config, logs: Dict = None):
-        def dict_merge(dct, merge_dct):
-            """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
-            updating only top-level keys, dict_merge recurses down into dicts nested
-            to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
-            ``dct``.
-            :param dct: dict onto which the merge is executed
-            :param merge_dct: dct merged into dct
-            :return: None
-            """
-            for k, v in merge_dct.items():
-                if (
-                    k in dct
-                    and isinstance(dct[k], dict)
-                    and isinstance(merge_dct[k], collections.Mapping)
-                ):
-                    dict_merge(dct[k], merge_dct[k])
-                else:
-                    dct[k] = merge_dct[k]
+        #     raise type(e)(
+        #         e.message
+        #         + """ (make sure to match the `wandb.init` signature in the config passed
+        #         to the wandb callback)"""
+        #     )
+        # # callback_config should be empty: all its keys should have been in the
+        # # `wandb.init` signature.
+        # assert not bool(
+        #     callback_config
+        # ), f"""Wandb callback config contains illegal keys: {callback_config.keys()}:
+        #     any passed in parameters must match the `wandb.init` signature."""
 
-        # merge recursively, to prevent dangerous overriding operations using
-        # `wandb.update`
-        dict_merge(wandb.config, config)
+        # # overwrite init_kwargs["config"] with pipeline config.
+        # pipeline_config = copy.deepcopy(self.pipeline_config)
+        # dict_merge(init_kwargs, {"config": pipeline_config})
+
+        # use (1) callback config (2) overriden by pipeline config as input to wandb.init
+        init_kwargs = copy.deepcopy(self.callback_config)
+        pipeline_config = copy.deepcopy(self.pipeline_config)
+        dict_merge(init_kwargs, {"config": pipeline_config})
+
+        try:
+            wandb.init(**init_kwargs)
+        except TypeError as e:
+            raise type(e)(
+                str(e)
+                + f""" (make sure whatever config you pass to the wandb callback matches
+                the `wandb.init` signature)"""
+            ).with_traceback(sys.exc_info()[2])
+
+    def on_pipeline_config_update(self, pipeline_config: Dict, logs: Dict = None):
+        # merge recursively, to prevent overriding pipeline config using `wandb.update`
+        dict_merge(wandb.config, pipeline_config)
 
     def on_log(self, logs: Dict = None):
         wandb.log(logs)
