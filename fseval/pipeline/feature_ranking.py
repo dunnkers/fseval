@@ -4,8 +4,10 @@ from time import time
 from typing import Any, List
 
 import numpy as np
+import pandas as pd
 
 from ._callbacks import CallbackList
+from ._components import FeatureRankingPipe, SubsetLoaderPipe
 from ._pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
@@ -15,38 +17,12 @@ logger = logging.getLogger(__name__)
 class FeatureRanking(Pipeline):
     ranker: Any = None
 
-    def run(self, input: Any, callback_list: CallbackList) -> Any:
-        # load dataset
-        self.dataset.load()
-        # send runtime properties to callbacks
-        callback_list.on_config_update(
-            {
-                "dataset": {
-                    "n": self.dataset.n,
-                    "p": self.dataset.p,
-                    "multivariate": self.dataset.multivariate,
-                }
-            }
-        )
+    def run(self, args: Any, callback_list: CallbackList) -> Any:
+        subset_loader = SubsetLoaderPipe(self.dataset, self.cv)
+        data = subset_loader.run(None, callback_list)
 
-        # cross-validation split
-        train_index, test_index = self.cv.get_split(self.dataset.X)
-
-        # resampling; with- or without replacement
-        train_index = self.resample.transform(train_index)
-
-        # cross-validation subsets
-        X_train, X_test, y_train, y_test = self.dataset.get_subsets(
-            train_index, test_index
-        )
-
-        # feature ranking
-        start_time = time()
-        self.ranker.estimator.fit(X_train, y_train)
-        end_time = time()
-        ranking = self.ranker.estimator.feature_importances_
-        ranking = np.asarray(ranking)
-        ranking /= sum(ranking)
+        feature_ranker = FeatureRankingPipe(self.ranker)
+        ranking, fit_time = feature_ranker.run(data, callback_list)
 
         logger.info(f"{self.ranker.name} feature ranking: {ranking}")
-        callback_list.on_log({"ranker_fit_time": end_time - start_time})
+        callback_list.on_log({"ranker_fit_time": fit_time})

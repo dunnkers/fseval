@@ -1,2 +1,3 @@
 wandb:
   _target_: fseval.pipeline.WandbCallback
+  job_type: ${pipeline.name}

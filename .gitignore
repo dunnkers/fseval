@@ -148,3 +148,6 @@ artifacts
 
 # Misc
 .DS_Store
+
+# fseval
+output

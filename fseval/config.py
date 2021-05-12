@@ -94,29 +94,22 @@ class CallbacksConfig:
 @dataclass
 class FeatureRankingConfig:
     _target_: str = "fseval.pipeline.FeatureRanking"
-    # in CLI, use: estimator@pipeline.ranker=chi2
-    ranker: TaskedEstimatorConfig = MISSING
-
-    # wandb
     name: str = "feature-ranking"
+    ranker: TaskedEstimatorConfig = MISSING  # CLI: estimator@pipeline.ranker=chi2
 
 
 @dataclass
 class RunEstimatorConfig:
     _target_: str = "fseval.pipeline.RunEstimator"
-    # in CLI, use: estimator@pipeline.ranker=chi2
-    estimator: TaskedEstimatorConfig = MISSING
-
-    # wandb
     name: str = "run-estimator"
+    estimator: TaskedEstimatorConfig = MISSING  # CLI: estimator@pipeline.ranker=chi2
 
 
 @dataclass
 class RankAndValidateConfig(FeatureRankingConfig, RunEstimatorConfig):
     _target_: str = "fseval.pipeline.RankAndValidate"
-
-    # wandb
     name: str = "rank-and-validate"
+    n_bootstraps: int = 1
 
 
 @dataclass

@@ -6,3 +6,4 @@ ranker:
   task: ${dataset.task}
 estimator:
   task: ${dataset.task}
+n_bootstraps: 30

@@ -9,16 +9,9 @@ defaults:
   - dataset: iris
   - cv: train_test_split
   - resample: bootstrap
-  - pipeline: run_estimator
+  - pipeline: rank_and_validate
   - callbacks:
     - stdout
     - wandb
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
-callbacks:
-  wandb:
-    job_type: ${pipeline.name}
-    project: toy-wandb-fs
-    config:
-      dataset:
-        something: 5

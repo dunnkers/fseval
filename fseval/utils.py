@@ -1,22 +1,23 @@
-# Recursive dictionary merge
-# Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import collections
 
 
+# Dictionary flatten to dotted notation
+# Imran <https://stackoverflow.com/users/1897/imran>
+# https://stackoverflow.com/a/6027615/
+def dict_flatten(d, parent_key="", sep="."):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(dict_flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+# Recursive dictionary merge
+# Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
+# https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
 def dict_merge(dct, merge_dct):
     """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested

@@ -1,4 +1,5 @@
 import logging
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List
@@ -13,14 +14,8 @@ from ._callbacks import CallbackList
 logger = logging.getLogger(__name__)
 
 
-class PipelineComponent(ABC):
-    @abstractmethod
-    def run(self, input: Any, callback_list: CallbackList) -> Any:
-        ...
-
-
 @dataclass
-class Pipeline(PipelineComponent, Configurable):
+class Pipeline(Configurable):
     name: str
     dataset: Dataset
     cv: CrossValidator
@@ -33,5 +28,5 @@ class Pipeline(PipelineComponent, Configurable):
         self.run(None, callback_list)
         callback_list.on_pipeline_end()
 
-    def run(self, input: Any, callback_list: CallbackList) -> Any:
+    def run(self, args: Any, callback_list: CallbackList) -> Any:
         ...

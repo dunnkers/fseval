@@ -1,5 +1,6 @@
 import copy
 import inspect
+import os
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -43,6 +44,9 @@ class Callback(ABC):
     def on_summary(self, logs: Dict = None):
         ...
 
+    def on_file_save(self, filename, content):
+        ...
+
     def on_pipeline_end(self, logs: Dict = None):
         ...
 
@@ -76,6 +80,10 @@ class CallbackList(Callback):
         for callback in self.callbacks:
             callback.on_summary(logs)
 
+    def on_file_save(self, filename, content):
+        for callback in self.callbacks:
+            callback.on_file_save(filename, content)
+
     def on_pipeline_end(self, logs: Dict = None):
         for callback in self.callbacks:
             callback.on_pipeline_end(logs)
@@ -98,6 +106,9 @@ class StdoutCallback(Callback):
     def on_summary(self, logs: Dict = None):
         self.logger.info("received a summary: %s", logs)
 
+    def on_file_save(self, filename, content):
+        self.logger.info("received a file: %s", filename)
+
     def on_pipeline_end(self, logs: Dict = None):
         self.logger.info("pipeline finished.")
 
@@ -112,37 +123,6 @@ class WandbCallback(Callback):
         self.callback_config = kwargs
 
     def on_pipeline_begin(self, logs: Dict = None):
-        # init_signature = inspect.signature(wandb.init)
-        # wandb_init_params = inspect.signature(wandb.init).parameters
-        # wandb_init_params = dict(wandb_init_params)
-
-        # # parse `wandb.init()` kwargs according to its signature
-        # init_kwargs = dict()
-        # callback_config = copy.deepcopy(self.callback_config)
-        # for key, param in wandb_init_params.items():
-        #     init_kwargs[key] = callback_config.pop(key, param.default)
-        # init_kwargs = dict()
-        # try:
-        #     bound_arguments = init_signature.bind(**self.callback_config)
-        #     init_kwargs.update(bound_arguments.arguments)
-        # except TypeError as e:
-
-        #     raise type(e)(
-        #         e.message
-        #         + """ (make sure to match the `wandb.init` signature in the config passed
-        #         to the wandb callback)"""
-        #     )
-        # # callback_config should be empty: all its keys should have been in the
-        # # `wandb.init` signature.
-        # assert not bool(
-        #     callback_config
-        # ), f"""Wandb callback config contains illegal keys: {callback_config.keys()}:
-        #     any passed in parameters must match the `wandb.init` signature."""
-
-        # # overwrite init_kwargs["config"] with pipeline config.
-        # pipeline_config = copy.deepcopy(self.pipeline_config)
-        # dict_merge(init_kwargs, {"config": pipeline_config})
-
         # use (1) callback config (2) overriden by pipeline config as input to wandb.init
         init_kwargs = copy.deepcopy(self.callback_config)
         pipeline_config = copy.deepcopy(self.pipeline_config)
@@ -166,6 +146,14 @@ class WandbCallback(Callback):
 
     def on_summary(self, logs: Dict = None):
         wandb.summary.update(logs)
+
+    def on_file_save(self, filename, content):
+        filepath = os.path.join(wandb.run.dir, filename)
+        f = open(filepath, "w")
+        f.write(content)
+        f.close()
+
+        wandb.save(filename, base_path="/")
 
     def on_pipeline_end(self, logs: Dict = None):
         wandb.finish()
