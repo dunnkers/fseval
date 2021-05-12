@@ -1,12 +1,12 @@
 import logging
+from functools import reduce
 from typing import Optional
 
 import numpy as np
-from sklearn.base import TransformerMixin
-from sklearn.utils import resample
-
 from fseval.base import Configurable
 from fseval.config import ResampleConfig
+from sklearn.base import TransformerMixin
+from sklearn.utils import resample
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +23,13 @@ class Resample(ResampleConfig, TransformerMixin, Configurable):
         config.append("frac_samples")
         return config
 
-    def fit(self, X, y=None):
+    def fit(self, *arrays, y=None):
         return self
 
-    def transform(self, X):
-        assert (
-            np.ndim(X) >= 1
-        ), "tried to resample X, but given array has no dimensions."
-        n = np.shape(X)[0]
+    def transform(self, *arrays):
+        # assume arrays have equal amount of samples. `resample` also checks.
+        n = len(arrays[0])
+
         if isinstance(self.sample_size, int):
             self.n_samples = self.sample_size
         elif isinstance(self.sample_size, float):
@@ -40,7 +39,7 @@ class Resample(ResampleConfig, TransformerMixin, Configurable):
         self.frac_samples = self.n_samples / n
 
         samples = resample(
-            X,
+            *arrays,
             replace=self.replace,
             random_state=self.random_state,
             stratify=self.stratify,

@@ -105,23 +105,3 @@ class RunEstimatorPipe(PipelineComponent):
         fit_time = end_time - start_time
 
         return score, fit_time
-
-
-# @dataclass
-# class ValidateRankingPipe(PipelineComponent):
-#     estimator: Any = None
-#     n_bootstraps: int = 1
-
-#     def run(self, args: Any, callback_list: CallbackList) -> Any:
-
-#         data, p, ranking = args
-#         run_estimator = FeatureRankingPipe(self.estimator)
-#         run_estimator = RunEstimatorPipe(self.estimator)
-#         X_train, X_test, y_train, y_test = data
-
-#         k_best = np.arange(min(p, 50)) + 1
-
-#         for random_bootstrap_state in range(self.n_bootstraps):
-
-#             for k in k_best:
-#                 score = run_estimator.run(data, callback_list)
