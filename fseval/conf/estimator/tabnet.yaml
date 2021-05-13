@@ -2,8 +2,8 @@ name: TabNet
 regressor:
   estimator:
     _target_: fseval.estimators.TabNetRegressor
-  multivariate: true
+  multioutput: true
 classifier:
   estimator:
     _target_: pytorch_tabnet.tab_model.TabNetClassifier
-  multivariate: true
+  multioutput: true

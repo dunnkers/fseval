@@ -5,3 +5,4 @@ classifier:
 regressor:
   estimator:
     _target_: skrebate.ReliefF
+  multioutput: false

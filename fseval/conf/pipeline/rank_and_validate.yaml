@@ -1,6 +1,6 @@
 defaults:
   - base_rank_and_validate
-  - /estimator@ranker: tabnet
+  - /estimator@ranker: relieff
   - /estimator@estimator: dt
 ranker:
   task: ${dataset.task}

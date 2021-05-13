@@ -19,7 +19,7 @@ class Dataset(DatasetConfig, Configurable):
     # these are "runtime" properties: they are only set once the dataset is loaded.
     n: Optional[int] = None
     p: Optional[int] = None
-    multivariate: Optional[bool] = None
+    multioutput: Optional[bool] = None
 
     def _get_adapter(self) -> Union[object, tuple]:
         if OmegaConf.is_dict(self.adapter):
@@ -67,7 +67,7 @@ class Dataset(DatasetConfig, Configurable):
         self.y = np.asarray(y)
         self.n = self.X.shape[0]
         self.p = self.X.shape[1]
-        self.multivariate = self.y.ndim > 1
+        self.multioutput = self.y.ndim > 1
 
         task_name = self.task.name if hasattr(self.task, "name") else self.task
         logger.info(f"loaded {self.name} {task_name} dataset (n={self.n}, p={self.p})")

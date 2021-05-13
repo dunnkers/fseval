@@ -26,6 +26,15 @@ class RankAndValidate(Pipeline):
         subset_loader = SubsetLoaderPipe(self.dataset, self.cv)
         data = subset_loader.run(None, callback_list)
 
+        # check whether ranker / estimator support this dataset
+        if self.dataset.multioutput:
+            msg = f"does not support the multioutput datasets ({self.dataset.name})."
+
+            assert self.ranker._get_tags().get("multioutput", False), f"ranker {msg}"
+            assert "multioutput" in self.estimator._get_tags().get(
+                "multioutput", False
+            ), f"estimator {msg}"
+
         feature_ranker = FeatureRankingPipe(self.ranker)
         run_estimator = RunEstimatorPipe(self.estimator)
 
@@ -44,7 +53,7 @@ class RankAndValidate(Pipeline):
             # feature ranking
             data = (X_train, X_test, y_train, y_test)
             ranking, fit_time = feature_ranker.run(data, callback_list)
-            logger.info(f"{self.ranker.name} ranking fit time: %s", fit_time)
+            logger.info(f"ranking fit time: %s", fit_time)
             ranker_log = {"ranker_fit_time": fit_time, "resample.random_state": i}
 
             # feature importances
@@ -61,14 +70,14 @@ class RankAndValidate(Pipeline):
                 y_pred = ranking
                 mae = mean_absolute_error(y_true, y_pred)
                 ranker_log["ranker_mean_absolute_error"] = mae
-                logger.info(f"{self.ranker.name} mean absolute error: {mae}")
+                logger.info(f"mean absolute error: {mae}")
 
                 # log loss
                 y_true = X_importances > 0
                 y_pred = ranking
                 log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
                 ranker_log["ranker_log_loss"] = log_loss_score
-                logger.info(f"{self.ranker.name} log loss score: {log_loss_score}")
+                logger.info(f"log loss score: {log_loss_score}")
 
             callback_list.on_log(ranker_log)
 
@@ -81,9 +90,7 @@ class RankAndValidate(Pipeline):
                 data = (X_train_selected, X_test_selected, y_train, y_test)
 
                 score, fit_time = run_estimator.run(data, callback_list)
-                logger.info(
-                    f"{self.estimator.name} score: %s (fit time: %s)", score, fit_time
-                )
+                logger.info(f"score: %s (fit time: %s)", score, fit_time)
                 callback_list.on_log(
                     {
                         "estimator_score": score,

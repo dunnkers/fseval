@@ -37,7 +37,7 @@ class SubsetLoaderPipe(PipelineComponent):
                 "dataset": {
                     "n": self.dataset.n,
                     "p": self.dataset.p,
-                    "multivariate": self.dataset.multivariate,
+                    "multioutput": self.dataset.multioutput,
                 }
             }
         )

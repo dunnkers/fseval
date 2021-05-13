@@ -73,7 +73,7 @@ class ResampleConfig(GroupItem):
 @dataclass
 class EstimatorConfig(GroupItem):
     estimator: Any = None  # must have _target_ of type BaseEstimator.
-    multivariate: bool = False
+    multioutput: bool = False
 
 
 @dataclass
