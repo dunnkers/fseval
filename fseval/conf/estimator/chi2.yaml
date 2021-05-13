@@ -1,4 +1,4 @@
 name: Chi-Squared
 classifier:
   estimator:
-    _target_: fseval.estimators.Chi2
+    _target_: fseval.estimators.chi2.Chi2Regressor
