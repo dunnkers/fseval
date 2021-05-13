@@ -71,11 +71,11 @@ class FeatureRankingPipe(PipelineComponent):
 
         # run feature ranking
         start_time = time()
-        self.ranker.estimator.fit(X_train, y_train)
+        self.ranker.fit(X_train, y_train)
         end_time = time()
 
         # metrics
-        ranking = self.ranker.estimator.feature_importances_
+        ranking = self.ranker.feature_importances_
         ranking = np.asarray(ranking)
         ranking /= sum(ranking)
         fit_time = end_time - start_time
@@ -97,11 +97,11 @@ class RunEstimatorPipe(PipelineComponent):
 
         # run estimator
         start_time = time()
-        self.estimator.estimator.fit(X_train, y_train)
+        self.estimator.fit(X_train, y_train)
         end_time = time()
 
         # metrics
-        score = self.estimator.estimator.score(X_test, y_test)
+        score = self.estimator.score(X_test, y_test)
         fit_time = end_time - start_time
 
         return score, fit_time

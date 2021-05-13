@@ -90,8 +90,7 @@ class RankAndValidate(Pipeline):
                         "estimator_fit_time": fit_time,
                         "k": k,
                         "resample.random_state": i,
-                    },
-                    commit=False,
+                    }
                 )
                 scores.append(score)
             all_scores.append(scores)

@@ -1,5 +1,7 @@
+import copy
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
 from hydra.utils import instantiate
@@ -49,12 +51,29 @@ def instantiate_estimator(
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
 ):
-    estimators = dict(classification=classifier, regression=regressor)
-    estimator = estimators[task.name]
+    estimator_configs = dict(classification=classifier, regression=regressor)
+    estimator_config = estimator_configs[task.name]
     assert (
-        estimator is not None
+        estimator_config is not None
     ), f"selected estimator does not support {task.name} datasets!"
-    return instantiate(estimator, name=name)
+
+    # instantiate estimator
+    estimator = instantiate(estimator_config.estimator)
+
+    # parse and merge tags from estimator
+    get_tags = getattr(estimator, "_get_tags", lambda: {})
+    more_tags = getattr(estimator, "_more_tags", lambda: {})
+    tags = {**get_tags(), **more_tags()}
+
+    # add any applicable custom tags
+    if estimator_config.multivariate:
+        tags["multioutput"] = True
+    setattr(estimator, "_get_tags", lambda: tags)
+
+    # set name
+    setattr(estimator, "name", name)
+
+    return estimator
 
 
 class ConfigurableEstimator(Configurable):

@@ -1,6 +1,6 @@
 defaults:
   - base_rank_and_validate
-  - /estimator@ranker: chi2
+  - /estimator@ranker: tabnet
   - /estimator@estimator: dt
 ranker:
   task: ${dataset.task}
