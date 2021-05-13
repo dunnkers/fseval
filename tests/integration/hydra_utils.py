@@ -23,7 +23,7 @@ def _get_config_loader() -> ConfigLoader:
 
 def get_config() -> DictConfig:
     _ensure_hydra_initialized()
-    config = compose(config_name="config")
+    config = compose(config_name="my_config")
     return config
 
 
