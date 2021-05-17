@@ -1,17 +1,30 @@
 import logging
+from dataclasses import dataclass, field
+from enum import Enum
 from functools import reduce
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
-from fseval.base import Configurable
-from fseval.config import ResampleConfig
+from fseval.base import Task
+from hydra.core.config_store import ConfigStore
+from omegaconf import II, MISSING
 from sklearn.base import TransformerMixin
 from sklearn.utils import resample
 
 logger = logging.getLogger(__name__)
 
 
-class Resample(ResampleConfig, TransformerMixin, Configurable):
+@dataclass
+class ResampleConfig:
+    _target_: str = "fseval.pipeline.resample.Resample"
+    name: str = MISSING
+    replace: bool = False
+    sample_size: Any = None  # float [0.0 to 1.0] or int [1 to n_samples]
+    random_state: Optional[int] = None
+    stratify: Optional[List] = None
+
+
+class Resample(ResampleConfig, TransformerMixin):
     n_samples: Optional[int] = None
     frac_samples: Optional[float] = None
 

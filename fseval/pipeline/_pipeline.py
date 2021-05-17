@@ -9,7 +9,7 @@ from fseval.cv import CrossValidator
 from fseval.datasets import Dataset
 from fseval.resampling import Resample
 
-from ._callbacks import CallbackList
+from .callbacks._callback import CallbackList
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +20,14 @@ class Pipeline(Configurable):
     dataset: Dataset
     cv: CrossValidator
     resample: Resample
+    callback_list: CallbackList = CallbackList(callbacks=[])
 
     def run_pipeline(self, callbacks: List = []):
         callback_list = CallbackList(callbacks)
 
         callback_list.on_pipeline_begin()
-        self.run(None, callback_list)
+        self.run(callback_list)
         callback_list.on_pipeline_end()
 
-    def run(self, args: Any, callback_list: CallbackList) -> Any:
+    def run(self, callback_list: CallbackList) -> Any:
         ...

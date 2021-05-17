@@ -1,2 +1,3 @@
 stdout:
-  _target_: fseval.pipeline.StdoutCallback
+  _target_: fseval.callbacks.stdout.StdoutCallback
+  logger_name: ${pipeline.name}

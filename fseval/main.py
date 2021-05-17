@@ -4,38 +4,53 @@ import hydra
 import wandb
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
+from sklearn.pipeline import Pipeline
 
+from fseval.callbacks._callback import CallbackList
 from fseval.config import BaseConfig
-from fseval.pipeline import CallbackList, Pipeline
+from fseval.cv import CrossValidator
+from fseval.datasets import Dataset
 
 
 @hydra.main(config_path="conf", config_name="my_config")
 def main(cfg: BaseConfig) -> None:
-    primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
-    primitive_cfg = cast(dict, primitive_cfg)
-    primitive_cfg_pipeline = primitive_cfg.pop("pipeline")
+    dataset: Dataset = instantiate(cfg.dataset)  # pipeline.
+    cv: CrossValidator = instantiate(cfg.cv)  # pipeline.
+    callbacks = instantiate(cfg.callbacks)
+    callback_list = CallbackList(callbacks.values())
 
-    # take out and instantiate callbacks
-    primitive_cfg_callbacks = primitive_cfg.pop("callbacks")
-    callbacks = instantiate(primitive_cfg_callbacks)
-    callbacks = callbacks.values()
+    dataset.load()
+    X, y = dataset.X, dataset.y
+    X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
 
-    # put all `pipeline` children into the root config
-    pipeline_cfg = OmegaConf.create()
-    pipeline_cfg.merge_with(primitive_cfg)
-    pipeline_cfg.merge_with(primitive_cfg_pipeline)
+    pipeline: Pipeline = instantiate(cfg.pipeline, callback_list=callback_list)
+    pipeline.fit(X_train, y_train)
+    pipeline.score(X_test, y_test)
 
-    # instantiate pipeline
-    pipeline = instantiate(pipeline_cfg)
-    pipeline = cast(Pipeline, pipeline)
+    # primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
+    # primitive_cfg = cast(dict, primitive_cfg)
 
-    # set config and pipeline on callbacks
-    callback_list = CallbackList(callbacks)
-    callback_list.set_pipeline_config(pipeline.get_config())
-    callback_list.set_pipeline(pipeline)
+    # # instantiate callbacks
+    # callbacks = instantiate(cfg.callbacks)
+    # callbacks = callbacks.values()
+    # callback_list = CallbackList(callbacks)
+    # callback_list.set_pipeline_config(primitive_cfg)
 
-    # run pipeline
-    pipeline.run_pipeline(callbacks=callback_list.callbacks)
+    # # take out pipeline and callbacks
+    # primitive_cfg_pipeline = primitive_cfg.pop("pipeline")
+    # primitive_cfg.pop("callbacks")
+
+    # # put all `pipeline` children into the root config
+    # pipeline_cfg = OmegaConf.create()
+    # pipeline_cfg.merge_with(primitive_cfg)
+    # pipeline_cfg.merge_with(primitive_cfg_pipeline)
+
+    # # instantiate pipeline
+    # pipeline = instantiate(pipeline_cfg, callback_list=callback_list)
+    # pipeline = cast(Pipeline, pipeline)
+
+    # # run pipeline
+    # pipeline.run_pipeline()
 
 
 if __name__ == "__main__":

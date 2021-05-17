@@ -2,20 +2,54 @@ import logging
 import re
 from dataclasses import dataclass
 from itertools import chain
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from fseval.adapters import Adapter
-from fseval.base import Configurable
-from fseval.config import DatasetConfig
+from fseval.base import Task
+from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import II, MISSING, DictConfig, OmegaConf
+from sklearn.preprocessing import minmax_scale
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Dataset(DatasetConfig, Configurable):
+class DatasetConfig:
+    """
+    Args:
+        name: human-readable name of dataset.
+
+        task: either Task.classification or Task.regression.
+
+        adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must
+        implement a get_data() -> (X, y) method.
+
+        adapter_callable: adapter class callable. the function to be called on the
+        instantiated class to fetch the data (X, y). is ignored when the target itself
+        is a function callable.
+
+        feature_importances: weightings indicating relevant features or instances.
+        should be a dict with each key and value like the following pattern:
+            X[<numpy selector>] = <float>
+        Example:
+            X[:, 0:3] = 1.0
+        which sets the 0-3 features as maximally relevant and all others
+        minimally relevant.
+    """
+
+    _target_: str = "fseval.datasets.Dataset"
+    name: str = MISSING
+    _recursive_: bool = False  # prevent adapter from getting initialized
+    task: Task = MISSING
+    adapter: Any = MISSING
+    adapter_callable: str = "get_data"
+    feature_importances: Optional[Dict[str, float]] = None
+
+
+@dataclass
+class Dataset(DatasetConfig):
     # these are "runtime" properties: they are only set once the dataset is loaded.
     n: Optional[int] = None
     p: Optional[int] = None
@@ -60,8 +94,11 @@ class Dataset(DatasetConfig, Configurable):
             X, y = data
             return X, y
 
-    def load(self) -> None:
+    def load(self, ensure_positive_X=False) -> None:
         X, y = self._get_adapter_data()
+
+        if ensure_positive_X:
+            X = minmax_scale(X, feature_range=(0, 1), copy=False)
 
         self.X = np.asarray(X)
         self.y = np.asarray(y)
@@ -74,12 +111,6 @@ class Dataset(DatasetConfig, Configurable):
 
     def _ensure_loaded(self) -> None:
         assert hasattr(self, "X"), "please load the dataset first (use `load()`)."
-
-    def get_subsets(self, train_index, test_index) -> Tuple[List, List, List, List]:
-        self._ensure_loaded()
-        X_train, y_train = self.X[train_index], self.y[train_index]
-        X_test, y_test = self.X[test_index], self.y[test_index]
-        return X_train, X_test, y_train, y_test
 
     def get_feature_importances(self) -> Optional[np.ndarray]:
         self._ensure_loaded()

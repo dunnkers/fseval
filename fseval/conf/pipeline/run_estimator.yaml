@@ -1,5 +1,0 @@
-defaults:
-  - base_run_estimator
-  - /estimator@estimator: dt
-estimator:
-  task: ${dataset.task}

@@ -1,7 +1,0 @@
-# target_class: str = "fseval.pipeline.FeatureRanking"
-# /estimator@ranker: chi2
-defaults:
-  - base_feature_ranking
-  - /estimator@ranker: chi2
-ranker:
-  task: ${dataset.task}

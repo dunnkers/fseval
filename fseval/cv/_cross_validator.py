@@ -1,15 +1,28 @@
 import logging
 from dataclasses import dataclass
-from typing import Generator, List, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
-from fseval.base import Configurable
-from fseval.config import CrossValidatorConfig
+from omegaconf import II, MISSING
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CrossValidator(CrossValidatorConfig, Configurable):
+class CrossValidatorConfig:
+    """
+    Parameters of both BaseCrossValidator and BaseShuffleSplit.
+    """
+
+    _target_: str = "fseval.cv.CrossValidator"
+    name: str = MISSING
+    """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
+        implement a `split()` function. """
+    splitter: Any = None
+    fold: int = 0
+
+
+@dataclass
+class CrossValidator(CrossValidatorConfig):
     def _ensure_splitter(self):
         assert self.splitter is not None, "no splitter configured!"
 
@@ -27,3 +40,12 @@ class CrossValidator(CrossValidatorConfig, Configurable):
             + f"(fold={self.fold}, n_splits={len(splits)})"
         )
         return train_index, test_index
+
+    def train_test_split(self, X, y) -> Tuple[List, List, List, List]:
+        """Gets train/test split of current fold."""
+        train_index, test_index = self.get_split(X)
+
+        X_train, y_train = X[train_index], y[train_index]
+        X_test, y_test = X[test_index], y[test_index]
+
+        return X_train, X_test, y_train, y_test

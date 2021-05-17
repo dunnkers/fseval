@@ -6,9 +6,8 @@ hydra:
 
 defaults:
   - base_config
-  - dataset: xor
+  - dataset: iris
   - cv: train_test_split
-  - resample: bootstrap
   - pipeline: rank_and_validate
   - callbacks:
     - stdout

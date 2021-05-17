@@ -1,9 +1,10 @@
 defaults:
   - base_rank_and_validate
-  - /estimator@ranker: relieff
-  - /estimator@estimator: dt
+  - resample: bootstrap
+  - estimator@ranker: relieff
+  - estimator@validator: dt
 ranker:
   task: ${dataset.task}
-estimator:
+validator:
   task: ${dataset.task}
 n_bootstraps: 30

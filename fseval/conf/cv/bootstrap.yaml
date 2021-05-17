@@ -1,0 +1,4 @@
+name: Bootstrap
+splitter:
+  _target_: fseval.cv.bootstrap.Bootstrap
+  sample_size: 0.75
