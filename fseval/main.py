@@ -1,6 +1,7 @@
 from typing import List, cast
 
 import hydra
+import numpy as np
 import wandb
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
@@ -23,9 +24,12 @@ def main(cfg: BaseConfig) -> None:
     X, y = dataset.X, dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
 
-    pipeline: Pipeline = instantiate(cfg.pipeline, callback_list=callback_list)
+    pipeline: Pipeline = instantiate(
+        cfg.pipeline, callback_list=callback_list, p=np.shape(X_train)[1]
+    )
     pipeline.fit(X_train, y_train)
-    pipeline.score(X_test, y_test)
+    scores = pipeline.score(X_test, y_test)
+    print(scores)
 
     # primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
     # primitive_cfg = cast(dict, primitive_cfg)

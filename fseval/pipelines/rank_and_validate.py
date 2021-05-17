@@ -1,5 +1,7 @@
+#%%
 import logging
 import os
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from time import time
@@ -12,12 +14,13 @@ from fseval.callbacks._callback import CallbackList
 from fseval.cv._cross_validator import CrossValidatorConfig
 from fseval.datasets._dataset import DatasetConfig
 from fseval.pipeline.estimator import TaskedEstimatorConfig
-from fseval.pipeline.resample import ResampleConfig
+from fseval.pipeline.resample import Resample, ResampleConfig
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, clone
 from sklearn.ensemble import VotingClassifier, VotingRegressor
+from sklearn.ensemble._base import _BaseHeterogeneousEnsemble
 from sklearn.feature_selection import SelectFromModel, SelectKBest
 from sklearn.metrics import log_loss, mean_absolute_error
 from sklearn.pipeline import Pipeline
@@ -40,6 +43,222 @@ class RankAndValidateConfig:
     validator: TaskedEstimatorConfig = MISSING  # CLI: estimator@pipeline.ranker=chi2
 
 
+class AbstractEstimator(ABC):
+    @abstractmethod
+    def fit(self, X, y):
+        ...
+
+    @abstractmethod
+    def transform(self, X, y):
+        ...
+
+    @abstractmethod
+    def fit_transform(self, X, y):
+        ...
+
+    @abstractmethod
+    def score(self, X, y) -> pd.DataFrame:
+        ...
+
+
+@dataclass
+class AbstractExperiment(AbstractEstimator):
+    estimators: List[AbstractEstimator] = field(default_factory=lambda: [])
+
+    def set_estimators(self, estimators: List[AbstractEstimator] = []):
+        self.estimators = estimators
+
+    @property
+    def _scoring_metadata(self) -> List:
+        return []
+
+    def _get_scoring_metadata(self, estimator):
+        metadata = {}
+
+        for meta_attribute in self._scoring_metadata:
+            metadata[meta_attribute] = getattr(estimator, meta_attribute, None)
+
+        return metadata
+
+    def fit(self, X, y) -> AbstractEstimator:
+        for estimator in self.estimators:
+            estimator.fit(X, y)
+
+        return self
+
+    def transform(self, X, y):
+        ...
+
+    def fit_transform(self, X, y):
+        for estimator in self.estimators:
+            estimator.fit_transform(X, y)
+
+    def _score_to_dataframe(self, score):
+        if isinstance(score, pd.DataFrame):
+            return score
+        elif isinstance(score, float) or isinstance(score, int):
+            return pd.DataFrame([{"score": score}])
+        else:
+            raise ValueError(f"illegal score type received: {type(score)}")
+
+    def score(self, X, y) -> pd.DataFrame:
+        scores = pd.DataFrame()
+
+        for estimator in self.estimators:
+            score = estimator.score(X, y)
+            score_df = self._score_to_dataframe(score)
+
+            metadata = self._get_scoring_metadata(estimator)
+            score_df = score_df.assign(**metadata)
+
+            scores = scores.append(score_df)
+
+        return pd.DataFrame(scores)
+
+
+# @dataclass
+# class RankAndValidateEstimator(Pipeline):
+#     callback_list: CallbackList = CallbackList([])
+#     validator: Any = MISSING
+#     n_features_to_select: int = MISSING
+
+#     def __post_init__(self):
+#         self.steps = [
+#             ("rank-and-validate", self.ranker),
+#             ("validator", self.validator),
+#         ]
+#         self.memory = None
+#         self.verbose = False
+
+#     def fit(self, X, y=None, validator__ranker=None):
+#         select_subset = SelectFromModel(
+#             estimator=ranker,
+#             threshold=-np.inf,
+#             max_features=self.n_features_to_select,
+#             prefit=True,
+#         )
+#         X = select_subset.transform(X)
+#         return super(SubsetValidator, self).fit(X, y)
+
+
+@dataclass
+class SubsetValidator(Pipeline):
+    callback_list: CallbackList = CallbackList([])
+    resample: Resample = MISSING
+    ranker: Any = MISSING
+    validator: Any = MISSING
+    n_features_to_select: int = MISSING
+
+    def _create_selector(self):
+        selector = SelectFromModel(
+            estimator=self.ranker,
+            threshold=-np.inf,
+            max_features=self.n_features_to_select,
+            prefit=False,
+        )
+        return selector
+
+    def __post_init__(self):
+        self.steps = [
+            ("subset_selector", self._create_selector()),
+            ("subset_validator", self.validator),
+        ]
+        self.memory = None
+        self.verbose = True
+
+    def fit(self, X, y=None, **fit_params):
+        X, y = self.resample.transform(X, y)
+        return super(SubsetValidator, self).fit(X, y, **fit_params)
+
+
+@dataclass
+class DatasetValidator(AbstractExperiment):
+    callback_list: CallbackList = CallbackList([])
+    resample: Resample = MISSING
+    ranker: Any = MISSING
+    validator: Any = MISSING
+    p: int = MISSING
+
+    @property
+    def _scoring_metadata(self) -> List:
+        return ["n_features_to_select", "resample."]
+
+    def _create_validator(self, n_features_to_select: int):
+        validator = SubsetValidator(
+            callback_list=self.callback_list,
+            resample=self.resample,
+            ranker=self.ranker,
+            validator=clone(self.validator),
+            n_features_to_select=n_features_to_select,
+        )
+        return validator
+
+    def __post_init__(self):
+        n_validations = np.arange(1, min(50, self.p) + 1)
+        estimators = [
+            self._create_validator(n_features_to_select=i) for i in n_validations
+        ]
+        self.set_estimators(estimators)
+
+
+@dataclass
+class RankAndValidate(AbstractExperiment, RankAndValidateConfig):
+    callback_list: CallbackList = CallbackList([])
+    p: int = MISSING
+
+    @property
+    def _scoring_metadata(self) -> List:
+        return ["p"]
+
+    def _create_validator(self, random_state=None):
+        resample = clone(self.resample)
+        resample.random_state = random_state
+
+        validator = DatasetValidator(
+            callback_list=self.callback_list,
+            resample=resample,
+            ranker=self.ranker,
+            validator=self.validator,
+            p=self.p,
+        )
+        return validator
+
+    def __post_init__(self):
+        n_bootstraps = np.arange(1, self.n_bootstraps + 1)
+        estimators = [self._create_validator(random_state=i) for i in n_bootstraps]
+        self.set_estimators(estimators)
+
+    # def fit(self, X, y):
+    #     X, y = self.resample.transform(X, y)
+    #     fit_ranker = self.ranker.fit(X, y)
+    #     bootstrap_experiment = BootstrapExperiment()
+    #     select_subset = SelectFromModel(
+    #         estimator=self.ranker,
+    #         threshold=-np.inf,
+    #         max_features=self.n_features_to_select,
+    #         prefit=True,
+    #     )
+    #     X = select_subset.transform(X)
+    #     self.validator = self.validator.fit(X, y)
+
+    # def __post_init__(self):
+    #     dataset_validator = lambda random_state: DatasetValidator(
+    #         callback_list=self.callback_list,
+    #         resample=self._get_resampler(random_state),
+    #         ranker=self.ranker,
+    #         validator=self.validator,
+    #         p=self.p,
+    #     )
+    #     self.steps = [
+    #         (f"bootstrap={random_state}", dataset_validator(random_state))
+    #         for random_state in np.arange(1, self.n_bootstraps)
+    #     ]
+    #     # self.steps = [("dataset-validator", dataset_validator)]
+    #     self.memory = None
+    #     self.verbose = True
+
+
+#%%
 # @dataclass
 # class SubsetValidator(Pipeline):
 #     callback_list: CallbackList = CallbackList([])
@@ -64,110 +283,110 @@ class RankAndValidateConfig:
 #         return super(SubsetValidator, self).fit(X, y)
 
 
+# @dataclass
+# class SubsetValidator(BaseEstimator):
+#     callback_list: CallbackList = CallbackList([])
+#     ranker: Any = MISSING
+#     validator: Any = MISSING
+#     n_features_to_select: int = MISSING
+
+#     def fit(self, X, y=None):
+#         select_subset = SelectFromModel(
+#             estimator=self.ranker,
+#             threshold=-np.inf,
+#             max_features=self.n_features_to_select,
+#             prefit=True,
+#         )
+#         X = select_subset.transform(X)
+#         self.validator = self.validator.fit(X, y)
+#         return self
+
+#     def score(self, X, y=None):
+#         return self.validator.score(X, y)
+
+#     def transform(self, X):
+#         return X
+
+
+# @dataclass
+# class DatasetValidator(Pipeline):
+#     callback_list: CallbackList = CallbackList([])
+#     resample: Resample = MISSING
+#     ranker: Any = MISSING
+#     validator: Any = MISSING
+#     p: int = MISSING
+
+#     def __post_init__(self):
+#         # self.ranker = clone(self.ranker)
+#         self.validator = clone(self.validator)
+
+#         subset_validator = lambda k: SubsetValidator(
+#             callback_list=self.callback_list,
+#             # ranker=self.ranker,
+#             validator=self.validator,
+#             n_features_to_select=k,
+#         )
+#         self.steps = [
+#             (f"subset_validation_k={k}", subset_validator(k))
+#             for k in np.arange(1, min(50, self.p) + 1)
+#         ]
+#         self.memory = None
+#         self.verbose = True
+
+#     def _fit(self, X, y=None, **fit_params_steps):
+#         X, y = self.resample.transform(X, y)
+#         fit_ranker = self.ranker.fit(X, y)
+
+#         for step_name, step_estimator in self.steps:
+#             self.set_params(**{f"{step_name}__ranker": fit_ranker})
+
+#         return super(DatasetValidator, self)._fit(X, y, **fit_params_steps)
+
+#     def score(self, X, y=None):
+#         X, y = self.resample.transform(X, y)
+#         validator_steps = self.steps[1:]
+
+#         total_score = 0
+#         for name, validator in validator_steps:
+#             score = validator.score(X, y)
+#             print(score)
+#             total_score += score
+#         avg_score = total_score / len(self.steps)
+#         print(avg_score)
+#         return avg_score
+
+
 @dataclass
-class SubsetValidator:
+class RankAndValidateOld(Pipeline, RankAndValidateConfig):
     callback_list: CallbackList = CallbackList([])
-    ranker: Any = MISSING
-    validator: Any = MISSING
-    n_features_to_select: int = MISSING
-
-    def fit(self, X, y=None):
-        select_subset = SelectFromModel(
-            estimator=self.ranker,
-            threshold=-np.inf,
-            max_features=self.n_features_to_select,
-            prefit=True,
-        )
-        X = select_subset.transform(X)
-        self.validator = self.validator.fit(X, y)
-        return self
-
-    def score(self, X, y=None):
-        return self.validator.score(X, y)
-
-    def transform(self, X):
-        return X
-
-
-@dataclass
-class DatasetValidator(Pipeline):
-    callback_list: CallbackList = CallbackList([])
-    ranker: Any = MISSING
-    validator: Any = MISSING
     p: int = MISSING
 
-    def __post_init__(self):
-        self.validator = clone(self.validator)
+    def _get_resampler(self, random_state):
+        resampler = clone(self.resample)
+        resampler.random_state = random_state
+        return resampler
 
-        subset_validator = lambda k: SubsetValidator(
+    def __post_init__(self):
+        dataset_validator = lambda random_state: DatasetValidator(
             callback_list=self.callback_list,
+            resample=self._get_resampler(random_state),
             ranker=self.ranker,
             validator=self.validator,
-            n_features_to_select=k,
+            p=self.p,
         )
         self.steps = [
-            (f"validate-subset (k={k})", subset_validator(k))
-            for k in np.arange(1, min(50, self.p) + 1)
+            (f"bootstrap={random_state}", dataset_validator(random_state))
+            for random_state in np.arange(1, self.n_bootstraps)
         ]
+        # self.steps = [("dataset-validator", dataset_validator)]
         self.memory = None
         self.verbose = True
 
-    def fit(self, X, y=None):
-        ranker = self.ranker.fit(X, y)
-        return super(DatasetValidator, self).fit(X, y)
-
-        # self.steps = list(self.steps)
-
-        # ranking_step = self.steps[0]
-        # validator_steps = self.steps[1:]
-
-        # with _print_elapsed_time("DatasetValidator", "ranker fit"):
-        #     name, ranker = ranking_step
-        #     fit_ranker = ranker.fit(X, y)
-        #     self.steps[0] = (name, fit_ranker)
-
-        # for step_idx, (name, validator) in enumerate(validator_steps, start=1):
-        #     msg = self._log_message(step_idx)
-        #     with _print_elapsed_time("DatasetValidator", msg):
-
-        #         validator = clone(validator)
-        #         fit_validator = validator.fit(X, y)
-        #         self.steps[step_idx] = (name, fit_validator)
-
-        # return self
-
-    def score(self, X, y=None):
-        validator_steps = self.steps[1:]
-
-        total_score = 0
-        for name, validator in validator_steps:
-            score = validator.score(X, y)
-            total_score += score
-        avg_score = total_score / len(self.steps)
-        print(avg_score)
-        return avg_score
-
-
-@dataclass
-class RankAndValidate(Pipeline, RankAndValidateConfig):
-    callback_list: CallbackList = CallbackList([])
-
-    def __post_init__(self):
-        dataset_validator = DatasetValidator(
-            callback_list=self.callback_list,
-            ranker=self.ranker,
-            validator=self.validator,
-            p=4,
-        )
-        self.steps = [("dataset-validator", dataset_validator)]
-        self.memory = None
-        self.verbose = True
-
-    def fit(self, X, y=None, **fit_params):
-        # for random_bootstrap_state in self.n_bootstraps:
-        # self.resample.random_state = random_bootstrap_state
-        # X, y = self.resample.transform(X, y)
-        super(RankAndValidate, self).fit(X, y, **fit_params)
+    # def fit(self, X, y=None, **fit_params):
+    # for random_bootstrap_state in self.n_bootstraps:
+    # self.resample.random_state = random_bootstrap_state
+    # X, y = self.resample.transform(X, y)
+    # super(RankAndValidate, self).fit(X, y, **fit_params)
 
     # resample: Resample
     # ranker: Any = None

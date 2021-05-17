@@ -7,4 +7,4 @@ ranker:
   task: ${dataset.task}
 validator:
   task: ${dataset.task}
-n_bootstraps: 30
+n_bootstraps: 3

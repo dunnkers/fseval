@@ -8,7 +8,7 @@ import numpy as np
 from fseval.base import Task
 from hydra.core.config_store import ConfigStore
 from omegaconf import II, MISSING
-from sklearn.base import TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import resample
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class ResampleConfig:
     stratify: Optional[List] = None
 
 
-class Resample(ResampleConfig, TransformerMixin):
+class Resample(ResampleConfig, BaseEstimator, TransformerMixin):
     n_samples: Optional[int] = None
     frac_samples: Optional[float] = None
 
