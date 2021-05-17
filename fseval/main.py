@@ -31,31 +31,6 @@ def main(cfg: BaseConfig) -> None:
     scores = pipeline.score(X_test, y_test)
     print(scores)
 
-    # primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
-    # primitive_cfg = cast(dict, primitive_cfg)
-
-    # # instantiate callbacks
-    # callbacks = instantiate(cfg.callbacks)
-    # callbacks = callbacks.values()
-    # callback_list = CallbackList(callbacks)
-    # callback_list.set_pipeline_config(primitive_cfg)
-
-    # # take out pipeline and callbacks
-    # primitive_cfg_pipeline = primitive_cfg.pop("pipeline")
-    # primitive_cfg.pop("callbacks")
-
-    # # put all `pipeline` children into the root config
-    # pipeline_cfg = OmegaConf.create()
-    # pipeline_cfg.merge_with(primitive_cfg)
-    # pipeline_cfg.merge_with(primitive_cfg_pipeline)
-
-    # # instantiate pipeline
-    # pipeline = instantiate(pipeline_cfg, callback_list=callback_list)
-    # pipeline = cast(Pipeline, pipeline)
-
-    # # run pipeline
-    # pipeline.run_pipeline()
-
 
 if __name__ == "__main__":
     main()

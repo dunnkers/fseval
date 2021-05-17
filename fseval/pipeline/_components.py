@@ -6,7 +6,6 @@ from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
-from fseval.base import Configurable
 from fseval.cv import CrossValidator
 from fseval.datasets import Dataset
 from fseval.resampling import Resample
@@ -16,7 +15,7 @@ from sklearn.preprocessing import MinMaxScaler
 from ._callbacks import CallbackList
 
 
-class Pipe(ABC, Configurable):
+class Pipe(ABC):
     callback_list: CallbackList
 
     @abstractmethod

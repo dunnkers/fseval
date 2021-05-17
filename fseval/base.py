@@ -1,4 +1,5 @@
 import copy
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, cast
@@ -15,34 +16,19 @@ class Task(Enum):
     classification = 2
 
 
-class Configurable(BaseEstimator):
-    @classmethod
-    def _get_config_names(cls) -> List:
-        """Get config names for this configurable estimator"""
-        return super()._get_param_names()
+class AbstractEstimator(ABC, BaseEstimator):
+    @abstractmethod
+    def fit(self, X, y):
+        ...
 
-    def _omitted_values(self) -> List:
-        return [MISSING, None]
+    @abstractmethod
+    def transform(self, X, y):
+        ...
 
-    def get_config(self, deep: bool = True) -> Dict:
-        keys = self._get_config_names()
-        values = [getattr(self, key) for key in keys]
-        out = dict()
-        for key, value in zip(keys, values):
-            if value in self._omitted_values():
-                continue
-            if deep and hasattr(value, "get_config"):
-                out[key] = value.get_config()
-            elif deep and hasattr(value, "get_params"):
-                out[key] = value.get_params()
-            elif isinstance(value, Enum):
-                out[key] = value.name
-            # TODO recurse with dict keys/values
-            elif isinstance(value, DictConfig):
-                out[key] = OmegaConf.to_container(value)
-            elif hasattr(value, "__dict__"):
-                out[key] = value.__dict__
-            else:
-                out[key] = value
+    @abstractmethod
+    def fit_transform(self, X, y):
+        ...
 
-        return out
+    @abstractmethod
+    def score(self, X, y):
+        ...

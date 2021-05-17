@@ -1,10 +1,12 @@
 import copy
+import inspect
 from dataclasses import dataclass, field
 from enum import Enum
+from logging import Logger, getLogger
 from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
-from fseval.base import Task
+from fseval.base import AbstractEstimator, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
@@ -29,6 +31,45 @@ class TaskedEstimatorConfig:
     regressor: Optional[EstimatorConfig] = None
 
 
+@dataclass
+class Estimator(AbstractEstimator):
+    estimator: Any = MISSING
+    logger: Logger = MISSING
+
+    def __post_init__(self):
+        self.logger = getLogger(__name__)
+
+    def _get_estimator_repr(self):
+        module_path = inspect.getmodule(self.estimator)
+        module_name = module_path.__name__
+        class_name = type(self.estimator).__name__
+        return f"{module_name}.{class_name}"
+
+    def fit(self, X, y):
+        self.logger.info(f"Estimator fit: {self._get_estimator_repr()}")
+        return self.estimator.fit(X, y)
+
+    def transform(self, X, y):
+        self.logger.info(f"Estimator transform: : {self._get_estimator_repr()}")
+        return self.estimator.transform(X, y)
+
+    def fit_transform(self, X, y):
+        self.logger.info(f"Estimator transform plus fit: {self._get_estimator_repr()}")
+        return self.estimator.fit_transform(X, y)
+
+    def score(self, X, y):
+        self.logger.info(f"Estimator scoring: {self._get_estimator_repr()}")
+        return self.estimator.score(X, y)
+
+    @property
+    def feature_importances_(self):
+        return self.estimator.feature_importances_
+
+    @property
+    def coef_(self):
+        return self.estimator.coef_
+
+
 def instantiate_estimator(
     task: Task,
     classifier: Optional[EstimatorConfig] = None,
@@ -46,18 +87,19 @@ def instantiate_estimator(
     estimator = estimator_config.pop("estimator")  # type: ignore
     estimator = instantiate(estimator)
 
-    # parse and merge tags from estimator
-    get_tags = getattr(estimator, "_get_tags", lambda: {})
-    more_tags = getattr(estimator, "_more_tags", lambda: {})
-    tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
-    setattr(estimator, "_get_tags", lambda: tags)
+    # TODO recover tags
+    # # parse and merge tags from estimator
+    # get_tags = getattr(estimator, "_get_tags", lambda: {})
+    # more_tags = getattr(estimator, "_more_tags", lambda: {})
+    # tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
+    # setattr(estimator, "_get_tags", lambda: tags)
 
-    # create a meaningful config object
-    def get_config():
-        params = estimator.get_params()
-        config = {"params": params, **estimator_config, **kwargs}
-        return config
+    # # create a meaningful config object
+    # def get_config():
+    #     params = estimator.get_params()
+    #     config = {"params": params, **estimator_config, **kwargs}
+    #     return config
 
-    setattr(estimator, "get_config", get_config)
+    # setattr(estimator, "get_config", get_config)
 
-    return estimator
+    return Estimator(estimator=estimator)

@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Dict, List
 
-from fseval.base import Configurable
 from fseval.utils import dict_flatten, dict_merge
 from omegaconf import OmegaConf
 from yaml import dump
