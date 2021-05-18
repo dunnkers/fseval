@@ -23,7 +23,7 @@ from sklearn.base import BaseEstimator, clone
 from sklearn.ensemble import VotingClassifier, VotingRegressor
 from sklearn.ensemble._base import _BaseHeterogeneousEnsemble
 from sklearn.feature_selection import SelectFromModel, SelectKBest
-from sklearn.metrics import log_loss, mean_absolute_error
+from sklearn.metrics import log_loss, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import _print_elapsed_time
@@ -54,16 +54,14 @@ class Ranker(Estimator, TaskedEstimatorConfig):
             # mean absolute error
             y_true = X_importances
             y_pred = ranking
-            mae = mean_absolute_error(y_true, y_pred)
+            mae = r2_score(y_true, y_pred)
 
             # log loss
             y_true = X_importances > 0
             y_pred = ranking
             log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
 
-            return pd.DataFrame(
-                [{"mean_absolute_error": mae, "log_loss": log_loss_score}]
-            )
+            return pd.DataFrame([{"r2_score": mae, "log_loss": log_loss_score}])
         else:
             return pd.DataFrame()
 
