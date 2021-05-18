@@ -1,7 +1,7 @@
 defaults:
   - base_rank_and_validate
   - resample: bootstrap
-  - estimator@ranker: relieff
+  - estimator@ranker: chi2
   - estimator@validator: dt
 ranker:
   task: ${dataset.task}

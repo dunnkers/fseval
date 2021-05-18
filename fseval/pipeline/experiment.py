@@ -1,8 +1,14 @@
 from dataclasses import dataclass, field
+from logging import Logger, getLogger
+from time import time
 from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
+from codetiming import Timer
 from fseval.base import AbstractEstimator, Task
+from humanfriendly import format_timespan
+
+logger = getLogger(__name__)
 
 
 @dataclass
@@ -19,15 +25,37 @@ class AbstractExperiment(AbstractEstimator):
     def _get_scoring_metadata(self, estimator):
         metadata = {}
 
+        params = estimator.get_params()
         for meta_attribute in self._scoring_metadata:
-            params = estimator.get_params()
             metadata[meta_attribute] = params.get(meta_attribute, None)
+
+        if "fit_time" in self._scoring_metadata:
+            metadata["fit_time"] = getattr(estimator, "_fit_time_elapsed", None)
 
         return metadata
 
+    def _timer_text(self, step_name, step_number, estimator):
+        n_steps = len(self.estimators)
+
+        step_text = ""
+        for meta_key, meta_value in self._get_scoring_metadata(estimator).items():
+            if meta_value is not None:
+                step_text += f"{meta_key}={meta_value} "
+        step_text += "\t"
+
+        step_text += f"{step_name} step {step_number + 1}/{n_steps} took"
+
+        return lambda secs: f"{step_text} {format_timespan(secs)}"
+
     def fit(self, X, y) -> AbstractEstimator:
-        for estimator in self.estimators:
+        self.fit_timer = Timer(name="fit", logger=logger.info)
+
+        for step_number, estimator in enumerate(self.estimators):
+            self.fit_timer.text = self._timer_text("fit", step_number, estimator)
+            self.fit_timer.start()
             estimator.fit(X, y)
+            self.fit_timer.stop()
+            setattr(estimator, "_fit_time_elapsed", self.fit_timer.last)
 
         return self
 
@@ -35,8 +63,7 @@ class AbstractExperiment(AbstractEstimator):
         ...
 
     def fit_transform(self, X, y):
-        for estimator in self.estimators:
-            estimator.fit_transform(X, y)
+        ...
 
     def _score_to_dataframe(self, score):
         if isinstance(score, pd.DataFrame):
@@ -58,4 +85,4 @@ class AbstractExperiment(AbstractEstimator):
 
             scores = scores.append(score_df)
 
-        return pd.DataFrame(scores)
+        return scores

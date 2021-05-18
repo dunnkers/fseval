@@ -15,8 +15,8 @@ from sklearn.base import BaseEstimator
 
 @dataclass
 class EstimatorConfig:
-    name: str = MISSING
     estimator: Any = None  # must have _target_ of type BaseEstimator.
+    # tags:
     multioutput: bool = False
     requires_positive_X: bool = False
 
@@ -25,6 +25,7 @@ class EstimatorConfig:
 class TaskedEstimatorConfig:
     _target_: str = "fseval.pipeline.estimator.instantiate_estimator"
     _recursive_: bool = False  # don't instantiate classifier/regressor
+    _target_class_: str = "fseval.pipeline.estimator.Estimator"
     name: str = MISSING
     task: Task = MISSING
     classifier: Optional[EstimatorConfig] = None
@@ -33,6 +34,7 @@ class TaskedEstimatorConfig:
 
 @dataclass
 class Estimator(AbstractEstimator):
+    name: str = MISSING
     estimator: Any = MISSING
     logger: Logger = MISSING
 
@@ -46,19 +48,20 @@ class Estimator(AbstractEstimator):
         return f"{module_name}.{class_name}"
 
     def fit(self, X, y):
-        self.logger.info(f"Estimator fit: {self._get_estimator_repr()}")
-        return self.estimator.fit(X, y)
+        self.logger.debug(f"Estimator fit: {self._get_estimator_repr()}")
+        self.estimator.fit(X, y)
+        return self
 
     def transform(self, X, y):
-        self.logger.info(f"Estimator transform: : {self._get_estimator_repr()}")
+        self.logger.debug(f"Estimator transform: {self._get_estimator_repr()}")
         return self.estimator.transform(X, y)
 
     def fit_transform(self, X, y):
-        self.logger.info(f"Estimator transform plus fit: {self._get_estimator_repr()}")
-        return self.estimator.fit_transform(X, y)
+        self.logger.debug(f"Estimator transform plus fit: {self._get_estimator_repr()}")
+        return self.fit(X, y).transform(X, y)
 
     def score(self, X, y):
-        self.logger.info(f"Estimator scoring: {self._get_estimator_repr()}")
+        self.logger.debug(f"Estimator scoring: {self._get_estimator_repr()}")
         return self.estimator.score(X, y)
 
     @property
@@ -71,7 +74,8 @@ class Estimator(AbstractEstimator):
 
 
 def instantiate_estimator(
-    task: Task,
+    _target_class_: str = MISSING,
+    task: Task = MISSING,
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
     **kwargs,
@@ -87,19 +91,10 @@ def instantiate_estimator(
     estimator = estimator_config.pop("estimator")  # type: ignore
     estimator = instantiate(estimator)
 
-    # TODO recover tags
-    # # parse and merge tags from estimator
-    # get_tags = getattr(estimator, "_get_tags", lambda: {})
-    # more_tags = getattr(estimator, "_more_tags", lambda: {})
-    # tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
-    # setattr(estimator, "_get_tags", lambda: tags)
+    # parse and merge tags from estimator
+    get_tags = getattr(estimator, "_get_tags", lambda: {})
+    more_tags = getattr(estimator, "_more_tags", lambda: {})
+    tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
+    setattr(estimator, "_get_tags", lambda: tags)
 
-    # # create a meaningful config object
-    # def get_config():
-    #     params = estimator.get_params()
-    #     config = {"params": params, **estimator_config, **kwargs}
-    #     return config
-
-    # setattr(estimator, "get_config", get_config)
-
-    return Estimator(estimator=estimator)
+    return instantiate({"_target_": _target_class_, "estimator": estimator, **kwargs})

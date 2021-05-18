@@ -30,10 +30,10 @@ class Callback(ABC):
     def on_log(self, msg: Any, *args: Any):
         ...
 
-    def on_metrics(self, metrics: Dict = None):
+    def on_metrics(self, metrics):
         ...
 
-    def on_summary(self, summary: Dict = None):
+    def on_summary(self, summary: Dict):
         ...
 
     def on_end(self):
@@ -61,11 +61,11 @@ class CallbackList(Callback):
         for callback in self.callbacks:
             callback.on_log(msg, *args)
 
-    def on_metrics(self, metrics: Dict = None):
+    def on_metrics(self, metrics):
         for callback in self.callbacks:
             callback.on_metrics(metrics)
 
-    def on_summary(self, summary: Dict = None):
+    def on_summary(self, summary):
         for callback in self.callbacks:
             callback.on_summary(summary)
 

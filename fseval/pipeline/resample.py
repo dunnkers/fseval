@@ -62,7 +62,7 @@ class Resample(ResampleConfig, BaseEstimator, TransformerMixin):
         with_or_without = "with" if self.replace else "without"
         logger.info(
             f"took {self.n_samples} samples {with_or_without} replacement"
-            + f" (total samples: n={n})"
+            + f" (total samples: n={n}, random_state={self.random_state})"
         )
 
         return samples

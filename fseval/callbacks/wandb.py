@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Dict, List
 
+import pandas as pd
 from fseval.utils import dict_flatten, dict_merge
 from omegaconf import OmegaConf
 from yaml import dump
@@ -28,8 +29,16 @@ class WandbCallback(Callback):
     def on_begin(self):
         # use (1) callback config (2) overriden by pipeline config as input to wandb.init
         init_kwargs = copy.deepcopy(self.callback_config)
-        pipeline_config = copy.deepcopy(self.pipeline_config)
-        dict_merge(init_kwargs, {"config": pipeline_config})
+        config = copy.deepcopy(self.config)
+        dict_merge(init_kwargs, {"config": config})
+
+        # TODO use same `id` if: config is exactly the same (this means all args: also
+        # group)
+        # import jsonpickle
+        # import hashlib
+        # serialized_dct = jsonpickle.encode(init_kwargs)
+        # check_sum = hashlib.sha256(serialized_dct.encode('utf-8')).digest()
+        # init_kwargs.id = check_sum
 
         try:
             wandb.init(**init_kwargs)
@@ -40,14 +49,21 @@ class WandbCallback(Callback):
                 the `wandb.init` signature)"""
             ).with_traceback(sys.exc_info()[2])
 
-    def on_config_update(self, pipeline_config: Dict):
+    def on_config_update(self, config: Dict):
         # merge recursively, to prevent overriding pipeline config using `wandb.update`
-        dict_merge(wandb.config, pipeline_config)
+        dict_merge(wandb.config, config)
 
-    def on_metrics(self, metrics: Dict = None):
-        wandb.log(metrics)
+    def on_metrics(self, metrics):
+        if isinstance(metrics, pd.DataFrame):
+            for index, metric in metrics.iterrows():
+                commit = index == len(metrics) - 1
+                wandb.log(metric.to_dict())
+        elif isinstance(metrics, Dict):
+            wandb.log(metrics)
+        else:
+            raise ValueError(f"Incorrect metric type passed: {type(metrics)}")
 
-    def on_summary(self, summary: Dict = None):
+    def on_summary(self, summary: Dict):
         wandb.summary.update(summary)
 
     def on_end(self):

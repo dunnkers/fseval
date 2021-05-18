@@ -43,3 +43,6 @@ Use ([src](https://stackoverflow.com/questions/50168647/multiprocessing-causes-p
 ```shell
 OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```
+
+
+→ Be more verbose by setting `hydra.verbose=true` or `hydra.verbose=__main__`
