@@ -5,7 +5,6 @@ from functools import reduce
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from fseval.base import Task
 from hydra.core.config_store import ConfigStore
 from omegaconf import II, MISSING
 from sklearn.base import BaseEstimator, TransformerMixin

@@ -9,13 +9,10 @@ from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
 import pandas as pd
-from fseval.base import AbstractEstimator, Task
-from fseval.callbacks._callback import CallbackList
-from fseval.cv._cross_validator import CrossValidatorConfig
-from fseval.datasets._dataset import Dataset, DatasetConfig
+from fseval.pipeline.dataset import Dataset, DatasetConfig
 from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
-from fseval.pipeline.experiment import AbstractExperiment
 from fseval.pipeline.resample import Resample, ResampleConfig
+from fseval.types import AbstractEstimator, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING
@@ -29,6 +26,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import _print_elapsed_time
 from sklearn.utils.metaestimators import _BaseComposition
 from tqdm import tqdm
+
+from ._callback_list import CallbackList
+from ._experiment import Experiment
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +64,11 @@ class Ranker(Estimator, TaskedEstimatorConfig):
             return pd.DataFrame([{"r2_score": mae, "log_loss": log_loss_score}])
         else:
             return pd.DataFrame()
+
+    @property
+    def feature_importances_(self):
+        summation = self.estimator.feature_importances_
+        return np.asarray(self.estimator.feature_importances_) / summation
 
 
 @dataclass
@@ -117,7 +122,7 @@ class SubsetValidator(Pipeline):  # TODO convert to AbstractExperiment
 
 
 @dataclass
-class DatasetValidator(AbstractExperiment):
+class DatasetValidator(Experiment):
     callback_list: CallbackList = CallbackList([])
     resample: Resample = MISSING
     ranker: Estimator = MISSING
@@ -157,7 +162,7 @@ class DatasetValidator(AbstractExperiment):
 
 
 @dataclass
-class RankingValidator(AbstractExperiment):
+class RankingValidator(Experiment):
     callback_list: CallbackList = CallbackList([])
     resample: Resample = MISSING
     ranker: Estimator = MISSING
@@ -182,7 +187,7 @@ class RankingValidator(AbstractExperiment):
 
 
 @dataclass
-class RankAndValidate(AbstractExperiment, RankAndValidateConfig):
+class RankAndValidate(Experiment, RankAndValidateConfig):
     callback_list: CallbackList = CallbackList([])
     # overrides
     p: int = MISSING

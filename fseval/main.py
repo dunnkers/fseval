@@ -6,11 +6,11 @@ import wandb
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
-from fseval.base import AbstractEstimator
-from fseval.callbacks._callback import CallbackList
 from fseval.config import BaseConfig
-from fseval.cv import CrossValidator
-from fseval.datasets import Dataset
+from fseval.pipeline.cv import CrossValidator
+from fseval.pipeline.dataset import Dataset
+from fseval.pipelines._callback_list import CallbackList
+from fseval.types import AbstractEstimator
 
 
 @hydra.main(config_path="conf", config_name="my_config")

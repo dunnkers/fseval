@@ -5,9 +5,8 @@ from typing import Any, Dict, List, Optional
 from hydra.core.config_store import ConfigStore
 from omegaconf import II, MISSING
 
-from fseval.base import Task
-from fseval.cv._cross_validator import CrossValidatorConfig
-from fseval.datasets._dataset import DatasetConfig
+from fseval.pipeline.cv import CrossValidatorConfig
+from fseval.pipeline.dataset import DatasetConfig
 from fseval.pipelines.rank_and_validate import RankAndValidateConfig
 
 

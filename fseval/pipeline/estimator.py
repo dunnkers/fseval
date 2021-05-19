@@ -6,7 +6,7 @@ from logging import Logger, getLogger
 from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
-from fseval.base import AbstractEstimator, Task
+from fseval.types import AbstractEstimator, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf

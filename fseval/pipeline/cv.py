@@ -13,7 +13,7 @@ class CrossValidatorConfig:
     Parameters of both BaseCrossValidator and BaseShuffleSplit.
     """
 
-    _target_: str = "fseval.cv.CrossValidator"
+    _target_: str = "fseval.pipeline.cv.CrossValidator"
     name: str = MISSING
     """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
         implement a `split()` function. """

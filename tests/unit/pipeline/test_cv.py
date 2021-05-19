@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from fseval.cv import CrossValidator
+from fseval.pipeline.cv import CrossValidator
 from sklearn.model_selection import ShuffleSplit
 
 

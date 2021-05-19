@@ -7,37 +7,11 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Dict, List
 
-from fseval.utils import dict_flatten, dict_merge
+from fseval.types import Callback
 from omegaconf import OmegaConf
 from yaml import dump
 
 import wandb
-
-
-class Callback(ABC):
-    def __init__(self):
-        self.config = None
-
-    def set_config(self, config: Dict):
-        self.config = config
-
-    def on_begin(self):
-        ...
-
-    def on_config_update(self, config: Dict):
-        ...
-
-    def on_log(self, msg: Any, *args: Any):
-        ...
-
-    def on_metrics(self, metrics):
-        ...
-
-    def on_summary(self, summary: Dict):
-        ...
-
-    def on_end(self):
-        ...
 
 
 class CallbackList(Callback):

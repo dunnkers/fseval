@@ -5,8 +5,7 @@ from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from fseval.adapters import Adapter
-from fseval.base import Task
+from fseval.types import AbstractAdapter, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
@@ -39,7 +38,7 @@ class DatasetConfig:
         minimally relevant.
     """
 
-    _target_: str = "fseval.datasets.Dataset"
+    _target_: str = "fseval.pipeline.dataset.Dataset"
     name: str = MISSING
     _recursive_: bool = False  # prevent adapter from getting initialized
     task: Task = MISSING

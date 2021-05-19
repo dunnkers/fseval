@@ -5,14 +5,14 @@ from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
 from codetiming import Timer
-from fseval.base import AbstractEstimator, Task
+from fseval.types import AbstractEstimator, Task
 from humanfriendly import format_timespan
 
 logger = getLogger(__name__)
 
 
 @dataclass
-class AbstractExperiment(AbstractEstimator):
+class Experiment(AbstractEstimator):
     estimators: List[AbstractEstimator] = field(default_factory=lambda: [])
 
     def set_estimators(self, estimators: List[AbstractEstimator] = []):

@@ -7,13 +7,11 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Dict, List
 
-from fseval.utils import dict_flatten, dict_merge
+from fseval.types import Callback
 from omegaconf import OmegaConf
 from yaml import dump
 
 import wandb
-
-from ._callback import Callback
 
 
 class StdoutCallback(Callback):
@@ -25,8 +23,7 @@ class StdoutCallback(Callback):
         self.logger.info("pipeline started.")
 
     def on_config_update(self, pipeline_config: Dict):
-        flattend = dict_flatten(pipeline_config)
-        yamlized = dump(flattend)
+        yamlized = dump(pipeline_config)
         self.logger.info(f"pipeline config changed: \n{yamlized}")
 
     def on_log(self, msg: Any, *args: Any):

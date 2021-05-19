@@ -1,5 +1,6 @@
 from typing import List, Optional, cast
 
+from fseval.config import BaseConfig
 from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
@@ -21,10 +22,10 @@ def _get_config_loader() -> ConfigLoader:
     return cl
 
 
-def get_config() -> DictConfig:
+def get_config() -> BaseConfig:
     _ensure_hydra_initialized()
     config = compose(config_name="my_config")
-    return config
+    return config  # type: ignore
 
 
 def get_single_config(group_name: str, option_name: str) -> DictConfig:
