@@ -10,4 +10,4 @@ class TabNetRegressor(RealTabNetRegressor):
         # ensure target is 2D
         if np.ndim(y) == 1:
             y = np.expand_dims(y, axis=1)
-        super().fit(X, y, **kwargs)
+        super(TabNetRegressor, self).fit(X, y, **kwargs)

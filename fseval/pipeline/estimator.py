@@ -4,12 +4,11 @@ from logging import Logger, getLogger
 from typing import Any, Optional
 
 import numpy as np
+from fseval.types import AbstractEstimator, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
-
-from fseval.types import AbstractEstimator, Task
 
 
 @dataclass
@@ -33,9 +32,9 @@ class TaskedEstimatorConfig:
 
 @dataclass
 class Estimator(AbstractEstimator):
-    name: str = MISSING
     estimator: Any = MISSING
     logger: Logger = MISSING
+    name: str = MISSING
 
     def __post_init__(self):
         self.logger = getLogger(__name__)
@@ -96,4 +95,4 @@ def instantiate_estimator(
     tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
     setattr(estimator, "_get_tags", lambda: tags)
 
-    return instantiate({"_target_": _target_class_, "estimator": estimator, **kwargs})
+    return instantiate({"_target_": _target_class_, **kwargs}, estimator)

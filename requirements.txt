@@ -19,8 +19,9 @@ fakeredis==1.5.0
 Flask==1.1.2
 gitdb==4.0.7
 GitPython==3.1.14
+humanfriendly==9.1
 hydra-colorlog==1.1.0.dev1
-hydra-core==1.1.0.dev6
+hydra-core==1.1.0.rc1
 -e git+https://github.com/dunnkers/hydra.git@fe322a8f95eb6badcdce001375c727567545e97b#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher
 idna==2.10
 iniconfig==1.1.1
@@ -32,6 +33,7 @@ itsdangerous==1.1.0
 jedi==0.18.0
 Jinja2==2.11.3
 joblib==1.0.1
+jsonpickle==2.0.0
 jupyter-client==6.1.12
 jupyter-core==4.7.1
 l2x-synthetic==2.0.0
