@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from logging import Logger, getLogger
-from time import time
-from typing import Any, Dict, List, Optional, cast
+from logging import getLogger
+from typing import List
 
 import pandas as pd
 from codetiming import Timer
-from fseval.types import AbstractEstimator, Task
 from humanfriendly import format_timespan
+
+from fseval.types import AbstractEstimator, Task
 
 logger = getLogger(__name__)
 

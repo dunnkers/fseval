@@ -1,10 +1,9 @@
-from typing import cast
-
 import numpy as np
 import pytest
-from fseval.config import BaseConfig
 from hydra.utils import instantiate
 from omegaconf import DictConfig
+
+from fseval.config import BaseConfig
 from tests.integration.hydra_utils import get_config
 
 

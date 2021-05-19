@@ -3,10 +3,10 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from fseval.types import AbstractAdapter
 from omegaconf import MISSING
-
 from openml.datasets import get_dataset
+
+from fseval.types import AbstractAdapter
 
 
 @dataclass

@@ -2,9 +2,10 @@ from typing import Optional
 
 import numpy as np
 import pytest
-from fseval.pipeline.dataset import Dataset
 from hydra.utils import instantiate
 from omegaconf import DictConfig
+
+from fseval.pipeline.dataset import Dataset
 from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
 
 

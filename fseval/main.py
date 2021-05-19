@@ -1,11 +1,11 @@
-from typing import Dict, List, cast
+from typing import Dict, cast
 
 import hydra
 import numpy as np
-import wandb
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
+import wandb
 from fseval.config import BaseConfig
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset

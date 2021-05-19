@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 
 class IOHandler(ABC):
@@ -15,6 +15,7 @@ class IOHandler(ABC):
     def on_file_save(self, filename, content):
         ...
 
+
 class WandbIOHandler:
     def on_file_restore(self, filename) -> Any:
         raise NotImplementedError
@@ -26,4 +27,3 @@ class WandbIOHandler:
         f.close()
 
         wandb.save(filename, base_path="/")
-

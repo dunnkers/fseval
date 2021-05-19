@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from fseval.pipeline.resample import Resample
 
 

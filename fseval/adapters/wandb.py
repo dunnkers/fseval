@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import numpy as np
-from fseval.types import AbstractAdapter
 from omegaconf import MISSING
 
 import wandb
+from fseval.types import AbstractAdapter
 
 
 @dataclass

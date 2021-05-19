@@ -2,14 +2,15 @@ import logging
 import re
 from dataclasses import dataclass
 from itertools import chain
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-from fseval.types import AbstractAdapter, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.preprocessing import minmax_scale
+
+from fseval.types import AbstractAdapter, Task
 
 logger = logging.getLogger(__name__)
 
@@ -121,8 +122,8 @@ class Dataset(DatasetConfig):
         ), """dataset `feature_importances` ground truth must be a dict."""
 
         # make variables accessible in current context
-        n = self.n
-        p = self.p
+        self.n
+        self.p
         X = np.zeros_like(self.X)
         for selector, value in self.feature_importances.items():
             assert (

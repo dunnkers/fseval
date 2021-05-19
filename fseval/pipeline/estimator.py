@@ -1,16 +1,15 @@
-import copy
 import inspect
-from dataclasses import dataclass, field
-from enum import Enum
+from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Optional
 
 import numpy as np
-from fseval.types import AbstractEstimator, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
+
+from fseval.types import AbstractEstimator, Task
 
 
 @dataclass

@@ -3,6 +3,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+
 from fseval.pipeline.dataset import Dataset
 from fseval.types import AbstractAdapter
 

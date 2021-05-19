@@ -1,17 +1,11 @@
-import copy
-import inspect
-import os
-import sys
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from fseval.types import Callback
 from omegaconf import OmegaConf
 from yaml import dump
 
 import wandb
+from fseval.types import Callback
 
 
 class StdoutCallback(Callback):
