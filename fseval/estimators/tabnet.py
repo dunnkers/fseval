@@ -1,7 +1,10 @@
+from dataclasses import dataclass
+
 import numpy as np
 from pytorch_tabnet.tab_model import TabNetRegressor as RealTabNetRegressor
 
 
+@dataclass
 class TabNetRegressor(RealTabNetRegressor):
     def fit(self, X, y, **kwargs):
         # ensure target is 2D
