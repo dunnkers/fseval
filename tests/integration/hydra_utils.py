@@ -1,13 +1,12 @@
 from typing import List, Optional
 
+from fseval.config import BaseConfig
 from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
 from hydra.core.object_type import ObjectType
 from hydra.types import RunMode
 from omegaconf import DictConfig, OmegaConf
-
-from fseval.config import BaseConfig
 
 
 def _ensure_hydra_initialized() -> None:
