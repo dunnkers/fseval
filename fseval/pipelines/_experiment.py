@@ -4,9 +4,8 @@ from typing import List
 
 import pandas as pd
 from codetiming import Timer
-from humanfriendly import format_timespan
-
 from fseval.types import AbstractEstimator, Task
+from humanfriendly import format_timespan
 
 logger = getLogger(__name__)
 
@@ -15,8 +14,11 @@ logger = getLogger(__name__)
 class Experiment(AbstractEstimator):
     estimators: List[AbstractEstimator] = field(default_factory=lambda: [])
 
-    def set_estimators(self, estimators: List[AbstractEstimator] = []):
-        self.estimators = estimators
+    def __post_init__(self):
+        self.estimators = list(self._get_estimator())
+
+    def _get_estimator(self):
+        return []
 
     @property
     def _scoring_metadata(self) -> List:
@@ -47,7 +49,11 @@ class Experiment(AbstractEstimator):
 
         return lambda secs: f"{step_text} {format_timespan(secs)}"
 
+    def _prepare_data(self, X, y):
+        return X, y
+
     def fit(self, X, y) -> AbstractEstimator:
+        X, y = self._prepare_data(X, y)
         self.fit_timer = Timer(name="fit", logger=logger.info)
 
         for step_number, estimator in enumerate(self.estimators):
@@ -74,14 +80,15 @@ class Experiment(AbstractEstimator):
             raise ValueError(f"illegal score type received: {type(score)}")
 
     def score(self, X, y) -> pd.DataFrame:
+        X, y = self._prepare_data(X, y)
         scores = pd.DataFrame()
 
         for estimator in self.estimators:
             score = estimator.score(X, y)
             score_df = self._score_to_dataframe(score)
 
-            metadata = self._get_scoring_metadata(estimator)
-            score_df = score_df.assign(**metadata)
+            # metadata = self._get_scoring_metadata(estimator)
+            # score_df = score_df.assign(**metadata)
 
             scores = scores.append(score_df)
 

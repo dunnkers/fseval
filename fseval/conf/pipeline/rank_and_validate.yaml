@@ -1,10 +1,10 @@
 defaults:
   - base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: chi2
+  - /estimator@ranker: fscore
   - /estimator@validator: dt
 ranker:
   task: ${dataset.task}
 validator:
   task: ${dataset.task}
-n_bootstraps: 3
+n_bootstraps: 2

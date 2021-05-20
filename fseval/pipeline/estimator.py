@@ -33,11 +33,8 @@ class TaskedEstimatorConfig:
 @dataclass
 class Estimator(AbstractEstimator):
     estimator: Any = MISSING
-    logger: Logger = MISSING
+    logger: Logger = getLogger(__name__)
     name: str = MISSING
-
-    def __post_init__(self):
-        self.logger = getLogger(__name__)
 
     def _get_estimator_repr(self):
         module_path = inspect.getmodule(self.estimator)
@@ -65,10 +62,6 @@ class Estimator(AbstractEstimator):
     @property
     def feature_importances_(self):
         return self.estimator.feature_importances_
-
-    @property
-    def coef_(self):
-        return self.estimator.coef_
 
 
 def instantiate_estimator(

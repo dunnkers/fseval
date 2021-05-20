@@ -38,9 +38,9 @@ class DatasetConfig:
         minimally relevant.
     """
 
-    _target_: str = "fseval.pipeline.dataset.Dataset"
-    name: str = MISSING
+    _target_: str = "fseval.pipeline.dataset.DatasetLoader"
     _recursive_: bool = False  # prevent adapter from getting initialized
+    name: str = MISSING
     task: Task = MISSING
     adapter: Any = MISSING
     adapter_callable: str = "get_data"
@@ -48,12 +48,17 @@ class DatasetConfig:
 
 
 @dataclass
-class Dataset(DatasetConfig):
-    # these are "runtime" properties: they are only set once the dataset is loaded.
-    n: Optional[int] = None
-    p: Optional[int] = None
-    multioutput: Optional[bool] = None
+class Dataset:
+    X: np.ndarray
+    y: np.ndarray
+    n: int
+    p: int
+    multioutput: bool
+    feature_importances: Optional[np.ndarray] = None
 
+
+@dataclass
+class DatasetLoader(DatasetConfig):
     def _get_adapter(self) -> Union[object, tuple]:
         if OmegaConf.is_dict(self.adapter):
             adapter = instantiate(self.adapter)
@@ -93,27 +98,9 @@ class Dataset(DatasetConfig):
             X, y = data
             return X, y
 
-    def load(self, ensure_positive_X=False) -> None:
-        X, y = self._get_adapter_data()
-
-        if ensure_positive_X:
-            X = minmax_scale(X, feature_range=(0, 1), copy=False)
-
-        self.X = np.asarray(X)
-        self.y = np.asarray(y)
-        self.n = self.X.shape[0]
-        self.p = self.X.shape[1]
-        self.multioutput = self.y.ndim > 1
-
-        task_name = self.task.name if hasattr(self.task, "name") else self.task
-        logger.info(f"loaded {self.name} {task_name} dataset (n={self.n}, p={self.p})")
-
-    def _ensure_loaded(self) -> None:
-        assert hasattr(self, "X"), "please load the dataset first (use `load()`)."
-
-    def get_feature_importances(self) -> Optional[np.ndarray]:
-        self._ensure_loaded()
-
+    def get_feature_importances(
+        self, X: np.ndarray, n: int, p: int
+    ) -> Optional[np.ndarray]:
         if self.feature_importances is None:
             return None
         assert OmegaConf.is_dict(self.feature_importances) or isinstance(
@@ -121,11 +108,7 @@ class Dataset(DatasetConfig):
         ), """dataset `feature_importances` ground truth must be a dict."""
 
         # make variables accessible in current context
-        n = self.n
-        assert n > 0
-        p = self.p
-        assert p > 0
-        X = np.zeros_like(self.X)
+        X = np.zeros_like(X)
 
         # process feature importances
         for selector, value in self.feature_importances.items():
@@ -143,3 +126,19 @@ class Dataset(DatasetConfig):
             return X[0]  # return first row
         else:
             return X  # return entire matrix
+
+    def load(self) -> Dataset:
+        X, y = self._get_adapter_data()
+
+        X = np.asarray(X)
+        y = np.asarray(y)
+        n = X.shape[0]
+        p = X.shape[1]
+        multioutput = y.ndim > 1
+        feature_importances = self.get_feature_importances(X, n, p)
+
+        task_name = self.task.name if hasattr(self.task, "name") else self.task
+        logger.info(f"loaded {self.name} {task_name} dataset (n={n}, p={p})")
+
+        dataset = Dataset(X, y, n, p, multioutput, feature_importances)
+        return dataset

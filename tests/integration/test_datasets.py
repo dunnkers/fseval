@@ -2,10 +2,9 @@ from typing import Optional
 
 import numpy as np
 import pytest
+from fseval.pipeline.dataset import Dataset, DatasetLoader
 from hydra.utils import instantiate
 from omegaconf import DictConfig
-
-from fseval.pipeline.dataset import Dataset
 from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
 
 
@@ -17,17 +16,17 @@ class DatasetTest(TestGroupItem):
     __test__ = False
 
     @pytest.fixture
-    def ds(self, cfg):
-        ds = instantiate(cfg)
-        assert isinstance(ds, Dataset)
-        return ds
+    def ds_loader(self, cfg):
+        ds_loader = instantiate(cfg)
+        assert isinstance(ds_loader, DatasetLoader)
+        return ds_loader
 
 
 class TestAllDatasets(DatasetTest):
     __test__ = True
 
-    def test_load(self, ds):
-        ds.load()
+    def test_load(self, ds_loader):
+        ds: Dataset = ds_loader.load()
         assert len(ds.X) > 0
         assert len(ds.y) > 0
 
@@ -42,9 +41,9 @@ class TestFeatureImportancesDatasets(DatasetTest):
         else:
             return None
 
-    def test_feature_importances(self, ds):
-        ds.load()
-        X_importances = ds.get_feature_importances()
+    def test_feature_importances(self, ds_loader):
+        ds: Dataset = ds_loader.load()
+        X_importances = ds.feature_importances
 
         assert np.ndim(X_importances) == 1 or np.ndim(X_importances) == 2
 

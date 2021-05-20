@@ -1,10 +1,9 @@
 from typing import Any, Dict, List
 
-from omegaconf import OmegaConf
-from yaml import dump
-
 import wandb
 from fseval.types import Callback
+from omegaconf import OmegaConf
+from yaml import dump
 
 
 class CallbackList(Callback):
@@ -37,5 +36,5 @@ class CallbackList(Callback):
             callback.on_summary(summary)
 
     def on_end(self):
-        for callback in self.callbacks:
+        for callback in reversed(self.callbacks):
             callback.on_end()
