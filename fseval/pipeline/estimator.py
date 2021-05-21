@@ -33,30 +33,40 @@ class TaskedEstimatorConfig:
 @dataclass
 class Estimator(AbstractEstimator):
     estimator: Any = MISSING
-    logger: Logger = getLogger(__name__)
     name: str = MISSING
+    task: Task = MISSING
 
-    def _get_estimator_repr(self):
-        module_path = inspect.getmodule(self.estimator)
+    logger: Logger = getLogger(__name__)
+
+    @classmethod
+    def _get_estimator_repr(cls, estimator):
+        name = ""
+        if isinstance(estimator, Estimator):
+            name = estimator.name
+        return f"{name} {type(estimator).__name__}"
+
+    @classmethod
+    def _get_class_repr(cls, estimator):
+        module_path = inspect.getmodule(estimator)
         module_name = module_path.__name__
-        class_name = type(self.estimator).__name__
+        class_name = type(estimator).__name__
         return f"{module_name}.{class_name}"
 
     def fit(self, X, y):
-        self.logger.debug(f"Estimator fit: {self._get_estimator_repr()}")
+        self.logger.debug(f"Fitting {self}...")
         self.estimator.fit(X, y)
         return self
 
     def transform(self, X, y):
-        self.logger.debug(f"Estimator transform: {self._get_estimator_repr()}")
+        self.logger.debug(f"Using {self} transform...")
         return self.estimator.transform(X, y)
 
     def fit_transform(self, X, y):
-        self.logger.debug(f"Estimator transform plus fit: {self._get_estimator_repr()}")
+        self.logger.debug(f"Fitting and transforming {self}...")
         return self.fit(X, y).transform(X, y)
 
     def score(self, X, y):
-        self.logger.debug(f"Estimator scoring: {self._get_estimator_repr()}")
+        self.logger.debug(f"Scoring {self}...")
         return self.estimator.score(X, y)
 
     @property
@@ -88,4 +98,4 @@ def instantiate_estimator(
     tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
     setattr(estimator, "_get_tags", lambda: tags)
 
-    return instantiate({"_target_": _target_class_, **kwargs}, estimator)
+    return instantiate({"_target_": _target_class_, **kwargs}, estimator, task=task)

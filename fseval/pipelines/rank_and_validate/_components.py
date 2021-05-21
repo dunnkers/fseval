@@ -1,6 +1,6 @@
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from logging import Logger, getLogger
 from typing import Dict, List
 
 import numpy as np
@@ -45,15 +45,14 @@ class RankAndValidatePipeline(Pipeline):
 
 @dataclass
 class SubsetValidator(Experiment, RankAndValidatePipeline):
+    _enable_experiment_logging: bool = False
     n_features_to_select: int = MISSING
-    bootstrap_state: int = MISSING
+
+    def _get_estimator(self):
+        yield self.validator
 
     def _prepare_data(self, X, y):
-        # resample
-        self.resample.random_state = self.bootstrap_state
-        X, y = self.resample.transform(X, y)
-
-        # select n features
+        # select n features: perform feature selection
         selector = SelectFromModel(
             estimator=self.ranker,
             threshold=-np.inf,
@@ -61,11 +60,7 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
             prefit=True,
         )
         X = selector.transform(X)
-
         return X, y
-
-    def _get_estimator(self):
-        yield self.validator
 
     def score(self, X, y):
         score = super(SubsetValidator, self).score(X, y)
@@ -76,12 +71,6 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
 
 @dataclass
 class DatasetValidator(Experiment, RankAndValidatePipeline):
-    bootstrap_state: int = MISSING
-
-    @property
-    def _scoring_metadata(self) -> List:
-        return ["n_features_to_select", "bootstrap_state", "fit_time"]
-
     def _get_estimator(self):
         for n_features_to_select in np.arange(1, min(50, self.dataset.p) + 1):
             config = self._get_config()
@@ -91,20 +80,24 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
                 **config,
                 validator=clone(validator),
                 n_features_to_select=n_features_to_select,
-                bootstrap_state=self.bootstrap_state,
             )
+
+    def _get_estimator_repr(self, estimator):
+        return Estimator._get_estimator_repr(estimator.validator)
+
+    def _get_overrides_text(self, estimator):
+        return f"[n_features_to_select={estimator.n_features_to_select}] "
 
     def score(self, X, y):
         scores = super(DatasetValidator, self).score(X, y)
-
         self.callbacks.on_metrics(scores)
-
         return scores
 
 
 @dataclass
 class RankingValidator(Experiment, RankAndValidatePipeline):
     bootstrap_state: int = MISSING
+    logger: Logger = getLogger("RankingValidator")
 
     def _get_estimator(self):
         # give ranker access to dataset
@@ -113,14 +106,19 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         # first fit ranker, then run all validations
         return [
             self.ranker,
-            DatasetValidator(
-                **self._get_config(), bootstrap_state=self.bootstrap_state
-            ),
+            DatasetValidator(**self._get_config()),
         ]
+
+    def _prepare_data(self, X, y):
+        # resample dataset: perform a bootstrap
+        self.resample.random_state = self.bootstrap_state
+        X, y = self.resample.transform(X, y)
+        return X, y
 
     def score(self, X, y):
         scores = super(RankingValidator, self).score(X, y)
         scores["bootstrap_state"] = self.bootstrap_state
+        self.logger.info(f"scored bootstrap_state={self.bootstrap_state} ✓")
         return scores
 
 
@@ -128,22 +126,31 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 class RankAndValidate(Experiment, RankAndValidatePipeline):
     def _get_estimator(self):
         for bootstrap_state in np.arange(1, self.n_bootstraps + 1):
+            config = self._get_config()
+            ranker = config.pop("ranker")
+
             yield RankingValidator(
-                **self._get_config(),
+                **config,
+                ranker=clone(ranker),
                 bootstrap_state=bootstrap_state,
             )
+
+    def _get_overrides_text(self, estimator):
+        return f"[bootstrap_state={estimator.bootstrap_state}] "
 
     def score(self, X, y):
         scores = super(RankAndValidate, self).score(X, y)
         result = pd.DataFrame()
 
         ranking_result = pd.DataFrame(
-            [{
-                "r2_score_mean": scores["r2_score"].mean(),
-                "r2_score_std": scores["r2_score"].std(),
-                "log_loss_mean": scores["log_loss"].mean(),
-                "log_loss_std": scores["log_loss"].std(),
-            }]
+            [
+                {
+                    "r2_score_mean": scores["r2_score"].mean(),
+                    "r2_score_std": scores["r2_score"].std(),
+                    "log_loss_mean": scores["log_loss"].mean(),
+                    "log_loss_std": scores["log_loss"].std(),
+                }
+            ]
         )
         result = result.append(ranking_result)
 
@@ -154,8 +161,9 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
                 "score_std": by_dimension["score"].std(),
                 "fit_time_mean": by_dimension["fit_time"].mean(),
                 "fit_time_std": by_dimension["fit_time"].std(),
+                # FIXME attach `p`: current dimension.
             }
-        )
+        ).reset_index()
         result = result.append(validation_result)
 
         return result

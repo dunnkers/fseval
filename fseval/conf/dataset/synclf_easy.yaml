@@ -1,4 +1,4 @@
-name: Synthetic classification dataset - easy
+name: Synthetic make_classification dataset (easy)
 task: classification
 adapter:
   _target_: sklearn.datasets.make_classification

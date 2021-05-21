@@ -55,7 +55,15 @@ class Ranker(Estimator):
             y_pred = ranking
             log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
 
-            return pd.DataFrame([{"r2_score": r2, "log_loss": log_loss_score}])
+            return pd.DataFrame(
+                [
+                    {
+                        "r2_score": r2,
+                        "log_loss": log_loss_score,
+                        "fit_time": self._fit_time_elapsed,
+                    }
+                ]
+            )
         else:
             return pd.DataFrame()
 
