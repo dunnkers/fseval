@@ -53,25 +53,35 @@ class Estimator(AbstractEstimator):
         return f"{module_name}.{class_name}"
 
     def fit(self, X, y):
-        self.logger.debug(f"Fitting {self}...")
+        self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")
         self.estimator.fit(X, y)
         return self
 
     def transform(self, X, y):
-        self.logger.debug(f"Using {self} transform...")
+        self.logger.debug(f"Using {Estimator._get_class_repr(self)} transform...")
         return self.estimator.transform(X, y)
 
     def fit_transform(self, X, y):
-        self.logger.debug(f"Fitting and transforming {self}...")
+        self.logger.debug(
+            f"Fitting and transforming {Estimator._get_class_repr(self)}..."
+        )
         return self.fit(X, y).transform(X, y)
 
     def score(self, X, y):
-        self.logger.debug(f"Scoring {self}...")
+        self.logger.debug(f"Scoring {Estimator._get_class_repr(self)}...")
         return self.estimator.score(X, y)
 
     @property
     def feature_importances_(self):
         return self.estimator.feature_importances_
+
+    @property
+    def fit_time_(self):
+        return self.estimator._fseval_internal_fit_time_
+
+    @fit_time_.setter
+    def fit_time_(self, fit_time_):
+        setattr(self.estimator, "_fseval_internal_fit_time_", fit_time_)
 
 
 def instantiate_estimator(

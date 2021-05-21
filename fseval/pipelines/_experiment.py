@@ -13,7 +13,6 @@ from humanfriendly import format_timespan
 class Experiment(AbstractEstimator):
     estimators: List[AbstractEstimator] = field(default_factory=lambda: [])
     logger: Logger = getLogger(__name__)
-    _enable_experiment_logging: bool = True
 
     def __post_init__(self):
         self.estimators = list(self._get_estimator())
@@ -28,10 +27,7 @@ class Experiment(AbstractEstimator):
         return ""
 
     def _logger(self, estimator):
-        if self._enable_experiment_logging:
-            return lambda text: getLogger(type(estimator).__name__).info(text)
-        else:
-            return lambda text: None
+        return lambda text: getLogger(type(estimator).__name__).info(text)
 
     def _step_text(self, step_name, step_number, estimator):
         step = step_number + 1
@@ -59,15 +55,16 @@ class Experiment(AbstractEstimator):
 
     def fit(self, X, y) -> AbstractEstimator:
         X, y = self._prepare_data(X, y)
-        self.fit_timer = Timer(name="fit")
 
+        timer = Timer(name="fit")
         for step_number, estimator in enumerate(self.estimators):
-            self.fit_timer.text = self._step_text("fit", step_number, estimator)
-            self.fit_timer.logger = self._logger(estimator)
-            self.fit_timer.start()
+            timer.text = self._step_text("fit", step_number, estimator)
+            timer.logger = self._logger(estimator)
+            timer.start()
             estimator.fit(X, y)
-            self.fit_timer.stop()
-            setattr(estimator, "_fit_time_elapsed", self.fit_timer.last)
+            timer.stop()
+            # if not getattr(estimator, "fit_time_", )
+            setattr(estimator, "fit_time_", timer.last)
 
         return self
 

@@ -19,37 +19,29 @@ from sklearn.ensemble._base import _BaseHeterogeneousEnsemble
 from sklearn.feature_selection import SelectFromModel, SelectKBest
 from sklearn.metrics import log_loss, r2_score
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.utils import _print_elapsed_time
 from sklearn.utils.metaestimators import _BaseComposition
 from tqdm import tqdm
 
 from .._experiment import Experiment
 from .._pipeline import Pipeline
-from ._ranker import Ranker, RankerConfig
-
-
-@dataclass
-class RankAndValidatePipeline(Pipeline):
-    name: str = MISSING
-    resample: Resample = MISSING
-    ranker: Ranker = MISSING
-    validator: Estimator = MISSING
-    n_bootstraps: int = MISSING
-
-    def _get_config(self):
-        return {
-            key: getattr(self, key)
-            for key in RankAndValidatePipeline.__dataclass_fields__.keys()
-        }
+from ._config import RankAndValidatePipeline
+from ._ranking_validator import RankingValidator
 
 
 @dataclass
 class SubsetValidator(Experiment, RankAndValidatePipeline):
-    _enable_experiment_logging: bool = False
+    """Validates one feature subset using a given validation estimator. i.e. it first
+    performs feature selection using the ranking made available in the fitted ranker,
+    `self.ranker`, and then fits/scores an estimator on that subset."""
+
+    bootstrap_state: int = MISSING
     n_features_to_select: int = MISSING
 
     def _get_estimator(self):
         yield self.validator
+
+    def _logger(self, estimator):
+        return lambda text: None
 
     def _prepare_data(self, X, y):
         # select n features: perform feature selection
@@ -62,15 +54,33 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
         X = selector.transform(X)
         return X, y
 
+    def fit(self, X, y):
+        override = f"bootstrap_state={self.bootstrap_state}"
+        override += f",n_features_to_select={self.n_features_to_select}"
+        filename = f"validation[{override}].cloudpickle"
+        restored = self.storage_provider.restore_pickle(filename)
+
+        if restored:
+            self.validator.estimator = restored
+            self.logger.info("restored validator from storage provider ✓")
+        else:
+            super(SubsetValidator, self).fit(X, y)
+            self.storage_provider.save_pickle(filename, self.validator.estimator)
+
     def score(self, X, y):
         score = super(SubsetValidator, self).score(X, y)
         score["n_features_to_select"] = self.n_features_to_select
-        score["fit_time"] = self._fit_time_elapsed
+        score["fit_time"] = self.validator.fit_time_
         return score
 
 
 @dataclass
 class DatasetValidator(Experiment, RankAndValidatePipeline):
+    """Validates an entire dataset, given a fitted ranker and its feature ranking. Fits
+    at most 50 feature subsets, at each step incrementally including more top-features."""
+
+    bootstrap_state: int = MISSING
+
     def _get_estimator(self):
         for n_features_to_select in np.arange(1, min(50, self.dataset.p) + 1):
             config = self._get_config()
@@ -80,6 +90,7 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
                 **config,
                 validator=clone(validator),
                 n_features_to_select=n_features_to_select,
+                bootstrap_state=self.bootstrap_state,
             )
 
     def _get_estimator_repr(self, estimator):
@@ -90,23 +101,30 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
     def score(self, X, y):
         scores = super(DatasetValidator, self).score(X, y)
-        self.callbacks.on_metrics(scores)
+        self.callbacks.on_metrics(scores)  # upload validator results
         return scores
 
 
 @dataclass
-class RankingValidator(Experiment, RankAndValidatePipeline):
+class RankAndValidate(Experiment, RankAndValidatePipeline):
+    """First fits a feature ranker (or feature selector, as long as the estimator will
+    attach at `feature_importances_` property to its class), and then validates the
+    feature ranking by fitting a 'validation' estimator. The validation estimator can be
+    any normal sklearn estimator; just as long it supports the specified dataset type -
+    regression or classification."""
+
     bootstrap_state: int = MISSING
-    logger: Logger = getLogger("RankingValidator")
+    logger: Logger = getLogger(__name__)
 
     def _get_estimator(self):
-        # give ranker access to dataset
-        self.ranker.dataset = self.dataset
-
         # first fit ranker, then run all validations
         return [
-            self.ranker,
-            DatasetValidator(**self._get_config()),
+            RankingValidator(  # pass bootstrap state to append to cache filename
+                **self._get_config(), bootstrap_state=self.bootstrap_state
+            ),
+            DatasetValidator(
+                **self._get_config(), bootstrap_state=self.bootstrap_state
+            ),
         ]
 
     def _prepare_data(self, X, y):
@@ -116,20 +134,26 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         return X, y
 
     def score(self, X, y):
-        scores = super(RankingValidator, self).score(X, y)
+        scores = super(RankAndValidate, self).score(X, y)
         scores["bootstrap_state"] = self.bootstrap_state
         self.logger.info(f"scored bootstrap_state={self.bootstrap_state} ✓")
         return scores
 
 
 @dataclass
-class RankAndValidate(Experiment, RankAndValidatePipeline):
+class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
+    """Provides an experiment that performs a 'bootstrap' procedure: using different
+    `random_state` seeds the dataset is continuously resampled with replacement, such
+    that various metrics can be better approximated."""
+
+    logger: Logger = getLogger(__name__)
+
     def _get_estimator(self):
         for bootstrap_state in np.arange(1, self.n_bootstraps + 1):
             config = self._get_config()
             ranker = config.pop("ranker")
 
-            yield RankingValidator(
+            yield RankAndValidate(
                 **config,
                 ranker=clone(ranker),
                 bootstrap_state=bootstrap_state,
@@ -139,9 +163,12 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         return f"[bootstrap_state={estimator.bootstrap_state}] "
 
     def score(self, X, y):
-        scores = super(RankAndValidate, self).score(X, y)
-        result = pd.DataFrame()
+        scores = super(BootstrappedRankAndValidate, self).score(X, y)
+        self.storage_provider.save(
+            "scores.csv", lambda file: scores.to_csv(file, index=False)
+        )
 
+        # Ranking scores - aggregation
         ranking_result = pd.DataFrame(
             [
                 {
@@ -152,8 +179,11 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
                 }
             ]
         )
-        result = result.append(ranking_result)
+        self.logger.info(f"{self.ranker.name} scores:")
+        print(ranking_result)
+        self.callbacks.on_metrics(ranking_result)
 
+        # Validation scores - aggregation
         by_dimension = scores.groupby("n_features_to_select")
         validation_result = pd.DataFrame(
             {
@@ -161,9 +191,18 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
                 "score_std": by_dimension["score"].std(),
                 "fit_time_mean": by_dimension["fit_time"].mean(),
                 "fit_time_std": by_dimension["fit_time"].std(),
-                # FIXME attach `p`: current dimension.
             }
         ).reset_index()
-        result = result.append(validation_result)
+        validation_result["n_features_to_select"] = validation_result[
+            "n_features_to_select"
+        ].astype(int)
+        self.logger.info(f"{self.validator.name} validation scores:")
+        print(validation_result)
+        self.callbacks.on_metrics(validation_result)
 
-        return result
+        # Summary
+        best_subset_index = validation_result["score_mean"].argmax()
+        best_subset = validation_result.iloc[best_subset_index]
+        summary = dict(best_subset=best_subset.to_dict())
+
+        return summary

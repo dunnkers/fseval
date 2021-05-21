@@ -1,3 +1,4 @@
 wandb:
   _target_: fseval.callbacks.WandbCallback
   job_type: ${pipeline.name}
+  resume: allow

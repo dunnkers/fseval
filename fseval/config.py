@@ -10,9 +10,8 @@ from fseval.pipelines.rank_and_validate import RankAndValidateConfig
 
 
 @dataclass
-class CallbacksConfig:
-    stdout: bool = False
-    wandb: bool = False
+class StorageProviderConfig:
+    _target_: str = MISSING
 
 
 @dataclass
@@ -21,6 +20,7 @@ class BaseConfig:
     cv: CrossValidatorConfig = MISSING
     pipeline: Any = MISSING
     callbacks: Dict = field(default_factory=lambda: dict())
+    storage_provider: StorageProviderConfig = MISSING
 
 
 cs = ConfigStore.instance()

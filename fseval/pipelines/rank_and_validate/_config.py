@@ -24,16 +24,36 @@ from sklearn.utils.metaestimators import _BaseComposition
 from tqdm import tqdm
 
 from .._experiment import Experiment
-from ._ranker import Ranker, RankerConfig
+from .._pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class RankAndValidateConfig:
-    _target_: str = "fseval.pipelines.rank_and_validate._components.RankAndValidate"
+    _target_: str = (
+        "fseval.pipelines.rank_and_validate._components.BootstrappedRankAndValidate"
+    )
     name: str = "rank-and-validate"
     resample: ResampleConfig = MISSING
-    ranker: RankerConfig = MISSING  # CLI: estimator@pipeline.ranker=chi2
-    validator: TaskedEstimatorConfig = MISSING  # CLI: estimator@pipeline.ranker=chi2
+    ranker: TaskedEstimatorConfig = MISSING
+    validator: TaskedEstimatorConfig = MISSING
     n_bootstraps: int = MISSING
+
+
+@dataclass
+class RankAndValidatePipeline(Pipeline):
+    """Instantiated version of `RankAndValidateConfig`: the actual pipeline
+    implementation."""
+
+    name: str = MISSING
+    resample: Resample = MISSING
+    ranker: Estimator = MISSING
+    validator: Estimator = MISSING
+    n_bootstraps: int = MISSING
+
+    def _get_config(self):
+        return {
+            key: getattr(self, key)
+            for key in RankAndValidatePipeline.__dataclass_fields__.keys()
+        }
