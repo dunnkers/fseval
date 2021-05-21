@@ -1,7 +1,7 @@
 import os
 from logging import Logger, getLogger
 from pickle import dump, load
-from typing import Any, Callable
+from typing import Any, Callable, Dict
 
 from fseval.types import AbstractStorageProvider
 
@@ -10,6 +10,12 @@ import wandb
 
 class WandbStorageProvider(AbstractStorageProvider):
     logger: Logger = getLogger(__name__)
+
+    def set_config(self, config: Dict):
+        assert config["callbacks"].get(
+            "wandb"
+        ), "wandb callback must be enabled to use wandb storage provider."
+        super(WandbStorageProvider, self).set_config(config)
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         filedir = wandb.run.dir  # type: ignore
@@ -31,9 +37,10 @@ class WandbStorageProvider(AbstractStorageProvider):
         except ValueError as err:
             config = self.config
             config_callbacks = config["callbacks"]
-            config_wandb = config_callbacks["wandb"]
-            resume_must = config_wandb.get("resume", False) == "must"
-            if resume_must:
+            config_wandb = config_callbacks.get("wandb")
+            must_resume = config_wandb.get("resume", False) == "must"
+
+            if must_resume:
                 self.logger.warn(
                     "wandb callback config got `resume=must` but restoring the file "
                     + f"`{filename}` failed nonetheless:\n"
