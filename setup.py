@@ -23,5 +23,6 @@ setup(
         "skrebate==0.62",
         "l2x-synthetic==2.0.0",
         "humanfriendly==9.1",
+        "codetiming==1.3.0",
     ],
 )
