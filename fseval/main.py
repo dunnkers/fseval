@@ -1,3 +1,4 @@
+import copy
 from typing import Dict, cast
 
 import hydra
@@ -17,13 +18,25 @@ from fseval.types import AbstractEstimator, AbstractStorageProvider
 def main(cfg: BaseConfig) -> None:
     # convert to primitive dict
     primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
-
     primitive_cfg = cast(Dict, primitive_cfg)
 
     # instantiate callback list
     callbacks = instantiate(cfg.callbacks)
     callbacks = CallbackList(callbacks.values())
-    callbacks.set_config(primitive_cfg)
+
+    # prepare and set config object on callbacks: put everything in `pipeline` root
+    prepared_cfg = copy.deepcopy(primitive_cfg)
+    pipeline_cfg = prepared_cfg.pop("pipeline")
+    pipeline_cfg = {**pipeline_cfg, **prepared_cfg}
+    prepared_cfg_value = (
+        lambda value: value.get("name", None) if isinstance(value, Dict) else value
+    )
+    prepared_cfg = {
+        key: prepared_cfg_value(value) for (key, value) in pipeline_cfg.items()
+    }
+    prepared_cfg["pipeline_name"] = prepared_cfg.pop("name")
+    prepared_cfg["pipeline"] = pipeline_cfg
+    callbacks.set_config(prepared_cfg)
 
     # instantiate storage provider
     storage_provider: AbstractStorageProvider = instantiate(cfg.storage_provider)
