@@ -190,16 +190,8 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         wandb_callback = getattr(self.callbacks, "wandb", False)
         if wandb_callback:
             wandb_callback = cast(WandbCallback, wandb_callback)
-            table_plot = wandb_callback._table_plot(
-                validation_scores,
-                fields=dict(
-                    n_features_to_select="n_features_to_select",
-                    score="score",
-                    bootstrap_state="bootstrap_state",
-                ),
-                vega_spec_name="dunnkers/fseval/bootstrapped-validation-score",
-            )
-            wandb_callback.on_metrics({"validation_scores": table_plot})
+            wandb_callback._upload_table(validation_scores, "validation_scores")
+            # FIXME remove `group` from this table; its superfluous
 
         # Ranking scores - aggregation
         ranking_result = pd.DataFrame(
@@ -212,7 +204,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
                 }
             ]
         )
-        self.logger.info(f"{self.ranker.name} scores:")
+        self.logger.info(f"{self.ranker.name} ranking scores:")
         print(ranking_result)
         self.callbacks.on_metrics(ranking_result)
 

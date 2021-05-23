@@ -87,6 +87,8 @@ class WandbCallback(Callback):
     def on_end(self):
         wandb.finish()
 
-    def _table_plot(self, df, **kwargs):
+    def _upload_table(self, df, name):
         table = wandb.Table(dataframe=df)
-        return wandb.plot_table(data_table=table, **kwargs)
+        logs = {}
+        logs[name] = table
+        wandb.log(logs)
