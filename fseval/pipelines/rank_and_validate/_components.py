@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Dict, List
+from typing import Dict, List, cast
 
 import numpy as np
 import pandas as pd
+from fseval.callbacks import WandbCallback
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetConfig
 from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
@@ -101,7 +102,7 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
     def score(self, X, y):
         scores = super(DatasetValidator, self).score(X, y)
-        self.callbacks.on_metrics(scores)  # upload validator results
+        # self.callbacks.on_metrics(scores)  # upload validator results
         return scores
 
 
@@ -117,14 +118,20 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
     logger: Logger = getLogger(__name__)
 
     def _get_estimator(self):
+        # instantiate ranking validator. pass bootstrap state for the cache filename
+        self.ranking_validator = RankingValidator(
+            **self._get_config(), bootstrap_state=self.bootstrap_state
+        )
+
+        # instantiate dataset validator.
+        self.dataset_validator = DatasetValidator(
+            **self._get_config(), bootstrap_state=self.bootstrap_state
+        )
+
         # first fit ranker, then run all validations
         return [
-            RankingValidator(  # pass bootstrap state to append to cache filename
-                **self._get_config(), bootstrap_state=self.bootstrap_state
-            ),
-            DatasetValidator(
-                **self._get_config(), bootstrap_state=self.bootstrap_state
-            ),
+            self.ranking_validator,
+            self.dataset_validator,
         ]
 
     def _prepare_data(self, X, y):
@@ -134,8 +141,17 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         return X, y
 
     def score(self, X, y):
-        scores = super(RankAndValidate, self).score(X, y)
+        ranking_score = self.ranking_validator.score(X, y)
+        ranking_score["group"] = "ranking"
+
+        validation_score = self.dataset_validator.score(X, y)
+        validation_score["group"] = "validation"
+
+        scores = pd.DataFrame()
+        scores = scores.append(ranking_score)
+        scores = scores.append(validation_score)
         scores["bootstrap_state"] = self.bootstrap_state
+
         self.logger.info(f"scored bootstrap_state={self.bootstrap_state} ✓")
         return scores
 
@@ -167,6 +183,23 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         self.storage_provider.save(
             "scores.csv", lambda file: scores.to_csv(file, index=False)
         )
+
+        ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
+        validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
+
+        wandb_callback = getattr(self.callbacks, "wandb", False)
+        if wandb_callback:
+            wandb_callback = cast(WandbCallback, wandb_callback)
+            table_plot = wandb_callback._table_plot(
+                validation_scores,
+                fields=dict(
+                    n_features_to_select="n_features_to_select",
+                    score="score",
+                    bootstrap_state="bootstrap_state",
+                ),
+                vega_spec_name="dunnkers/fseval/bootstrapped-validation-score",
+            )
+            wandb_callback.on_metrics({"validation_scores": table_plot})
 
         # Ranking scores - aggregation
         ranking_result = pd.DataFrame(

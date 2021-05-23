@@ -67,17 +67,17 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         y_pred = ranking
         log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
 
-        scores = pd.DataFrame(
-            [
-                {
-                    "r2_score": r2,
-                    "log_loss": log_loss_score,
-                    "fit_time": self.ranker.fit_time_,
-                    "bootstrap_state": self.bootstrap_state,
-                }
-            ]
-        )
-        self.callbacks.on_metrics(scores)
+        # construct score, send to callback
+        score = {
+            "r2_score": r2,
+            "log_loss": log_loss_score,
+            "fit_time": self.ranker.fit_time_,
+            "bootstrap_state": self.bootstrap_state,
+        }
+        self.callbacks.on_metrics(score)
+
+        # put a in a dataframe so can be easily merged with other pipeline scores
+        scores = pd.DataFrame([score])
         return scores
 
     @property

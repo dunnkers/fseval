@@ -10,7 +10,7 @@ from omegaconf import OmegaConf
 from fseval.config import BaseConfig
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetLoader
-from fseval.pipelines._callback_list import CallbackList
+from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import AbstractEstimator, AbstractStorageProvider
 
 
@@ -20,22 +20,15 @@ def main(cfg: BaseConfig) -> None:
     primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
     primitive_cfg = cast(Dict, primitive_cfg)
 
-    # instantiate callback list
+    # instantiate callback collection
     callbacks = instantiate(cfg.callbacks)
-    callbacks = CallbackList(callbacks.values())
+    callbacks = CallbackCollection(callbacks)
 
     # prepare and set config object on callbacks: put everything in `pipeline` root
     prepared_cfg = copy.deepcopy(primitive_cfg)
     pipeline_cfg = prepared_cfg.pop("pipeline")
-    pipeline_cfg = {**pipeline_cfg, **prepared_cfg}
-    prepared_cfg_value = (
-        lambda value: value.get("name", None) if isinstance(value, Dict) else value
-    )
-    prepared_cfg = {
-        key: prepared_cfg_value(value) for (key, value) in pipeline_cfg.items()
-    }
-    prepared_cfg["pipeline_name"] = prepared_cfg.pop("name")
-    prepared_cfg["pipeline"] = pipeline_cfg
+    prepared_cfg = {**pipeline_cfg, **prepared_cfg}
+    prepared_cfg["pipeline"] = prepared_cfg.pop("name")
     callbacks.set_config(prepared_cfg)
 
     # instantiate storage provider

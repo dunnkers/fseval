@@ -3,11 +3,11 @@ import sys
 from typing import Dict
 
 import pandas as pd
+from fseval.types import Callback
 from omegaconf import OmegaConf
 from yaml import dump
 
 import wandb
-from fseval.types import Callback
 
 
 # Recursive dictionary merge
@@ -86,3 +86,7 @@ class WandbCallback(Callback):
 
     def on_end(self):
         wandb.finish()
+
+    def _table_plot(self, df, **kwargs):
+        table = wandb.Table(dataframe=df)
+        return wandb.plot_table(data_table=table, **kwargs)

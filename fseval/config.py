@@ -20,7 +20,9 @@ class BaseConfig:
     cv: CrossValidatorConfig = MISSING
     pipeline: Any = MISSING
     callbacks: Dict = field(default_factory=lambda: dict())
-    storage_provider: StorageProviderConfig = MISSING
+    storage_provider: StorageProviderConfig = StorageProviderConfig(
+        _target_="fseval.storage_providers.mock.MockStorageProvider"
+    )
 
 
 cs = ConfigStore.instance()

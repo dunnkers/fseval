@@ -1,4 +1,4 @@
-name: Synthetic make_classification dataset (hard)
+name: Synclf (hard)
 task: classification
 adapter:
   _target_: sklearn.datasets.make_classification

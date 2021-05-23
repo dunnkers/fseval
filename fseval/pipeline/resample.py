@@ -25,14 +25,6 @@ class Resample(ResampleConfig, BaseEstimator, TransformerMixin):
     n_samples: Optional[int] = None
     frac_samples: Optional[float] = None
 
-    @classmethod
-    def _get_config_names(cls):
-        config = super()._get_config_names()
-        config.remove("sample_size")
-        config.append("n_samples")
-        config.append("frac_samples")
-        return config
-
     def fit(self, *arrays, y=None):
         return self
 
