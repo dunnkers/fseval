@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger, getLogger
@@ -102,7 +103,6 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
     def score(self, X, y):
         scores = super(DatasetValidator, self).score(X, y)
-        # self.callbacks.on_metrics(scores)  # upload validator results
         return scores
 
 
@@ -185,49 +185,61 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         )
 
         ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
+        ranking_scores = ranking_scores.drop(columns=["group"])
         validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
+        validation_scores = validation_scores.drop(columns=["group"])
 
         wandb_callback = getattr(self.callbacks, "wandb", False)
         if wandb_callback:
             wandb_callback = cast(WandbCallback, wandb_callback)
-            wandb_callback._upload_table(validation_scores, "validation_scores")
-            # FIXME remove `group` from this table; its superfluous
+
+            # upload ranking scores
+            wandb_callback.upload_table(ranking_scores, "ranking_scores")
+
+            # upload validation scores
+            wandb_callback.upload_table(validation_scores, "validation_scores")
 
         # Ranking scores - aggregation
-        ranking_result = pd.DataFrame(
-            [
-                {
-                    "r2_score_mean": scores["r2_score"].mean(),
-                    "r2_score_std": scores["r2_score"].std(),
-                    "log_loss_mean": scores["log_loss"].mean(),
-                    "log_loss_std": scores["log_loss"].std(),
-                }
-            ]
-        )
+        agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
+        agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
         self.logger.info(f"{self.ranker.name} ranking scores:")
-        print(ranking_result)
-        self.callbacks.on_metrics(ranking_result)
+        print(agg_ranking_scores)
+        # send metrics
+        agg_ranking_scores = agg_ranking_scores.to_dict()
+        self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
 
         # Validation scores - aggregation
-        by_dimension = scores.groupby("n_features_to_select")
-        validation_result = pd.DataFrame(
-            {
-                "score_mean": by_dimension["score"].mean(),
-                "score_std": by_dimension["score"].std(),
-                "fit_time_mean": by_dimension["fit_time"].mean(),
-                "fit_time_std": by_dimension["fit_time"].std(),
-            }
-        ).reset_index()
-        validation_result["n_features_to_select"] = validation_result[
-            "n_features_to_select"
-        ].astype(int)
+        val_scores_per_feature = validation_scores.groupby("n_features_to_select")
+        progbar = tqdm(list(val_scores_per_feature), desc="uploading validation scores")
+        for n_features_to_select, feature_scores in progbar:
+            feature_scores = feature_scores.drop(
+                columns=["bootstrap_state", "n_features_to_select"]
+            )
+            agg_feature_scores = feature_scores.agg(
+                ["mean", "std", "var", "min", "max"]
+            )
+
+            # send metrics
+            agg_feature_scores_dict = agg_feature_scores.to_dict()
+            agg_feature_scores_dict["n_features_to_select"] = int(n_features_to_select)
+            self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
+            time.sleep(0.5)  # take wandb rate limiting into account.
+
+        print()
         self.logger.info(f"{self.validator.name} validation scores:")
-        print(validation_result)
-        self.callbacks.on_metrics(validation_result)
+        agg_val_scores = val_scores_per_feature.mean().drop(columns=["bootstrap_state"])
+        print(agg_val_scores)
 
         # Summary
-        best_subset_index = validation_result["score_mean"].argmax()
-        best_subset = validation_result.iloc[best_subset_index]
-        summary = dict(best_subset=best_subset.to_dict())
+        summary = dict(best={})
+        # best ranker
+        best_ranker_index = ranking_scores["r2_score"].argmax()
+        best_ranker = ranking_scores.iloc[best_ranker_index]
+        summary["best"]["ranker"] = best_ranker.to_dict()
+        # best validator
+        all_agg_val_scores = agg_val_scores.reset_index()
+        best_subset_index = all_agg_val_scores["score"].argmax()
+        best_subset = all_agg_val_scores.iloc[best_subset_index]
+        summary["best"]["validator"] = best_subset.to_dict()
 
         return summary
