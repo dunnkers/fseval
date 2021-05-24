@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Dict, List, Tuple
 
@@ -12,6 +13,9 @@ from sklearn.metrics import accuracy_score, r2_score
 class Task(Enum):
     regression = 1
     classification = 2
+
+class IncompatibilityError(Exception):
+    ...
 
 
 class AbstractEstimator(ABC, BaseEstimator):
@@ -88,3 +92,7 @@ class AbstractStorageProvider(ABC):
     @abstractmethod
     def restore_pickle(self, filename: str) -> Any:
         ...
+
+
+class AbstractPipeline(AbstractEstimator, ABC):
+    ...

@@ -50,14 +50,6 @@ class WandbCallback(Callback):
         config = copy.deepcopy(self.config)
         dict_merge(init_kwargs, {"config": config})
 
-        # TODO use same `id` if: config is exactly the same (this means all args: also
-        # group)
-        # import jsonpickle
-        # import hashlib
-        # serialized_dct = jsonpickle.encode(init_kwargs)
-        # check_sum = hashlib.sha256(serialized_dct.encode('utf-8')).digest()
-        # init_kwargs.id = check_sum
-
         try:
             wandb.init(**init_kwargs)
         except TypeError as e:

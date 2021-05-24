@@ -22,6 +22,8 @@ class CallbackCollection(Callback):
         return [getattr(self, callback_name) for callback_name in self.callback_names]
 
     def set_config(self, config: Dict):
+        self.config = config
+
         for callback in self._iterator:
             callback.set_config(config)
 

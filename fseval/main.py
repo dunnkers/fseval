@@ -1,4 +1,6 @@
 import copy
+import sys
+import traceback
 from typing import Dict, cast
 
 import hydra
@@ -11,7 +13,7 @@ from fseval.config import BaseConfig
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.pipelines._callback_collection import CallbackCollection
-from fseval.types import AbstractEstimator, AbstractStorageProvider
+from fseval.types import AbstractPipeline, AbstractStorageProvider, IncompatibilityError
 
 
 @hydra.main(config_path="conf", config_name="my_config")
@@ -39,18 +41,26 @@ def main(cfg: BaseConfig) -> None:
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
     cv: CrossValidator = instantiate(cfg.cv)
 
-    # begin: load dataset and split
-    callbacks.on_begin()
+    # load dataset and perform cross-validation split
     dataset: Dataset = dataset_loader.load()
     X, y = dataset.X, dataset.y
-    X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
 
     # instantiate pipeline
-    pipeline: AbstractEstimator = instantiate(
-        cfg.pipeline, callbacks, dataset, cv, storage_provider
-    )
+    try:
+        pipeline: AbstractPipeline = instantiate(
+            cfg.pipeline, callbacks, dataset, cv, storage_provider
+        )
+    except IncompatibilityError as e:
+        traceback.print_exc()
+        (msg,) = e.args
+        print(f"pipeline incompatible with current config:")
+        print(msg)
+        print("exiting gracefully...")
+        sys.exit(0)
 
-    # run pipeline, send metrics and finish
+    # run pipeline.
+    callbacks.on_begin()
+    X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
     pipeline.fit(X_train, y_train)
     scores = pipeline.score(X_test, y_test)
     callbacks.on_summary(scores)

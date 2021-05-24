@@ -82,9 +82,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
     @property
     def feature_importances_(self):
-        """Normalized ranker feature importance score. Uses cached ranking if
-        available."""
-        # normalize and return ranking
+        """Normalized ranker feature importance score."""
         ranking = self.ranker.feature_importances_
         summation = sum(ranking)
         return np.asarray(ranking) / summation

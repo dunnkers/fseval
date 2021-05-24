@@ -4,7 +4,7 @@ from logging import Logger, getLogger
 from typing import Any, Optional
 
 import numpy as np
-from fseval.types import AbstractEstimator, Task
+from fseval.types import AbstractEstimator, IncompatibilityError, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
@@ -86,6 +86,7 @@ class Estimator(AbstractEstimator):
 
 def instantiate_estimator(
     _target_class_: str = MISSING,
+    name: str = MISSING,
     task: Task = MISSING,
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
@@ -93,9 +94,12 @@ def instantiate_estimator(
 ):
     estimator_configs = dict(classification=classifier, regression=regressor)
     estimator_config = estimator_configs[task.name]
-    assert (
-        estimator_config is not None
-    ), f"selected estimator does not support {task.name} datasets!"
+
+    # raise error if incompatibility encountered
+    if estimator_config is None:
+        raise IncompatibilityError(
+            f"{name} estimator not compatible with {task.name} datasets!"
+        )
 
     # instantiate estimator
     estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore
@@ -108,4 +112,7 @@ def instantiate_estimator(
     tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
     setattr(estimator, "_get_tags", lambda: tags)
 
-    return instantiate({"_target_": _target_class_, **kwargs}, estimator, task=task)
+    instance = instantiate(
+        {"_target_": _target_class_, "name": name, **kwargs}, estimator, task=task
+    )
+    return instance

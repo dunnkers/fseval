@@ -30,15 +30,18 @@ class Experiment(AbstractEstimator):
         return lambda text: getLogger(type(estimator).__name__).info(text)
 
     def _step_text(self, step_name, step_number, estimator):
+        # terminal colors
+        magenta = lambda text: f"\u001b[35m{text}\u001b[0m"
+        cyan = lambda text: f"\u001b[36m{text}\u001b[0m"
+        green = lambda text: f"\u001b[32m{text}\u001b[0m"
+        yellow = lambda text: f"\u001b[33m{text}\u001b[0m"
+
+        # step text variables
         step = step_number + 1
         n_steps = len(self.estimators)
         overrides_text = self._get_overrides_text(estimator)
         estimator_repr = self._get_estimator_repr(estimator)
 
-        magenta = lambda text: f"\u001b[35m{text}\u001b[0m"
-        cyan = lambda text: f"\u001b[36m{text}\u001b[0m"
-        green = lambda text: f"\u001b[32m{text}\u001b[0m"
-        yellow = lambda text: f"\u001b[33m{text}\u001b[0m"
         return lambda secs: (
             yellow(f"{overrides_text}")
             + f"{estimator_repr} ... {step_name} "
@@ -54,6 +57,13 @@ class Experiment(AbstractEstimator):
         return X, y
 
     def fit(self, X, y) -> AbstractEstimator:
+        """Sequentially fits all estimators in this experiment, and record timings;
+        which will be stored in a `fit_time_` attribute in each estimator itself.
+
+        Args:
+            X (np.ndarray): design matrix X
+            y (np.ndarray): target labels y"""
+
         X, y = self._prepare_data(X, y)
 
         timer = Timer(name="fit")
@@ -63,7 +73,6 @@ class Experiment(AbstractEstimator):
             timer.start()
             estimator.fit(X, y)
             timer.stop()
-            # if not getattr(estimator, "fit_time_", )
             setattr(estimator, "fit_time_", timer.last)
 
         return self
@@ -75,6 +84,9 @@ class Experiment(AbstractEstimator):
         ...
 
     def _score_to_dataframe(self, score):
+        """Converts a score to a pandas `DataFrame`. If already a DataFrame; returns the
+        dataframe, if a scalar; returns a dataframe with one column called 'score' and
+        one row representing the scalar."""
         if isinstance(score, pd.DataFrame):
             return score
         elif isinstance(score, float) or isinstance(score, int):
@@ -83,6 +95,8 @@ class Experiment(AbstractEstimator):
             raise ValueError(f"illegal score type received: {type(score)}")
 
     def score(self, X, y) -> pd.DataFrame:
+        """Sequentially scores all estimators in this experiment, and appends the scores
+        to a dataframe. Returns all accumulated scores."""
         X, y = self._prepare_data(X, y)
         scores = pd.DataFrame()
 
