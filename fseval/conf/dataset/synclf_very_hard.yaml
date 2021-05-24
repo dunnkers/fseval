@@ -1,0 +1,17 @@
+name: Synclf (hard)
+group: Synclf
+task: classification
+domain: synthetic
+adapter:
+  _target_: sklearn.datasets.make_classification
+  n_samples: 5000
+  n_features: 50
+  n_informative: 3
+  n_redundant: 0
+  n_repeated: 0
+  n_classes: 3
+  n_clusters_per_class: 5
+  class_sep: 0.65
+  random_state: 0
+feature_importances:
+  X[:, 0:1]: 1.0

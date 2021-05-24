@@ -7,7 +7,7 @@ hydra:
 defaults:
   - base_config
   - dataset: synclf_hard
-  - cv: train_test_split
+  - cv: kfold
   - pipeline: rank_and_validate
   - callbacks:
     - wandb

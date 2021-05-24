@@ -5,7 +5,7 @@ from itertools import chain
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-from fseval.types import AbstractAdapter, Task
+from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
@@ -20,7 +20,12 @@ class DatasetConfig:
     Args:
         name: human-readable name of dataset.
 
+        group: an optional group attribute, such to group datasets in the analytics
+        stage.
+
         task: either Task.classification or Task.regression.
+
+        domain: dataset domain, e.g. medicine, finance, etc.
 
         adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must
         implement a get_data() -> (X, y) method.
@@ -45,6 +50,9 @@ class DatasetConfig:
     adapter: Any = MISSING
     adapter_callable: str = "get_data"
     feature_importances: Optional[Dict[str, float]] = None
+    # optional tags
+    group: Optional[str] = None
+    domain: Optional[str] = None
 
 
 @dataclass
@@ -125,6 +133,8 @@ class DatasetLoader(DatasetConfig):
         if np.isclose(X, X[0]).all():  # all rows are equal
             return X[0]  # return first row
         else:
+            raise IncompatibilityError("instance-based datasets not supported yet.")
+
             return X  # return entire matrix
 
     def load(self) -> Dataset:

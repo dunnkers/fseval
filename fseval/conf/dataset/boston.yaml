@@ -4,3 +4,5 @@ adapter:
   _target_: fseval.adapters.OpenML
   dataset_id: 531
   target_column: MEDV
+# tags
+domain: finance

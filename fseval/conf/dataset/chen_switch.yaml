@@ -7,3 +7,6 @@ adapter:
 feature_importances:
   X[:n//2, 0:3]: 1.0
   X[n//2:, 4:7]: 1.0
+# tags
+group: Chen et al
+domain: synthetic

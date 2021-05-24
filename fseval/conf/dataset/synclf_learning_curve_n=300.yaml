@@ -1,0 +1,17 @@
+name: Synclf learning curve (n=10)
+group: Synclf
+task: classification
+domain: synthetic
+adapter:
+  _target_: sklearn.datasets.make_classification
+  n_samples: 300
+  n_features: 10
+  n_informative: 2
+  n_redundant: 0
+  n_repeated: 0
+  n_classes: 2
+  n_clusters_per_class: 2
+  class_sep: 1.00
+  random_state: 0
+feature_importances:
+  X[:, 0:1]: 1.0
