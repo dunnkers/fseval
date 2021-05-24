@@ -223,7 +223,9 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             agg_feature_scores_dict = agg_feature_scores.to_dict()
             agg_feature_scores_dict["n_features_to_select"] = int(n_features_to_select)
             self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
-            time.sleep(0.5)  # take wandb rate limiting into account.
+
+            # take wandb rate limiting into account: sleep to prevent getting limited
+            time.sleep(0.5 if wandb_callback else 0)
 
         print()
         self.logger.info(f"{self.validator.name} validation scores:")

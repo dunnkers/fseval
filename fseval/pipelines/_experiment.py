@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from logging import Logger, getLogger
+from time import perf_counter
 from typing import List
 
 import pandas as pd
-from codetiming import Timer
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, Task
 from humanfriendly import format_timespan
@@ -66,14 +66,16 @@ class Experiment(AbstractEstimator):
 
         X, y = self._prepare_data(X, y)
 
-        timer = Timer(name="fit")
         for step_number, estimator in enumerate(self.estimators):
-            timer.text = self._step_text("fit", step_number, estimator)
-            timer.logger = self._logger(estimator)
-            timer.start()
+            logger = self._logger(estimator)
+            text = self._step_text("fit", step_number, estimator)
+
+            start_time = perf_counter()
             estimator.fit(X, y)
-            timer.stop()
-            setattr(estimator, "fit_time_", timer.last)
+            fit_time = perf_counter() - start_time
+            setattr(estimator, "fit_time_", fit_time)
+
+            logger(text(fit_time))
 
         return self
 
