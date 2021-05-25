@@ -1,0 +1,7 @@
+name: Mutual Info
+classifier:
+  estimator:
+    _target_: fseval.estimators.mutual_info.MutualInfoClassifier
+regressor:
+  estimator:
+    _target_: fseval.estimators.mutual_info.MutualInfoRegressor

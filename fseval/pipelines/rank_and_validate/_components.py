@@ -59,7 +59,7 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
     def fit(self, X, y):
         override = f"bootstrap_state={self.bootstrap_state}"
         override += f",n_features_to_select={self.n_features_to_select}"
-        filename = f"validation[{override}].cloudpickle"
+        filename = f"validation[{override}].pickle"
         restored = self.storage_provider.restore_pickle(filename)
 
         if restored:

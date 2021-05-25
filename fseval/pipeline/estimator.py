@@ -16,6 +16,7 @@ class EstimatorConfig:
     estimator: Any = None  # must have _target_ of type BaseEstimator.
     # tags:
     multioutput: bool = False
+    multioutput_only: bool = False
     requires_positive_X: bool = False
 
 
@@ -83,6 +84,9 @@ class Estimator(AbstractEstimator):
     def fit_time_(self, fit_time_):
         setattr(self.estimator, "_fseval_internal_fit_time_", fit_time_)
 
+    def _get_tags(self):
+        return self.estimator._get_tags()
+
 
 def instantiate_estimator(
     _target_class_: str = MISSING,
@@ -98,8 +102,11 @@ def instantiate_estimator(
     # raise error if incompatibility encountered
     if estimator_config is None:
         raise IncompatibilityError(
-            f"{name} estimator not compatible with {task.name} datasets!"
+            f"{name} has no estimator defined for {task.name} datasets!"
         )
+    # FIXME check multioutput support:
+    # `multioutput`
+    # `mulitoutput_only`
 
     # instantiate estimator
     estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore

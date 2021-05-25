@@ -39,7 +39,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
     def fit(self, X, y):
         override = f"bootstrap_state={self.bootstrap_state}"
-        filename = f"ranking[{override}].cloudpickle"
+        filename = f"ranking[{override}].pickle"
         restored = self.storage_provider.restore_pickle(filename)
 
         if restored:

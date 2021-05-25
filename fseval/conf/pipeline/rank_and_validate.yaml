@@ -1,8 +1,8 @@
 defaults:
   - base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: fscore
-  - /estimator@validator: dt
+  - /estimator@ranker: f_score
+  - /estimator@validator: decision_tree
 ranker:
   task: ${dataset.task}
 validator:
