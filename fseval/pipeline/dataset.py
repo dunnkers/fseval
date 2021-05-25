@@ -5,7 +5,7 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-from fseval.types import AbstractAdapter, IncompatibilityError, Task
+from fseval.types import AbstractAdapter, IncompatibilityError, Task, TerminalColor
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
@@ -51,6 +51,10 @@ class DatasetConfig:
     # optional tags
     group: Optional[str] = None
     domain: Optional[str] = None
+    # runtime properties: set once dataset is loaded
+    n: Optional[int] = None
+    p: Optional[int] = None
+    multioutput: Optional[bool] = None
 
 
 @dataclass
@@ -64,9 +68,18 @@ class Dataset:
 
     logger: Logger = getLogger(__name__)
 
-    def print_dataset_details(self):
-        multioutput = ", multioutput" if self.multioutput else ""
-        self.logger.info(f"(n={self.n}, p={self.p}{multioutput})")
+    @property
+    def _log_details(self):
+        details = []
+        details.append(f"n={self.n}")
+        details.append(f"p={self.p}")
+
+        if self.multioutput:
+            details.append("multioutput")
+
+        details = [TerminalColor.yellow(detail) for detail in details]
+        details_str = ",".join(details)
+        return details_str
 
 
 @dataclass
@@ -139,12 +152,11 @@ class DatasetLoader(DatasetConfig):
         if np.isclose(X, X[0]).all():  # all rows are equal
             return X[0]  # return first row
         else:
-            raise IncompatibilityError("instance-based datasets not supported yet.")
-
             return X  # return entire matrix
 
     def load(self) -> Dataset:
-        self.logger.info(f"loading {self.name} {self.task.name} dataset...")
+        self.logger.info(f"task: {self.task.name}")
+        self.logger.info(f"loading dataset {TerminalColor.yellow(self.name)}...")
         X, y = self._get_adapter_data()
 
         X = np.asarray(X)
@@ -155,5 +167,8 @@ class DatasetLoader(DatasetConfig):
         feature_importances = self.get_feature_importances(X, n, p)
 
         dataset = Dataset(X, y, n, p, multioutput, feature_importances)
-        self.logger.info(f"loaded {self.name} ✓")
+        self.logger.info(
+            f"loaded dataset {TerminalColor.yellow(self.name)} "
+            + TerminalColor.green("✓")
+        )
         return dataset

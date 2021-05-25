@@ -14,16 +14,24 @@ from fseval.config import BaseConfig
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.pipelines._callback_collection import CallbackCollection
-from fseval.types import AbstractPipeline, AbstractStorageProvider, IncompatibilityError
+from fseval.types import (
+    AbstractPipeline,
+    AbstractStorageProvider,
+    IncompatibilityError,
+    TerminalColor,
+)
 
 
 @hydra.main(config_path="conf", config_name="my_config")
 def main(cfg: BaseConfig) -> None:
     logger = getLogger(__name__)
 
-    # instantiate and load dataset
+    # instantiate and load dataset. set cfg runtime properties afterwards.
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
     dataset: Dataset = dataset_loader.load()
+    cfg.dataset.n = dataset.n
+    cfg.dataset.p = dataset.p
+    cfg.dataset.multioutput = dataset.multioutput
 
     # convert to primitive dict
     primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
@@ -55,16 +63,19 @@ def main(cfg: BaseConfig) -> None:
     except IncompatibilityError as e:
         traceback.print_exc()
         (msg,) = e.args
-        logger.warn(
+        logger.warning(
             f"encountered expected pipeline incompatibility with current config:"
         )
         logger.error(msg)
-        logger.warn("exiting gracefully...")
+        logger.warning("exiting gracefully with exit code 0...")
         sys.exit(0)
 
     # run pipeline
     callbacks.on_begin()
-    dataset.print_dataset_details()
+    logger.info(
+        f"using dataset: `{TerminalColor.yellow(dataset_loader.name)}` "
+        + f"[{dataset._log_details}]"
+    )
     X, y = dataset.X, dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
     pipeline.fit(X_train, y_train)

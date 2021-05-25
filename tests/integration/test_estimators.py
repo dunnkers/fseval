@@ -18,8 +18,10 @@ class TestEstimator(TestGroupItem):
     __test__ = False
 
     @staticmethod
-    def _tasked_cfg(cfg, task):
-        tasked_config = TaskedEstimatorConfig(task=task)
+    def _tasked_cfg(cfg, task: Task, is_multioutput_dataset: bool = False):
+        tasked_config = TaskedEstimatorConfig(
+            task=task, is_multioutput_dataset=is_multioutput_dataset
+        )
         tasked_cfg = OmegaConf.create(tasked_config.__dict__)
         tasked_cfg.merge_with(cfg)
 
@@ -76,7 +78,9 @@ class TestMultioutputClassifiers(TestClassifiers):
 
     @staticmethod
     def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(cfg, Task.classification)
+        tasked_cfg = TestEstimator._tasked_cfg(
+            cfg, Task.classification, is_multioutput_dataset=True
+        )
 
         if tasked_cfg.classifier and tasked_cfg.classifier.multioutput:
             return tasked_cfg
@@ -110,7 +114,9 @@ class TestMultioutputRegressors(TestRegressors):
 
     @staticmethod
     def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(cfg, Task.regression)
+        tasked_cfg = TestEstimator._tasked_cfg(
+            cfg, Task.regression, is_multioutput_dataset=True
+        )
 
         if tasked_cfg.regressor and tasked_cfg.regressor.multioutput:
             return tasked_cfg

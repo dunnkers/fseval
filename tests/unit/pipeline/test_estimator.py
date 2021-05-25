@@ -1,25 +1,24 @@
+from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
+from fseval.types import Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
-from fseval.types import Task
-
 
 def test_estimator_initiation():
-    estimator_cfg = OmegaConf.create(
-        {"estimator": {"_target_": "sklearn.tree.DecisionTreeClassifier"}}
+    estimator_config = EstimatorConfig(
+        estimator={"_target_": "sklearn.tree.DecisionTreeClassifier"}
     )
-    cfg = OmegaConf.create(
-        {
-            "_target_": "fseval.pipeline.estimator.instantiate_estimator",
-            "_recursive_": False,
-            "_target_class_": "fseval.pipeline.estimator.Estimator",
-            "name": "some_estimator",
-            "task": Task.classification,
-            "classifier": estimator_cfg,
-            "regressor": None,
-        }
+    estimator_cfg = OmegaConf.create(estimator_config.__dict__)
+
+    tasked_estimator_config = TaskedEstimatorConfig(
+        name="some_estimator",
+        classifier=estimator_cfg,
+        task=Task.classification,
+        is_multioutput_dataset=False,
     )
-    estimator = instantiate(cfg)
+    tasked_estimator_cfg = OmegaConf.create(tasked_estimator_config.__dict__)
+
+    estimator = instantiate(tasked_estimator_cfg)
 
     assert hasattr(estimator, "estimator")
     assert estimator.name == "some_estimator"

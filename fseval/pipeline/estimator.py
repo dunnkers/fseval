@@ -9,6 +9,7 @@ from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
+from sklearn.preprocessing import minmax_scale
 
 
 @dataclass
@@ -26,9 +27,11 @@ class TaskedEstimatorConfig:
     _recursive_: bool = False  # don't instantiate classifier/regressor
     _target_class_: str = "fseval.pipeline.estimator.Estimator"
     name: str = MISSING
-    task: Task = MISSING
+    task: Task = II("dataset.task")
     classifier: Optional[EstimatorConfig] = None
     regressor: Optional[EstimatorConfig] = None
+    # dataset runtime properties
+    is_multioutput_dataset: bool = II("dataset.multioutput")
 
 
 @dataclass
@@ -54,6 +57,12 @@ class Estimator(AbstractEstimator):
         return f"{module_name}.{class_name}"
 
     def fit(self, X, y):
+        if self._get_tags().get("requires_positive_X"):
+            X = minmax_scale(X)
+            self.logger.info(
+                "rescaled X: this estimator strictly requires positive features."
+            )
+
         self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")
         self.estimator.fit(X, y)
         return self
@@ -92,6 +101,7 @@ def instantiate_estimator(
     _target_class_: str = MISSING,
     name: str = MISSING,
     task: Task = MISSING,
+    is_multioutput_dataset: bool = MISSING,
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
     **kwargs,
@@ -99,14 +109,19 @@ def instantiate_estimator(
     estimator_configs = dict(classification=classifier, regression=regressor)
     estimator_config = estimator_configs[task.name]
 
-    # raise error if incompatibility encountered
+    # raise incompatibility error if no estimator found for this dataset type
     if estimator_config is None:
         raise IncompatibilityError(
-            f"{name} has no estimator defined for {task.name} datasets!"
+            f"{name} has no estimator defined for {task.name} datasets."
         )
-    # FIXME check multioutput support:
-    # `multioutput`
-    # `mulitoutput_only`
+
+    if is_multioutput_dataset and not estimator_config.multioutput:
+        raise IncompatibilityError(
+            f"dataset is multivariate but {name} has no multioutput support."
+        )
+
+    if estimator_config.multioutput_only and not is_multioutput_dataset:
+        raise IncompatibilityError(f"{name} only works on multioutput datasets.")
 
     # instantiate estimator
     estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore

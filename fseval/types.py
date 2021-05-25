@@ -97,3 +97,37 @@ class AbstractStorageProvider(ABC):
 
 class AbstractPipeline(AbstractEstimator, ABC):
     ...
+
+
+class TerminalColor:
+    @staticmethod
+    def black(text):
+        return f"\u001b[30m{text}\u001b[0m"
+
+    @staticmethod
+    def red(text):
+        return f"\u001b[31m{text}\u001b[0m"
+
+    @staticmethod
+    def green(text):
+        return f"\u001b[32m{text}\u001b[0m"
+
+    @staticmethod
+    def yellow(text):
+        return f"\u001b[33m{text}\u001b[0m"
+
+    @staticmethod
+    def blue(text):
+        return f"\u001b[34m{text}\u001b[0m"
+
+    @staticmethod
+    def purple(text):
+        return f"\u001b[35m{text}\u001b[0m"
+
+    @staticmethod
+    def cyan(text):
+        return f"\u001b[36m{text}\u001b[0m"
+
+    @staticmethod
+    def grey(text):
+        return f"\u001b[37m{text}\u001b[0m"

@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
-from fseval.types import AbstractEstimator, Task
+from fseval.types import AbstractEstimator, Task, TerminalColor
 from humanfriendly import format_timespan
 
 
@@ -30,12 +30,6 @@ class Experiment(AbstractEstimator):
         return lambda text: getLogger(type(estimator).__name__).info(text)
 
     def _step_text(self, step_name, step_number, estimator):
-        # terminal colors
-        magenta = lambda text: f"\u001b[35m{text}\u001b[0m"
-        cyan = lambda text: f"\u001b[36m{text}\u001b[0m"
-        green = lambda text: f"\u001b[32m{text}\u001b[0m"
-        yellow = lambda text: f"\u001b[33m{text}\u001b[0m"
-
         # step text variables
         step = step_number + 1
         n_steps = len(self.estimators)
@@ -43,13 +37,13 @@ class Experiment(AbstractEstimator):
         estimator_repr = self._get_estimator_repr(estimator)
 
         return lambda secs: (
-            yellow(f"{overrides_text}")
+            TerminalColor.yellow(f"{overrides_text}")
             + f"{estimator_repr} ... {step_name} "
             + "in "
-            + cyan(f"{format_timespan(secs)} ")
-            + green("✓ ")
+            + TerminalColor.cyan(f"{format_timespan(secs)} ")
+            + TerminalColor.green("✓ ")
             + "("
-            + magenta(f"step {step}/{n_steps}")
+            + TerminalColor.purple(f"step {step}/{n_steps}")
             + ")"
         )
 

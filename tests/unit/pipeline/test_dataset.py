@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 import pytest
 from fseval.pipeline.dataset import Dataset, DatasetLoader
-from fseval.types import AbstractAdapter
+from fseval.types import AbstractAdapter, Task
 
 
 @dataclass
@@ -15,6 +15,7 @@ class SomeAdapter(AbstractAdapter):
 
 @dataclass
 class SomeDataset(DatasetLoader):
+    task: Task = Task.classification
     adapter: Any = SomeAdapter()
 
 
