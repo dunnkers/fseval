@@ -50,6 +50,12 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             self.storage_provider.save_pickle(filename, self.ranker.estimator)
 
     def score(self, X, y):
+        """Scores a feature ranker, if a ground-truth on the desired dataset
+        feature importances is available. If this is the case, the estimated normalized
+        feature importances are compared to the desired ones using two metrics:
+        log loss and the R^2 score. Whilst the log loss converts the ground-truth
+        desired feature rankings to a binary value, 0/1, the R^2 score always works."""
+
         X_importances = self.dataset.feature_importances
         if X_importances is None:
             return pd.DataFrame()  # no ground-truth available: don't score ranking
@@ -57,7 +63,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         assert np.ndim(X_importances) == 1, "instance-based not supported yet."
         ranking = self.feature_importances_
 
-        # mean absolute error
+        # r2 score
         y_true = X_importances
         y_pred = ranking
         r2 = r2_score(y_true, y_pred)

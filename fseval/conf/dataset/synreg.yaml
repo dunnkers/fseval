@@ -1,1 +1,17 @@
-# USE return _coefs! perfect comparison with data.
+name: Synreg n=100 (noise 0)
+group: Synreg
+task: regression
+domain: synthetic
+adapter:
+  _target_: sklearn.datasets.make_regression
+  n_samples: 100
+  n_features: 10
+  n_informative: 2
+  n_targets: 1
+  bias: 200
+  effective_rank: null
+  noise: 0
+  coef: False
+  random_state: 0
+feature_importances:
+  X[:, :]: [0.0, 0.0, 0.0, 0.5398622871951788, 0.0, 0.0, 0.4601377128048212, 0.0, 0.0, 0.0]
