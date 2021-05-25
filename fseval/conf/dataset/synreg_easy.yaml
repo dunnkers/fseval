@@ -1,10 +1,10 @@
-name: Synreg n=100 (noise 0)
+name: Synreg easy
 group: Synreg
 task: regression
 domain: synthetic
 adapter:
   _target_: sklearn.datasets.make_regression
-  n_samples: 100
+  n_samples: 10000
   n_features: 10
   n_informative: 2
   n_targets: 1

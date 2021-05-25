@@ -1,3 +1,7 @@
+name: Synreg hard
+task: regression
+domain: synthetic
+group: Synreg
 adapter:
   _target_: sklearn.datasets.make_regression
   bias: 200
@@ -5,15 +9,11 @@ adapter:
   effective_rank: 4
   n_features: 20
   n_informative: 10
-  n_samples: 1000
+  n_samples: 10000
   n_targets: 1
   noise: 0.3
   random_state: 0
-domain: synthetic
 feature_importances: '[0.0, 0.006098135754973899, 0.10626447594028442, 0.0, 0.2229768894395002,
   0.0, 0.0, 0.16471018185316724, 0.034749342003185836, 0.06364121433396774, 0.0, 0.09355330546876184,
   0.0, 0.04405741601491528, 0.22921928790398258, 0.03472975128726086, 0.0, 0.0, 0.0,
   0.0]'
-group: Synreg
-name: Synreg very hard
-task: regression
