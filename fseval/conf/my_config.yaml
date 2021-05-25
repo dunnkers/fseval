@@ -6,7 +6,7 @@ hydra:
 
 defaults:
   - base_config
-  - dataset: synreg
+  - dataset: synreg_hard
   - cv: kfold
   - pipeline: rank_and_validate
   - callbacks:
