@@ -14,6 +14,7 @@ class Task(Enum):
     regression = 1
     classification = 2
 
+
 class IncompatibilityError(Exception):
     ...
 

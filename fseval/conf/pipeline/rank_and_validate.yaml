@@ -1,7 +1,7 @@
 defaults:
   - base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: f_score
+  - /estimator@ranker: anova_f_value
   - /estimator@validator: decision_tree
 ranker:
   task: ${dataset.task}

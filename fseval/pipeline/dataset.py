@@ -1,7 +1,7 @@
-import logging
 import re
 from dataclasses import dataclass
 from itertools import chain
+from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
@@ -10,8 +10,6 @@ from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.preprocessing import minmax_scale
-
-logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -64,9 +62,17 @@ class Dataset:
     multioutput: bool
     feature_importances: Optional[np.ndarray] = None
 
+    logger: Logger = getLogger(__name__)
+
+    def print_dataset_details(self):
+        multioutput = ", multioutput" if self.multioutput else ""
+        self.logger.info(f"(n={self.n}, p={self.p}{multioutput})")
+
 
 @dataclass
 class DatasetLoader(DatasetConfig):
+    logger: Logger = getLogger(__name__)
+
     def _get_adapter(self) -> Union[object, tuple]:
         if OmegaConf.is_dict(self.adapter):
             adapter = instantiate(self.adapter)
@@ -138,6 +144,7 @@ class DatasetLoader(DatasetConfig):
             return X  # return entire matrix
 
     def load(self) -> Dataset:
+        self.logger.info(f"loading {self.name} {self.task.name} dataset...")
         X, y = self._get_adapter_data()
 
         X = np.asarray(X)
@@ -147,8 +154,6 @@ class DatasetLoader(DatasetConfig):
         multioutput = y.ndim > 1
         feature_importances = self.get_feature_importances(X, n, p)
 
-        task_name = self.task.name if hasattr(self.task, "name") else self.task
-        logger.info(f"loaded {self.name} {task_name} dataset (n={n}, p={p})")
-
         dataset = Dataset(X, y, n, p, multioutput, feature_importances)
+        self.logger.info(f"loaded {self.name} ✓")
         return dataset

@@ -1,6 +1,7 @@
 import copy
 import sys
 import traceback
+from logging import Logger, getLogger
 from typing import Dict, cast
 
 import hydra
@@ -18,6 +19,12 @@ from fseval.types import AbstractPipeline, AbstractStorageProvider, Incompatibil
 
 @hydra.main(config_path="conf", config_name="my_config")
 def main(cfg: BaseConfig) -> None:
+    logger = getLogger(__name__)
+
+    # instantiate and load dataset
+    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
+    dataset: Dataset = dataset_loader.load()
+
     # convert to primitive dict
     primitive_cfg = OmegaConf.to_container(cfg, resolve=True)
     primitive_cfg = cast(Dict, primitive_cfg)
@@ -37,13 +44,8 @@ def main(cfg: BaseConfig) -> None:
     storage_provider: AbstractStorageProvider = instantiate(cfg.storage_provider)
     storage_provider.set_config(primitive_cfg)
 
-    # instantiate dataset and cv
-    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
+    # instantiate cv
     cv: CrossValidator = instantiate(cfg.cv)
-
-    # load dataset and perform cross-validation split
-    dataset: Dataset = dataset_loader.load()
-    X, y = dataset.X, dataset.y
 
     # instantiate pipeline
     try:
@@ -53,13 +55,17 @@ def main(cfg: BaseConfig) -> None:
     except IncompatibilityError as e:
         traceback.print_exc()
         (msg,) = e.args
-        print(f"pipeline incompatible with current config:")
-        print(msg)
-        print("exiting gracefully...")
+        logger.warn(
+            f"encountered expected pipeline incompatibility with current config:"
+        )
+        logger.error(msg)
+        logger.warn("exiting gracefully...")
         sys.exit(0)
 
-    # run pipeline.
+    # run pipeline
     callbacks.on_begin()
+    dataset.print_dataset_details()
+    X, y = dataset.X, dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
     pipeline.fit(X_train, y_train)
     scores = pipeline.score(X_test, y_test)

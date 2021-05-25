@@ -1,7 +1,0 @@
-name: F-Score
-classifier:
-  estimator:
-    _target_: fseval.estimators.f_score.FScoreClassifier
-regressor:
-  estimator:
-    _target_: fseval.estimators.f_score.FScoreRegressor
