@@ -1,0 +1,8 @@
+name: Cylinder bands
+group: OpenML-CC18
+task: classification
+domain: mechanics
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 1497
+  target_column: Class

@@ -1,0 +1,9 @@
+name: TabNet
+classifier:
+  estimator:
+    _target_: pytorch_tabnet.tab_model.TabNetClassifier
+  multioutput: false
+regressor:
+  estimator:
+    _target_: fseval.estimators.tabnet.TabNetRegressor
+  multioutput: true

@@ -1,0 +1,6 @@
+name: Train/test split
+splitter:
+  _target_: sklearn.model_selection.ShuffleSplit
+  n_splits: 1
+  test_size: 0.25
+  random_state: 0

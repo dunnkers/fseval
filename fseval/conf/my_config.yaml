@@ -1,0 +1,16 @@
+hydra:
+  help:
+    app_name: fseval
+    header: |
+      fseval benchmarking library.
+
+defaults:
+  - base_config
+  - dataset: synreg_hard
+  - cv: kfold
+  - pipeline: rank_and_validate
+  - callbacks:
+    - wandb
+  - storage_provider: wandb
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog

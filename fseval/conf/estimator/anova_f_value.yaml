@@ -1,0 +1,7 @@
+name: ANOVA F-value
+classifier:
+  estimator:
+    _target_: fseval.estimators.anova_f_value.ANOVAFValueClassifier
+regressor:
+  estimator:
+    _target_: fseval.estimators.anova_f_value.ANOVAFValueRegressor

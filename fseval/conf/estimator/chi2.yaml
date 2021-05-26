@@ -1,0 +1,5 @@
+name: Chi-Squared
+classifier:
+  estimator:
+    _target_: fseval.estimators.chi2.Chi2Regressor
+  requires_positive_X: true
