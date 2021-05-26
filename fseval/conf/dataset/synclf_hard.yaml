@@ -1,0 +1,17 @@
+adapter:
+  _target_: sklearn.datasets.make_classification
+  class_sep: 0.8
+  n_classes: 3
+  n_clusters_per_class: 3
+  n_features: 50
+  n_informative: 4
+  n_redundant: 0
+  n_repeated: 0
+  n_samples: 10000
+  random_state: 0
+domain: synthetic
+feature_importances:
+  X[:, 0:4]: 1.0
+group: Synclf
+name: Synclf hard
+task: classification
