@@ -1,5 +1,5 @@
-# mleval
-A Machine Learning benchmarking library. Neatly integrates with wandb and sklearn. Uses Hydra as a config parser.
+# fseval
+A Feature Selection benchmarking library. Neatly integrates with wandb and sklearn. Uses Hydra as a config parser.
 
 
 
@@ -46,3 +46,7 @@ OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 
 → Be more verbose by setting `hydra.verbose=true` or `hydra.verbose=__main__`
+
+
+### About
+Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis for the Data Science and Computational Complexity track at the University of Groningen.
