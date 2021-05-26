@@ -200,13 +200,16 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             wandb_callback.upload_table(validation_scores, "validation_scores")
 
         # Ranking scores - aggregation
-        agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
-        agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
-        self.logger.info(f"{self.ranker.name} ranking scores:")
-        print(agg_ranking_scores)
-        # send metrics
-        agg_ranking_scores = agg_ranking_scores.to_dict()
-        self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
+        if not ranking_scores.empty:
+            agg_ranking_scores = ranking_scores.agg(
+                ["mean", "std", "var", "min", "max"]
+            )
+            agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
+            self.logger.info(f"{self.ranker.name} ranking scores:")
+            print(agg_ranking_scores)
+            # send metrics
+            agg_ranking_scores = agg_ranking_scores.to_dict()
+            self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
 
         # Validation scores - aggregation
         val_scores_per_feature = validation_scores.groupby("n_features_to_select")
@@ -234,10 +237,11 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
         # Summary
         summary = dict(best={})
-        # best ranker
-        best_ranker_index = ranking_scores["r2_score"].argmax()
-        best_ranker = ranking_scores.iloc[best_ranker_index]
-        summary["best"]["ranker"] = best_ranker.to_dict()
+        if not ranking_scores.empty:
+            # best ranker
+            best_ranker_index = ranking_scores["r2_score"].argmax()
+            best_ranker = ranking_scores.iloc[best_ranker_index]
+            summary["best"]["ranker"] = best_ranker.to_dict()
         # best validator
         all_agg_val_scores = agg_val_scores.reset_index()
         best_subset_index = all_agg_val_scores["score"].argmax()

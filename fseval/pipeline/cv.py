@@ -22,7 +22,11 @@ class CrossValidatorConfig:
 
 
 @dataclass
-class CrossValidator(CrossValidatorConfig):
+class CrossValidator:
+    name: str = MISSING
+    splitter: Any = None
+    fold: int = 0
+
     def _ensure_splitter(self):
         assert self.splitter is not None, "no splitter configured!"
 
@@ -35,7 +39,7 @@ class CrossValidator(CrossValidatorConfig):
         splits = list(self.split(X))
         train_index, test_index = splits[self.fold]
         logger.info(
-            f"using {len(train_index)} training samples and "
+            f"{self.name}: using {len(train_index)} training samples and "
             + f"{len(test_index)} testing samples "
             + f"(fold={self.fold}, n_splits={len(splits)})"
         )
