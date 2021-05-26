@@ -63,14 +63,13 @@ def main(cfg: BaseConfig) -> None:
             cfg.pipeline, callbacks, dataset, cv, storage_provider
         )
     except IncompatibilityError as e:
-        traceback.print_exc()
         (msg,) = e.args
         logger.error(msg)
         logger.info(
             "encountered an expected pipeline incompatibility with the current config, "
-            + "exiting gracefully with exit code 0..."
+            + "exiting gracefully..."
         )
-        sys.exit(0)
+        return
 
     # run pipeline
     logger.info(f"starting {getattr(pipeline, 'name', '')} pipeline...")
