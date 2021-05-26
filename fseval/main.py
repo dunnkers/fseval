@@ -25,6 +25,7 @@ from fseval.types import (
 @hydra.main(config_path="conf", config_name="my_config")
 def main(cfg: BaseConfig) -> None:
     logger = getLogger(__name__)
+    logger.info("instantiating pipeline components...")
 
     # instantiate and load dataset. set cfg runtime properties afterwards.
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
@@ -56,6 +57,7 @@ def main(cfg: BaseConfig) -> None:
     cv: CrossValidator = instantiate(cfg.cv)
 
     # instantiate pipeline
+    logger.info(f"instantiating pipeline...")
     try:
         pipeline: AbstractPipeline = instantiate(
             cfg.pipeline, callbacks, dataset, cv, storage_provider
@@ -63,14 +65,15 @@ def main(cfg: BaseConfig) -> None:
     except IncompatibilityError as e:
         traceback.print_exc()
         (msg,) = e.args
-        logger.warning(
-            f"encountered expected pipeline incompatibility with current config:"
-        )
         logger.error(msg)
-        logger.warning("exiting gracefully with exit code 0...")
+        logger.info(
+            "encountered an expected pipeline incompatibility with the current config, "
+            + "exiting gracefully with exit code 0..."
+        )
         sys.exit(0)
 
     # run pipeline
+    logger.info(f"starting {getattr(pipeline, 'name', '')} pipeline...")
     callbacks.on_begin()
     logger.info(
         f"using dataset: `{TerminalColor.yellow(dataset_loader.name)}` "
