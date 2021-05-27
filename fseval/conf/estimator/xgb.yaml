@@ -1,0 +1,9 @@
+name: XGBoost
+classifier:
+  estimator:
+    _target_: xgboost.XGBClassifier
+  multioutput: false
+regressor:
+  estimator:
+    _target_: xgboost.XGBRegressor
+  multioutput: false

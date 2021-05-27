@@ -1,0 +1,15 @@
+name: Boruta
+classifier:
+  estimator:
+    _target_: boruta.BorutaPy
+    estimator:
+      _target_: sklearn.ensemble.RandomForestClassifier
+    n_estimators: auto
+  multioutput: false
+regressor:
+  estimator:
+    _target_: boruta.BorutaPy
+    estimator:
+      _target_: sklearn.ensemble.RandomForestClassifier
+    n_estimators: auto
+  multioutput: false

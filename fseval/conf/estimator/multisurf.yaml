@@ -1,0 +1,9 @@
+name: MultiSURF
+classifier:
+  estimator:
+    _target_: skrebate.MultiSURF
+  multioutput: false
+regressor:
+  estimator:
+    _target_: skrebate.MultiSURF
+  multioutput: false
