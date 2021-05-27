@@ -1,0 +1,6 @@
+name: FeatBoost
+classifier:
+  estimator:
+    _target_: featboost.FeatBoostClassifier
+    estimator:
+      _target_: sklearn.ensemble.ExtraTreesClassifier

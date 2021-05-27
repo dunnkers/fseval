@@ -1,0 +1,13 @@
+name: Stability Selection
+classifier:
+  estimator:
+    _target_: stability_selection.StabilitySelection
+    base_estimator:
+      _target_: sklearn.linear_model.LogisticRegression
+  multioutput: true
+regressor:
+  estimator:
+    _target_: stability_selection.StabilitySelection
+    base_estimator:
+      _target_: sklearn.linear_model.LogisticRegression
+  multioutput: true

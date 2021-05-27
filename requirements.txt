@@ -95,7 +95,6 @@ sklearn==0.0
 skrebate==0.62
 smmap==4.0.0
 sortedcontainers==2.3.0
-stability-selection==0.0.1
 subprocess32==3.5.4
 threadpoolctl==2.1.0
 toml==0.10.2
