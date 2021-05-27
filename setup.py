@@ -23,5 +23,7 @@ setup(
         "skrebate==0.62",
         "l2x-synthetic==2.0.0",
         "humanfriendly==9.1",
+        "xgboost==1.4.2",
+        "Boruta==0.3",
     ],
 )
