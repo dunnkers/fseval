@@ -47,12 +47,9 @@ class TestEstimator(TestGroupItem):
 
     @pytest.fixture
     def X(self):
-        return np.array([[1, 2], [-3, -4], [5, 6], [7, 8]])
+        return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1]])
 
     def test_fit(self, estimator, X, y):
-        if estimator._get_tags().get("requires_positive_X"):
-            X = minmax_scale(X)
-
         estimator.fit(X, y)
 
 
