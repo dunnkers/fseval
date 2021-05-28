@@ -56,31 +56,23 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         log loss and the R^2 score. Whilst the log loss converts the ground-truth
         desired feature rankings to a binary value, 0/1, the R^2 score always works."""
 
-        X_importances = self.dataset.feature_importances
-        if X_importances is None:
-            return pd.DataFrame()  # no ground-truth available: don't score ranking
-
-        assert np.ndim(X_importances) == 1, "instance-based not supported yet."
-        ranking = self.feature_importances_
-
-        # r2 score
-        y_true = X_importances
-        y_pred = ranking
-        r2 = r2_score(y_true, y_pred)
-
-        # log loss
-        y_true = X_importances > 0
-        y_pred = ranking
-        log_loss_score = log_loss(y_true, y_pred, labels=[0, 1])
-
-        # construct score, send to callback
         score = {
-            "r2_score": r2,
-            "log_loss": log_loss_score,
             "fit_time": self.ranker.fit_time_,
             "bootstrap_state": self.bootstrap_state,
         }
-        self.callbacks.on_metrics(score)
+
+        X_importances = self.dataset.feature_importances
+        if X_importances is not None:
+            assert np.ndim(X_importances) == 1, "instance-based not supported yet."
+            y_pred = self.feature_importances_
+
+            # r2 score
+            y_true = X_importances
+            score["r2_score"] = r2_score(y_true, y_pred)
+
+            # log loss
+            y_true = X_importances > 0
+            score["log_loss"] = log_loss(y_true, y_pred, labels=[0, 1])
 
         # put a in a dataframe so can be easily merged with other pipeline scores
         scores = pd.DataFrame([score])

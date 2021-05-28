@@ -64,11 +64,7 @@ class WandbCallback(Callback):
         dict_merge(wandb.config, config)
 
     def on_metrics(self, metrics):
-        if isinstance(metrics, pd.DataFrame):
-            for index, metric in metrics.iterrows():
-                commit = index == len(metrics) - 1
-                wandb.log(metric.to_dict())
-        elif isinstance(metrics, Dict):
+        if isinstance(metrics, Dict):
             wandb.log(metrics)
         else:
             raise ValueError(f"Incorrect metric type passed: {type(metrics)}")

@@ -199,21 +199,20 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             # upload validation scores
             wandb_callback.upload_table(validation_scores, "validation_scores")
 
-        # Ranking scores - aggregation
-        if not ranking_scores.empty:
-            agg_ranking_scores = ranking_scores.agg(
-                ["mean", "std", "var", "min", "max"]
-            )
-            agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
-            self.logger.info(f"{self.ranker.name} ranking scores:")
-            print(agg_ranking_scores)
-            # send metrics
-            agg_ranking_scores = agg_ranking_scores.to_dict()
-            self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
+        ##### Ranking scores - aggregation
+        agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
+        agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
+        # print scores
+        self.logger.info(f"{self.ranker.name} ranking scores:")
+        print(agg_ranking_scores)
+        # send metrics
+        agg_ranking_scores = agg_ranking_scores.to_dict()
+        self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
 
-        # Validation scores - aggregation
+        ##### Validation scores - aggregation
         val_scores_per_feature = validation_scores.groupby("n_features_to_select")
         progbar = tqdm(list(val_scores_per_feature), desc="uploading validation scores")
+
         for n_features_to_select, feature_scores in progbar:
             feature_scores = feature_scores.drop(
                 columns=["bootstrap_state", "n_features_to_select"]
@@ -228,8 +227,8 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
 
             # take wandb rate limiting into account: sleep to prevent getting limited
-            time.sleep(0.5 if wandb_callback else 0)
-
+            time.sleep(1.5 if wandb_callback else 0)
+        # print scores
         print()
         self.logger.info(f"{self.validator.name} validation scores:")
         agg_val_scores = val_scores_per_feature.mean().drop(columns=["bootstrap_state"])
@@ -237,7 +236,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
         # Summary
         summary = dict(best={})
-        if not ranking_scores.empty:
+        if "r2_score" in ranking_scores.columns:
             # best ranker
             best_ranker_index = ranking_scores["r2_score"].argmax()
             best_ranker = ranking_scores.iloc[best_ranker_index]
