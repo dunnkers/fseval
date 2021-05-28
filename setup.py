@@ -18,7 +18,7 @@ setup(
         "openml==0.12.1",
         "pandas==1.2.4",
         "scikit-learn==0.24.2",
-        "wandb==0.10.30",
+        "wandb==0.10.31",
         "pytorch-tabnet==3.1.1",
         "skrebate==0.62",
         "l2x-synthetic==2.0.0",
