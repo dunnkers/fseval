@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import wandb
 from fseval.types import Callback
@@ -47,6 +47,6 @@ class CallbackCollection(Callback):
         for callback in self._iterator:
             callback.on_summary(summary)
 
-    def on_end(self):
+    def on_end(self, exit_code: Optional[int] = None):
         for callback in reversed(self._iterator):
-            callback.on_end()
+            callback.on_end(exit_code)

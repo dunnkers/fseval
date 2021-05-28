@@ -72,16 +72,30 @@ def main(cfg: BaseConfig) -> None:
         return
 
     # run pipeline
-    logger.info(f"starting {getattr(pipeline, 'name', '')} pipeline...")
+    pipeline_name = getattr(pipeline, "name", "")
+    logger.info(f"starting {pipeline_name} pipeline...")
     callbacks.on_begin()
     logger.info(
-        f"using dataset: `{TerminalColor.yellow(dataset_loader.name)}` "
+        f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
         + f"[{dataset._log_details}]"
     )
     X, y = dataset.X, dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
-    pipeline.fit(X_train, y_train)
+
+    try:
+        pipeline.fit(X_train, y_train)
+    except Exception as e:
+        traceback.print_exc()
+        logger.error(e)
+        logger.info(
+            "error occured during pipeline fitting step... "
+            + "exiting with a status code 1."
+        )
+        callbacks.on_end(exit_code=1)
+        raise e
+
     scores = pipeline.score(X_test, y_test)
+    logger.info(f"{pipeline_name} pipeline finished {TerminalColor.green('✓')}")
     callbacks.on_summary(scores)
     callbacks.on_end()
 

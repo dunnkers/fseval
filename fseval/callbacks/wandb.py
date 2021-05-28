@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Dict
+from typing import Dict, Optional
 
 import pandas as pd
 from fseval.types import Callback
@@ -76,8 +76,8 @@ class WandbCallback(Callback):
     def on_summary(self, summary: Dict):
         wandb.summary.update(summary)
 
-    def on_end(self):
-        wandb.finish()
+    def on_end(self, exit_code: Optional[int] = None):
+        wandb.finish(exit_code=exit_code)
 
     def upload_table_plot(self, df, **kwargs):
         table = wandb.Table(dataframe=df)

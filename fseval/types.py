@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 from hydra.utils import instantiate
@@ -67,7 +67,7 @@ class Callback(ABC):
     def on_summary(self, summary: Dict):
         ...
 
-    def on_end(self):
+    def on_end(self, exit_code: Optional[int] = None):
         ...
 
 
