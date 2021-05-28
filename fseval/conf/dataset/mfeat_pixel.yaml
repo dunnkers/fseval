@@ -1,0 +1,8 @@
+name: Multifeat Pixel
+group: OpenML-CC18
+task: classification
+domain: OCR
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 40979
+  target_column: class

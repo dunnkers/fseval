@@ -1,0 +1,8 @@
+name: Texture
+group: OpenML-CC18
+task: classification
+domain: pattern-recognition
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 40499
+  target_column: Class
