@@ -5,3 +5,4 @@ classifier:
 regressor:
   estimator:
     _target_: fseval.estimators.anova_f_value.ANOVAFValueRegressor
+estimates_feature_importances: true

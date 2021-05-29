@@ -15,28 +15,40 @@ from sklearn.preprocessing import minmax_scale
 @dataclass
 class EstimatorConfig:
     estimator: Any = None  # must have _target_ of type BaseEstimator.
-    # tags:
-    multioutput: bool = False
-    multioutput_only: bool = False
-    requires_positive_X: bool = False
+    multioutput: Optional[bool] = None
+    multioutput_only: Optional[bool] = None
+    requires_positive_X: Optional[bool] = None
+    estimates_feature_importances: Optional[bool] = False
+    estimates_feature_support: Optional[bool] = False
+    estimates_feature_ranking: Optional[bool] = False
+    estimates_target: Optional[bool] = False
 
 
 @dataclass
-class TaskedEstimatorConfig:
+class TaskedEstimatorConfig(EstimatorConfig):
     _target_: str = "fseval.pipeline.estimator.instantiate_estimator"
     _recursive_: bool = False  # don't instantiate classifier/regressor
     _target_class_: str = "fseval.pipeline.estimator.Estimator"
     name: str = MISSING
-    task: Task = II("dataset.task")
     classifier: Optional[EstimatorConfig] = None
     regressor: Optional[EstimatorConfig] = None
-    # dataset runtime properties
+    # tags
+    multioutput: Optional[bool] = False
+    multioutput_only: Optional[bool] = False
+    requires_positive_X: Optional[bool] = False
+    estimates_feature_importances: Optional[bool] = False  # returns importance scores
+    estimates_feature_support: Optional[bool] = False  # returns feature subset
+    estimates_feature_ranking: Optional[bool] = False  # returns feature ranking
+    estimates_target: Optional[bool] = False  # can predict target
+    # runtime properties
+    task: Task = II("dataset.task")
     is_multioutput_dataset: bool = II("dataset.multioutput")
 
 
 @dataclass
-class Estimator(AbstractEstimator):
-    estimator: Any = MISSING
+class Estimator(AbstractEstimator, EstimatorConfig):
+    # make sure `estimator` is always the first property: we pass it as a positional
+    # argument in `instantiate_estimator`.
     name: str = MISSING
     task: Task = MISSING
 
@@ -57,7 +69,7 @@ class Estimator(AbstractEstimator):
         return f"{module_name}.{class_name}"
 
     def fit(self, X, y):
-        if self._get_tags().get("requires_positive_X"):
+        if self.requires_positive_X:
             X = minmax_scale(X)
             self.logger.info(
                 "rescaled X: this estimator strictly requires positive features."
@@ -86,6 +98,14 @@ class Estimator(AbstractEstimator):
         return self.estimator.feature_importances_
 
     @property
+    def feature_support_(self):
+        return self.estimator.support_
+
+    @property
+    def feature_ranking_(self):
+        return self.estimator.ranking_
+
+    @property
     def fit_time_(self):
         return self.estimator._fseval_internal_fit_time_
 
@@ -93,48 +113,48 @@ class Estimator(AbstractEstimator):
     def fit_time_(self, fit_time_):
         setattr(self.estimator, "_fseval_internal_fit_time_", fit_time_)
 
-    def _get_tags(self):
-        return self.estimator._get_tags()
-
 
 def instantiate_estimator(
     _target_class_: str = MISSING,
     name: str = MISSING,
     task: Task = MISSING,
     is_multioutput_dataset: bool = MISSING,
+    estimator: Any = None,
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
-    **kwargs,
+    **tags,
 ):
     estimator_configs = dict(classification=classifier, regression=regressor)
-    estimator_config = estimator_configs[task.name]
+    estimator_config = estimator_configs[task.name] or estimator
 
-    # raise incompatibility error if no estimator found for this dataset type
+    # dataset support: classification/regression
     if estimator_config is None:
         raise IncompatibilityError(
             f"{name} has no estimator defined for {task.name} datasets."
         )
 
-    if is_multioutput_dataset and not estimator_config.multioutput:
+    # pop `estimator` out - all that's left should be tags.
+    estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore
+    estimator = estimator_config.pop("estimator")  # type: ignore
+
+    # tags. map any tag override from task-estimator to the top-level estimator
+    estimator_tags = {k: v for k, v in estimator_config.items() if v is not None}  # type: ignore
+    tags = {**tags, **estimator_tags}  # type: ignore
+
+    # multioutput support
+    if is_multioutput_dataset and not tags["multioutput"]:
         raise IncompatibilityError(
             f"dataset is multivariate but {name} has no multioutput support."
         )
 
-    if estimator_config.multioutput_only and not is_multioutput_dataset:
+    # only multioutput: does not support binary targets
+    if tags["multioutput_only"] and not is_multioutput_dataset:
         raise IncompatibilityError(f"{name} only works on multioutput datasets.")
 
-    # instantiate estimator
-    estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore
-    estimator = estimator_config.pop("estimator")  # type: ignore
+    # instantiate estimator and its wrapping estimator
     estimator = instantiate(estimator)
-
-    # parse and merge tags from estimator
-    get_tags = getattr(estimator, "_get_tags", lambda: {})
-    more_tags = getattr(estimator, "_more_tags", lambda: {})
-    tags = {**get_tags(), **more_tags(), **estimator_config}  # type: ignore
-    setattr(estimator, "_get_tags", lambda: tags)
-
     instance = instantiate(
-        {"_target_": _target_class_, "name": name, **kwargs}, estimator, task=task
+        {"_target_": _target_class_, **tags}, estimator, name=name, task=task
     )
+
     return instance

@@ -62,7 +62,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         }
 
         X_importances = self.dataset.feature_importances
-        if X_importances is not None:
+        if X_importances is not None and self.ranker.estimates_feature_importances:
             assert np.ndim(X_importances) == 1, "instance-based not supported yet."
             y_pred = self.feature_importances_
 

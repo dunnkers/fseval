@@ -5,3 +5,4 @@ classifier:
 regressor:
   estimator:
     _target_: fseval.estimators.mutual_info.MutualInfoRegressor
+estimates_feature_importances: true

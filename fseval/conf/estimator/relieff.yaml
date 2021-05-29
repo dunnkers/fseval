@@ -6,3 +6,4 @@ regressor:
   estimator:
     _target_: skrebate.ReliefF
   multioutput: false
+estimates_feature_importances: true

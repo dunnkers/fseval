@@ -2,8 +2,9 @@ name: Decision Tree
 classifier:
   estimator:
     _target_: sklearn.tree.DecisionTreeClassifier
-  multioutput: true
 regressor:
   estimator:
     _target_: sklearn.tree.DecisionTreeRegressor
-  multioutput: true
+multioutput: true
+estimates_feature_importances: true
+estimates_target: true

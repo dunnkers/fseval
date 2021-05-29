@@ -2,8 +2,9 @@ name: XGBoost
 classifier:
   estimator:
     _target_: xgboost.XGBClassifier
-  multioutput: false
 regressor:
   estimator:
     _target_: xgboost.XGBRegressor
-  multioutput: false
+multioutput: false
+estimates_feature_importances: true
+estimates_target: true

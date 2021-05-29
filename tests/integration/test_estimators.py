@@ -40,17 +40,34 @@ class TestEstimator(TestGroupItem):
         return tasked_cfg
 
     @pytest.fixture
-    def estimator(self, cfg):
+    def estimator(self, cfg) -> Estimator:
         instance = instantiate(cfg)
         assert isinstance(instance, Estimator)
         return instance
 
     @pytest.fixture
-    def X(self):
+    def X(self) -> np.ndarray:
         return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1]])
 
-    def test_fit(self, estimator, X, y):
+    def test_fit(self, estimator: Estimator, X: np.ndarray, y: np.ndarray):
         estimator.fit(X, y)
+
+        n, p = X.shape
+        if estimator.estimates_feature_importances:
+            feature_importances = estimator.feature_importances_
+            assert np.shape(feature_importances) == (p,)
+
+        if estimator.estimates_feature_support:
+            feature_support = estimator.support_
+            assert np.shape(feature_support) == (p,)
+
+        if estimator.estimates_feature_ranking:
+            feature_ranking = estimator.ranking_
+            assert np.shape(feature_ranking) == (p,)
+
+        if estimator.estimates_target:
+            score = estimator.score(X, y)
+            assert score > 0
 
 
 class TestClassifiers(TestEstimator):
@@ -66,7 +83,7 @@ class TestClassifiers(TestEstimator):
             return None
 
     @pytest.fixture
-    def y(self):
+    def y(self) -> np.ndarray:
         return np.array([0, 1, 0, 1])
 
 
@@ -85,7 +102,7 @@ class TestMultioutputClassifiers(TestClassifiers):
             return None
 
     @pytest.fixture
-    def y(self):
+    def y(self) -> np.ndarray:
         return np.array([[0, 1], [1, 1], [0, 1], [1, 0]])
 
 
@@ -102,7 +119,7 @@ class TestRegressors(TestEstimator):
             return None
 
     @pytest.fixture
-    def y(self):
+    def y(self) -> np.ndarray:
         return np.array([0.0, 1.0, 0.0, 1.0])
 
 
@@ -121,5 +138,5 @@ class TestMultioutputRegressors(TestRegressors):
             return None
 
     @pytest.fixture
-    def y(self):
+    def y(self) -> np.ndarray:
         return np.array([[0.0, 1.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
