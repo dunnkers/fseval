@@ -8,4 +8,4 @@ regressor:
     _target_: fseval.estimators.tabnet.TabNetRegressor
   multioutput: true
 estimates_feature_importances: true
-estimates_target: true
+estimates_target: false
