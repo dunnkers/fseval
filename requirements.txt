@@ -26,7 +26,6 @@ GitPython==3.1.14
 humanfriendly==9.1
 hydra-colorlog==1.1.0.dev1
 hydra-core==1.1.0rc1
--e git+https://github.com/dunnkers/hydra.git@fe322a8f95eb6badcdce001375c727567545e97b#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher
 idna==2.10
 iniconfig==1.1.1
 ipykernel==5.5.5

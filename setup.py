@@ -12,7 +12,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "hydra-core==1.1.0.rc1",
-        "hydra_rq_launcher @ git+https://github.com/dunnkers/hydra.git@master#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher",
         "hydra-colorlog==1.1.0.dev1",
         "numpy==1.20.2",
         "openml==0.12.1",
