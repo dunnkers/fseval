@@ -58,11 +58,11 @@ class TestEstimator(TestGroupItem):
             assert np.shape(feature_importances) == (p,)
 
         if estimator.estimates_feature_support:
-            feature_support = estimator.support_
+            feature_support = estimator.feature_support_
             assert np.shape(feature_support) == (p,)
 
         if estimator.estimates_feature_ranking:
-            feature_ranking = estimator.ranking_
+            feature_ranking = estimator.feature_ranking_
             assert np.shape(feature_ranking) == (p,)
 
         if estimator.estimates_target:

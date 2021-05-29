@@ -24,12 +24,14 @@ def pipeline_cfg():
         task=Task.classification,
         classifier=classifier,
         is_multioutput_dataset=False,
+        estimates_feature_importances=True,
     )
     validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
         name="dt",
         task=Task.classification,
         classifier=classifier,
         is_multioutput_dataset=False,
+        estimates_target=True,
     )
     n_bootstraps: int = 2
 

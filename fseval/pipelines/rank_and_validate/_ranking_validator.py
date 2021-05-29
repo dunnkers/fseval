@@ -64,7 +64,10 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         X_importances = self.dataset.feature_importances
         if X_importances is not None and self.ranker.estimates_feature_importances:
             assert np.ndim(X_importances) == 1, "instance-based not supported yet."
-            y_pred = self.feature_importances_
+
+            # predicted feature importances: normalized ranker scores.
+            y_pred = np.asarray(self.ranker.feature_importances_)
+            y_pred = y_pred / sum(y_pred)
 
             # r2 score
             y_true = X_importances
@@ -74,13 +77,12 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             y_true = X_importances > 0
             score["log_loss"] = log_loss(y_true, y_pred, labels=[0, 1])
 
+        if X_importances is not None and self.ranker.estimates_feature_support:
+            ...
+
+        if X_importances is not None and self.ranker.estimates_feature_ranking:
+            ...
+
         # put a in a dataframe so can be easily merged with other pipeline scores
         scores = pd.DataFrame([score])
         return scores
-
-    @property
-    def feature_importances_(self):
-        """Normalized ranker feature importance score."""
-        ranking = self.ranker.feature_importances_
-        summation = sum(ranking)
-        return np.asarray(ranking) / summation

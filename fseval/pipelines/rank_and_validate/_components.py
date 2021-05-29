@@ -2,6 +2,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger, getLogger
+from operator import attrgetter
 from typing import Dict, List, cast
 
 import numpy as np
@@ -45,12 +46,23 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
     def _logger(self, estimator):
         return lambda text: None
 
+    def _get_feature_importances(self, estimator: Estimator):
+        if estimator.estimates_feature_importances:
+            return estimator.feature_importances_
+        elif estimator.estimates_feature_ranking:
+            return estimator.feature_ranking_
+        else:
+            raise ValueError(
+                f"could not resolve feature_importances vector on {estimator.name}."
+            )
+
     def _prepare_data(self, X, y):
         # select n features: perform feature selection
         selector = SelectFromModel(
             estimator=self.ranker,
             threshold=-np.inf,
             max_features=self.n_features_to_select,
+            importance_getter=self._get_feature_importances,
             prefit=True,
         )
         X = selector.transform(X)

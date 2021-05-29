@@ -18,10 +18,10 @@ class EstimatorConfig:
     multioutput: Optional[bool] = None
     multioutput_only: Optional[bool] = None
     requires_positive_X: Optional[bool] = None
-    estimates_feature_importances: Optional[bool] = False
-    estimates_feature_support: Optional[bool] = False
-    estimates_feature_ranking: Optional[bool] = False
-    estimates_target: Optional[bool] = False
+    estimates_feature_importances: Optional[bool] = None
+    estimates_feature_support: Optional[bool] = None
+    estimates_feature_ranking: Optional[bool] = None
+    estimates_target: Optional[bool] = None
 
 
 @dataclass
@@ -95,7 +95,14 @@ class Estimator(AbstractEstimator, EstimatorConfig):
 
     @property
     def feature_importances_(self):
-        return self.estimator.feature_importances_
+        if hasattr(self.estimator, "feature_importances_"):
+            return self.estimator.feature_importances_
+        elif hasattr(self.estimator, "coef_"):
+            return self.estimator.coef_
+        else:
+            raise ValueError(
+                f"no `feature_importances_` found on {Estimator._get_class_repr(self)}"
+            )
 
     @property
     def feature_support_(self):
