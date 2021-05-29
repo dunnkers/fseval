@@ -1,9 +1,12 @@
 # fseval
-A Feature Selection benchmarking library. Neatly integrates with wandb and sklearn. Uses Hydra as a config parser.
+
+[![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/)
+
+A Feature Selector and Feature Ranker benchmarking library. Neatly integrates with wandb and sklearn. Uses Hydra as a config parser.
 
 ## Usage
 ```shell
-pip install git+https://github.com/dunnkers/fseval.git
+pip install fseval
 ```
 
 fseval help:
@@ -20,4 +23,4 @@ fseval dataset=iris estimator@pipeline.ranker=relieff
 
 
 ### About
-Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis for the Data Science and Computational Complexity track at the University of Groningen.
+Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis (_Data Science and Computational Complexity_ track at the University of Groningen).
