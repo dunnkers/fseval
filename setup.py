@@ -31,6 +31,7 @@ with open("README.md", "r") as fh:
             "Boruta==0.3",
             "featboost @ git+https://github.com/amjams/FeatBoost.git@master",
             "stability-selection @ git+https://github.com/dunnkers/stability-selection.git@master",
+            "hydra_rq_launcher @ git+https://github.com/dunnkers/hydra.git@master#egg=hydra_rq_launcher&subdirectory=plugins/hydra_rq_launcher",
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
