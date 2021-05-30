@@ -95,7 +95,7 @@ sklearn==0.0
 skrebate==0.62
 smmap==4.0.0
 sortedcontainers==2.3.0
--e git+https://github.com/dunnkers/stability-selection.git@b7fc27bf1dc2c9b83fbf88b52d383694969a93fb#egg=stability_selection
+-e git+https://github.com/dunnkers/stability-selection.git@cf540f6f81a4c3e0a4bf386d7c687b8f2292ddb1#egg=stability_selection
 subprocess32==3.5.4
 threadpoolctl==2.1.0
 toml==0.10.2
