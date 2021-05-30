@@ -30,6 +30,7 @@ with open("README.md", "r") as fh:
             "xgboost==1.4.2",
             "Boruta==0.3",
             "featboost @ git+https://github.com/amjams/FeatBoost.git@master",
+            "stability-selection @ git+https://github.com/dunnkers/stability-selection.git@joblib",
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
