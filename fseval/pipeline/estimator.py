@@ -129,7 +129,7 @@ def instantiate_estimator(
     estimator: Any = None,
     classifier: Optional[EstimatorConfig] = None,
     regressor: Optional[EstimatorConfig] = None,
-    **tags,
+    **top_level_tags,
 ):
     estimator_configs = dict(classification=classifier, regression=regressor)
     estimator_config = estimator_configs[task.name] or estimator
@@ -146,7 +146,7 @@ def instantiate_estimator(
 
     # tags. map any tag override from task-estimator to the top-level estimator
     estimator_tags = {k: v for k, v in estimator_config.items() if v is not None}  # type: ignore
-    tags = {**tags, **estimator_tags}  # type: ignore
+    tags = {**top_level_tags, **estimator_tags}  # type: ignore
 
     # multioutput support
     if is_multioutput_dataset and not tags["multioutput"]:

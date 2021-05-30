@@ -1,0 +1,8 @@
+name: FeatBoost
+classifier:
+  estimator:
+    _target_: fseval.estimators.featboost.FeatBoostClassifier
+    estimator:
+      _target_: sklearn.ensemble.ExtraTreesClassifier
+estimates_feature_importances: true
+estimates_feature_support: true

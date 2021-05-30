@@ -96,7 +96,9 @@ class TestMultioutputClassifiers(TestClassifiers):
             cfg, Task.classification, is_multioutput_dataset=True
         )
 
-        if tasked_cfg.classifier and tasked_cfg.classifier.multioutput:
+        if tasked_cfg.classifier and (
+            tasked_cfg.classifier.multioutput or tasked_cfg.multioutput
+        ):
             return tasked_cfg
         else:
             return None
@@ -132,7 +134,9 @@ class TestMultioutputRegressors(TestRegressors):
             cfg, Task.regression, is_multioutput_dataset=True
         )
 
-        if tasked_cfg.regressor and tasked_cfg.regressor.multioutput:
+        if tasked_cfg.regressor and (
+            tasked_cfg.regressor.multioutput or tasked_cfg.multioutput
+        ):
             return tasked_cfg
         else:
             return None
