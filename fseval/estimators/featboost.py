@@ -7,12 +7,12 @@ from featboost import FeatBoostClassifier as RealFeatBoostClassifier
 class FeatBoostClassifier(RealFeatBoostClassifier):
     def fit(self, X, y):
         n, p = np.shape(X)
-        self._siso_ranking_size = p
+        self.siso_ranking_size = p
 
         if n < 10:
-            self._number_of_folds = n
+            self.number_of_folds = n
         else:
-            self._number_of_folds = 10
+            self.number_of_folds = 10
 
         super(FeatBoostClassifier, self).fit(X, y)
 
