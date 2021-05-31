@@ -6,6 +6,7 @@ from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimato
 from fseval.types import Task
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
+from sklearn.base import clone
 from sklearn.preprocessing import minmax_scale
 from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
 
@@ -48,6 +49,10 @@ class TestEstimator(TestGroupItem):
     @pytest.fixture
     def X(self) -> np.ndarray:
         return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1]])
+
+    def test_clone(self, estimator):
+        estimator_cloned = clone(estimator)
+        assert isinstance(estimator_cloned, type(estimator))
 
     def test_fit(self, estimator: Estimator, X: np.ndarray, y: np.ndarray):
         estimator.fit(X, y)
