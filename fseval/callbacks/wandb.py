@@ -3,11 +3,11 @@ import sys
 from typing import Dict, Optional
 
 import pandas as pd
-from fseval.types import Callback
+import wandb
 from omegaconf import OmegaConf
 from yaml import dump
 
-import wandb
+from fseval.types import Callback
 
 
 # Recursive dictionary merge

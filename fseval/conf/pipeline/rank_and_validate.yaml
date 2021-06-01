@@ -1,6 +1,6 @@
 defaults:
   - base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: anova_f_value
+  - /estimator@ranker: featboost
   - /estimator@validator: decision_tree
 n_bootstraps: 2

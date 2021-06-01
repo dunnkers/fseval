@@ -5,11 +5,13 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-from fseval.types import AbstractAdapter, IncompatibilityError, Task, TerminalColor
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.preprocessing import minmax_scale
+
+from fseval.types import (AbstractAdapter, IncompatibilityError, Task,
+                          TerminalColor)
 
 
 @dataclass

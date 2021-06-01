@@ -1,5 +1,4 @@
 import numpy as np
-
 from stability_selection import StabilitySelection as RealStabilitySelection
 
 

@@ -4,9 +4,10 @@ from time import perf_counter
 from typing import List
 
 import pandas as pd
+from humanfriendly import format_timespan
+
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, Task, TerminalColor
-from humanfriendly import format_timespan
 
 
 @dataclass

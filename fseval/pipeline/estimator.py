@@ -4,12 +4,13 @@ from logging import Logger, getLogger
 from typing import Any, Optional
 
 import numpy as np
-from fseval.types import AbstractEstimator, IncompatibilityError, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, DictConfig, OmegaConf
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import minmax_scale
+
+from fseval.types import AbstractEstimator, IncompatibilityError, Task
 
 
 @dataclass

@@ -1,12 +1,10 @@
-import copy
-import sys
-import traceback
-from logging import Logger, getLogger
+from copy import deepcopy
+from logging import getLogger
+from traceback import print_exc
 from typing import Dict, cast
 
 import hydra
 import numpy as np
-import wandb
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
@@ -43,7 +41,7 @@ def main(cfg: BaseConfig) -> None:
     callbacks = CallbackCollection(callbacks)
 
     # prepare and set config object on callbacks: put everything in `pipeline` root
-    prepared_cfg = copy.deepcopy(primitive_cfg)
+    prepared_cfg = deepcopy(primitive_cfg)
     pipeline_cfg = prepared_cfg.pop("pipeline")
     prepared_cfg = {**pipeline_cfg, **prepared_cfg}
     prepared_cfg["pipeline"] = prepared_cfg.pop("name")
@@ -85,7 +83,7 @@ def main(cfg: BaseConfig) -> None:
     try:
         pipeline.fit(X_train, y_train)
     except Exception as e:
-        traceback.print_exc()
+        print_exc()
         logger.error(e)
         logger.info(
             "error occured during pipeline fitting step... "

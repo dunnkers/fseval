@@ -1,6 +1,5 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-import wandb
 from fseval.types import Callback
 from omegaconf import OmegaConf
 from yaml import dump
