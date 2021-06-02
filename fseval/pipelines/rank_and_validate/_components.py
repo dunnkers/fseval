@@ -152,22 +152,12 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
         ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
         ranking_scores = ranking_scores.drop(columns=["group"])
+        ranking_scores = ranking_scores.set_index("bootstrap_state")
         validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
         validation_scores = validation_scores.drop(columns=["group"])
 
-        wandb_callback = getattr(self.callbacks, "wandb", False)
-        if wandb_callback:
-            wandb_callback = cast(WandbCallback, wandb_callback)
-
-            # upload ranking scores
-            wandb_callback.upload_table(ranking_scores, "ranking_scores")
-
-            # upload validation scores
-            wandb_callback.upload_table(validation_scores, "validation_scores")
-
         ##### Ranking scores - aggregation
         agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
-        agg_ranking_scores = agg_ranking_scores.drop(columns=["bootstrap_state"])
         # print scores
         self.logger.info(f"{self.ranker.name} ranking scores:")
         print(agg_ranking_scores)
@@ -191,26 +181,52 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             agg_feature_scores_dict = agg_feature_scores.to_dict()
             agg_feature_scores_dict["n_features_to_select"] = int(n_features_to_select)
             self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
-
-            # take wandb rate limiting into account: sleep to prevent getting limited
-            time.sleep(1.5 if wandb_callback else 0)
         # print scores
         print()
         self.logger.info(f"{self.validator.name} validation scores:")
         agg_val_scores = val_scores_per_feature.mean().drop(columns=["bootstrap_state"])
         print(agg_val_scores)
 
-        # Summary
-        summary = dict(best={})
-        if "r2_score" in ranking_scores.columns:
-            # best ranker
-            best_ranker_index = ranking_scores["r2_score"].argmax()
-            best_ranker = ranking_scores.iloc[best_ranker_index]
-            summary["best"]["ranker"] = best_ranker.to_dict()
+        ##### Summary
+        best = {}
         # best validator
         all_agg_val_scores = agg_val_scores.reset_index()
-        best_subset_index = all_agg_val_scores["score"].argmax()
-        best_subset = all_agg_val_scores.iloc[best_subset_index]
-        summary["best"]["validator"] = best_subset.to_dict()
+        best_subset_index = validation_scores["score"].argmax()
+        best_subset = validation_scores.iloc[best_subset_index]
+        best["validator"] = best_subset.to_dict()
+        # best accompanying ranking
+        best_subset_bootstrap_state = best_subset["bootstrap_state"]
+        best_ranker = ranking_scores.loc[best_subset_bootstrap_state]
+        best["ranker"] = best_ranker.to_dict()
+        # summary
+        summary = dict(best=best)
+
+        ##### Upload tables
+        wandb_callback = getattr(self.callbacks, "wandb", False)
+        if wandb_callback:
+            wandb_callback = cast(WandbCallback, wandb_callback)
+
+            ### upload summary as table: meta data and best scores
+            # metadata
+            config = self.callbacks.config
+            metadata = dict()
+            metadata["ranker.name"] = config["ranker"]["name"]
+            metadata["validator.name"] = config["validator"]["name"]
+            metadata["dataset.name"] = config["dataset"]["name"]
+            metadata_df = pd.DataFrame([metadata])
+            # best scores
+            best_subset_prefixed = best_subset.add_prefix("validator.")
+            best_ranker_prefixed = best_ranker.add_prefix("ranker.")
+            best_scores = pd.concat([best_subset_prefixed, best_ranker_prefixed])
+            best_scores_df = pd.DataFrame([best_scores])
+            # upload tabular summary
+            tabular_summary = best_scores_df.assign(**metadata_df)
+            wandb_callback.upload_table(tabular_summary, "tabular_summary")
+
+            ### upload ranking scores
+            wandb_callback.upload_table(ranking_scores.reset_index(), "ranking_scores")
+
+            ### upload validation scores
+            wandb_callback.upload_table(validation_scores, "validation_scores")
 
         return summary
