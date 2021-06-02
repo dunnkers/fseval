@@ -57,6 +57,14 @@ class TestEstimator(TestGroupItem):
     def test_fit(self, estimator: Estimator, X: np.ndarray, y: np.ndarray):
         estimator.fit(X, y)
 
+        # estimator must either be some kind of feature ranker, or a predictor.
+        assert (
+            estimator.estimates_feature_importances
+            or estimator.estimates_feature_support
+            or estimator.estimates_feature_ranking
+            or estimator.estimates_target
+        )
+
         n, p = X.shape
         if estimator.estimates_feature_importances:
             feature_importances = estimator.feature_importances_
@@ -127,7 +135,7 @@ class TestRegressors(TestEstimator):
 
     @pytest.fixture
     def y(self) -> np.ndarray:
-        return np.array([0.0, 1.0, 0.0, 1.0])
+        return np.array([0.2, 1.5, 0.1, 1.7])
 
 
 class TestMultioutputRegressors(TestRegressors):

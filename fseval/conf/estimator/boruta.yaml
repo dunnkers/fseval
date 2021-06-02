@@ -6,13 +6,6 @@ classifier:
       _target_: sklearn.ensemble.RandomForestClassifier
     n_estimators: auto
   multioutput: false
-regressor:
-  estimator:
-    _target_: fseval.estimators.boruta.Boruta
-    estimator:
-      _target_: sklearn.ensemble.RandomForestClassifier
-    n_estimators: auto
-  multioutput: false
 estimates_feature_importances: false
 estimates_feature_support: true
 estimates_feature_ranking: true
