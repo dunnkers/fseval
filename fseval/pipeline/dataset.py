@@ -4,10 +4,9 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
+from fseval.types import Task, TerminalColor
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
-
-from fseval.types import Task, TerminalColor
 
 
 @dataclass
@@ -57,6 +56,7 @@ class DatasetConfig:
 
 @dataclass
 class Dataset:
+    name: str
     X: np.ndarray
     y: np.ndarray
     n: int
@@ -164,7 +164,7 @@ class DatasetLoader(DatasetConfig):
         multioutput = y.ndim > 1
         feature_importances = self.get_feature_importances(X, n, p)
 
-        dataset = Dataset(X, y, n, p, multioutput, feature_importances)
+        dataset = Dataset(self.name, X, y, n, p, multioutput, feature_importances)
         self.logger.info(
             f"loaded dataset {TerminalColor.yellow(self.name)} "
             + TerminalColor.green("✓")

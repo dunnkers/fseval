@@ -36,7 +36,11 @@ def pipeline_cfg():
     n_bootstraps: int = 2
 
     config = RankAndValidateConfig(
-        resample=resample, ranker=ranker, validator=validator, n_bootstraps=n_bootstraps
+        resample=resample,
+        ranker=ranker,
+        validator=validator,
+        n_bootstraps=n_bootstraps,
+        all_features_to_select="range(1, min(50, p) + 1)",
     )
 
     pipeline_cfg = OmegaConf.create(config.__dict__)
@@ -54,6 +58,7 @@ def dataset_without_gt():
     """Dataset without ground-truth: a feature importances vector attached; i.e. the
     relevance per feature, known apriori."""
     dataset: Dataset = Dataset(
+        name="some_dataset_name",
         X=np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]),
         y=np.array([0, 1, 1, 0]),
         n=4,

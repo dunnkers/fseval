@@ -25,12 +25,10 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
     def _get_all_features_to_select(self, n: int, p: int) -> List[int]:
         """parse all features to select from config"""
-        all_features_to_select_str = self.callbacks.config["all_features_to_select"]
-
         # set using `exec`
         localz = locals()
         exec(
-            f"all_features_to_select = {all_features_to_select_str}",
+            f"all_features_to_select = {self.all_features_to_select}",
             globals(),
             localz,
         )
@@ -208,11 +206,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
             ### upload summary as table: meta data and best scores
             # metadata
-            config = self.callbacks.config
             metadata = dict()
-            metadata["ranker.name"] = config["ranker"]["name"]
-            metadata["validator.name"] = config["validator"]["name"]
-            metadata["dataset.name"] = config["dataset"]["name"]
+            metadata["ranker.name"] = self.ranker.name
+            metadata["validator.name"] = self.validator.name
+            metadata["dataset.name"] = self.dataset.name
             metadata_df = pd.DataFrame([metadata])
             # best scores
             best_subset_prefixed = best_subset.add_prefix("validator.")
