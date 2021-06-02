@@ -7,7 +7,7 @@ from fseval.pipeline.resample import ResampleConfig
 from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.pipelines.rank_and_validate import RankAndValidateConfig
 from fseval.storage_providers.mock import MockStorageProvider
-from fseval.types import AbstractStorageProvider, Callback, Task
+from fseval.types import AbstractStorageProvider, Callback, IncompatibilityError, Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from sklearn.model_selection import ShuffleSplit
@@ -20,14 +20,14 @@ def pipeline_cfg():
 
     resample: ResampleConfig = ResampleConfig(name="shuffle")
     ranker: TaskedEstimatorConfig = TaskedEstimatorConfig(
-        name="dt",
+        name="Decision Tree",
         task=Task.classification,
         classifier=classifier,
         is_multioutput_dataset=False,
         estimates_feature_importances=True,
     )
     validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
-        name="dt",
+        name="Decision Tree",
         task=Task.classification,
         classifier=classifier,
         is_multioutput_dataset=False,
@@ -114,3 +114,21 @@ def test_with_ranker_gt(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_pr
 
     assert score["best"]["ranker"]["r2_score"] <= 1.0
     assert score["best"]["validator"]["score"] == 1.0
+
+
+def test_validator_incompatibility_check(
+    pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider
+):
+    with pytest.raises(IncompatibilityError):
+        pipeline_cfg["validator"]["estimates_target"] = False
+        instantiate(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider)
+
+
+def test_ranker_incompatibility_check(
+    pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider
+):
+    with pytest.raises(IncompatibilityError):
+        pipeline_cfg["ranker"]["estimates_feature_importances"] = False
+        pipeline_cfg["ranker"]["estimates_feature_support"] = False
+        pipeline_cfg["ranker"]["estimates_feature_ranking"] = False
+        instantiate(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider)

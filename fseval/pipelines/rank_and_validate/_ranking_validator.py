@@ -3,6 +3,11 @@ from logging import Logger, getLogger
 
 import numpy as np
 import pandas as pd
+from fseval.pipeline.cv import CrossValidator
+from fseval.pipeline.dataset import Dataset, DatasetConfig
+from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
+from fseval.pipeline.resample import Resample, ResampleConfig
+from fseval.types import AbstractEstimator, IncompatibilityError, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING
@@ -17,12 +22,6 @@ from sklearn.utils import _print_elapsed_time
 from sklearn.utils.metaestimators import _BaseComposition
 from tqdm import tqdm
 
-from fseval.pipeline.cv import CrossValidator
-from fseval.pipeline.dataset import Dataset, DatasetConfig
-from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
-from fseval.pipeline.resample import Resample, ResampleConfig
-from fseval.types import AbstractEstimator, Task
-
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
 
@@ -32,6 +31,19 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
     bootstrap_state: int = MISSING
 
     logger: Logger = getLogger(__name__)
+
+    def __post_init__(self):
+        if not (
+            self.ranker.estimates_feature_importances
+            or self.ranker.estimates_feature_ranking
+            or self.ranker.estimates_feature_support
+        ):
+            raise IncompatibilityError(
+                f"{self.ranker.name} performs no form of feature ranking: "
+                + "this estimator cannot be used as a ranker."
+            )
+
+        super(RankingValidator, self).__post_init__()
 
     def _get_estimator(self):
         yield self.ranker

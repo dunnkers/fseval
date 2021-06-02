@@ -5,6 +5,12 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
+from fseval.callbacks import WandbCallback
+from fseval.pipeline.cv import CrossValidator
+from fseval.pipeline.dataset import Dataset, DatasetConfig
+from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
+from fseval.pipeline.resample import Resample, ResampleConfig
+from fseval.types import AbstractEstimator, Callback, IncompatibilityError, Task
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import II, MISSING
@@ -16,13 +22,6 @@ from sklearn.metrics import log_loss, r2_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils.metaestimators import _BaseComposition
 from tqdm import tqdm
-
-from fseval.callbacks import WandbCallback
-from fseval.pipeline.cv import CrossValidator
-from fseval.pipeline.dataset import Dataset, DatasetConfig
-from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
-from fseval.pipeline.resample import Resample, ResampleConfig
-from fseval.types import AbstractEstimator, Callback, Task
 
 from .._experiment import Experiment
 from .._pipeline import Pipeline
@@ -38,6 +37,15 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
 
     bootstrap_state: int = MISSING
     n_features_to_select: int = MISSING
+
+    def __post_init__(self):
+        if not self.validator.estimates_target:
+            raise IncompatibilityError(
+                f"{self.validator.name} does not predict targets: "
+                + "this estimator cannot be used as a validator."
+            )
+
+        super(SubsetValidator, self).__post_init__()
 
     def _get_estimator(self):
         yield self.validator
