@@ -1,16 +1,14 @@
-import time
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import cast
+from typing import List, cast
 
 import numpy as np
 import pandas as pd
+from fseval.callbacks import WandbCallback
+from fseval.pipeline.estimator import Estimator
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
-
-from fseval.callbacks import WandbCallback
-from fseval.pipeline.estimator import Estimator
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -21,12 +19,38 @@ from ._subset_validator import SubsetValidator
 @dataclass
 class DatasetValidator(Experiment, RankAndValidatePipeline):
     """Validates an entire dataset, given a fitted ranker and its feature ranking. Fits
-    at most 50 feature subsets, at each step incrementally including more top-features."""
+    at most `p` feature subsets, at each step incrementally including more top-features."""
 
     bootstrap_state: int = MISSING
 
+    def _get_all_features_to_select(self, n: int, p: int) -> List[int]:
+        """parse all features to select from config"""
+        all_features_to_select_str = self.callbacks.config["all_features_to_select"]
+
+        # set using `exec`
+        localz = locals()
+        exec(
+            f"all_features_to_select = {all_features_to_select_str}",
+            globals(),
+            localz,
+        )
+        all_features_to_select = localz["all_features_to_select"]
+        all_features_to_select = cast(List[int], all_features_to_select)
+        all_features_to_select = list(all_features_to_select)
+
+        assert (
+            all_features_to_select
+        ), f"Incorrect `all_features_to_select` string: {all_features_to_select_str}"
+
+        return all_features_to_select
+
     def _get_estimator(self):
-        for n_features_to_select in np.arange(1, min(50, self.dataset.p) + 1):
+        all_features_to_select = self._get_all_features_to_select(
+            self.dataset.n, self.dataset.p
+        )
+
+        # validate all subsets
+        for n_features_to_select in all_features_to_select:
             config = self._get_config()
             validator = config.pop("validator")
 

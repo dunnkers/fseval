@@ -4,3 +4,4 @@ defaults:
   - /estimator@ranker: featboost
   - /estimator@validator: decision_tree
 n_bootstraps: 2
+all_features_to_select: range(1, min(50, p) + 1)
