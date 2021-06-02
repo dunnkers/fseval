@@ -27,14 +27,6 @@ with open("README.md", "r") as fh:
             # adapters
             "openml==0.12.1",
             "l2x-synthetic==2.0.0",
-            # estimators
-            "pytorch-tabnet==3.1.1",
-            "skrebate==0.62",
-            "xgboost==1.4.2",
-            "Boruta==0.3",
-            "featboost @ git+https://github.com/dunnkers/FeatBoost.git@support-cloning",
-            "stability-selection @ git+https://github.com/dunnkers/stability-selection.git@master",
-            "matplotlib==3.4.2",  # required by stability-selection
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
