@@ -38,7 +38,7 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
         assert (
             all_features_to_select
-        ), f"Incorrect `all_features_to_select` string: {all_features_to_select_str}"
+        ), f"Incorrect `all_features_to_select` string: {self.all_features_to_select}"
 
         return all_features_to_select
 
