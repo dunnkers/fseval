@@ -2,11 +2,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import numpy as np
-from hydra.utils import instantiate
-from omegaconf import MISSING, DictConfig, OmegaConf
+from omegaconf import MISSING
 from sklearn.base import BaseEstimator
-from sklearn.metrics import accuracy_score, r2_score
 
 
 class Task(Enum):

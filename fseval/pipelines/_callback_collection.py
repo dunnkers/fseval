@@ -1,8 +1,7 @@
 from typing import Any, Dict, Optional
 
+
 from fseval.types import Callback
-from omegaconf import OmegaConf
-from yaml import dump
 
 
 class CallbackCollection(Callback):

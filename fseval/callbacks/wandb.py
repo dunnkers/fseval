@@ -2,10 +2,8 @@ import copy
 import sys
 from typing import Dict, Optional
 
-import pandas as pd
 import wandb
 from omegaconf import OmegaConf
-from yaml import dump
 
 from fseval.types import Callback
 

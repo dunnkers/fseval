@@ -1,5 +1,6 @@
 from sklearn.base import BaseEstimator
-from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
+from sklearn.feature_selection import (mutual_info_classif,
+                                       mutual_info_regression)
 
 
 class MutualInfoClassifier(BaseEstimator):

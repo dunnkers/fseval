@@ -1,6 +1,5 @@
 import numpy as np
 from featboost import FeatBoostClassifier as RealFeatBoostClassifier
-from sklearn.base import BaseEstimator
 
 
 class FeatBoostClassifier(RealFeatBoostClassifier):

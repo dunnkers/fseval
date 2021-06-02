@@ -5,94 +5,17 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
-from fseval.callbacks import WandbCallback
-from fseval.pipeline.cv import CrossValidator
-from fseval.pipeline.dataset import Dataset, DatasetConfig
-from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
-from fseval.pipeline.resample import Resample, ResampleConfig
-from fseval.types import AbstractEstimator, Callback, IncompatibilityError, Task
-from hydra.core.config_store import ConfigStore
-from hydra.utils import instantiate
-from omegaconf import II, MISSING
-from sklearn.base import BaseEstimator, clone
-from sklearn.ensemble import VotingClassifier, VotingRegressor
-from sklearn.ensemble._base import _BaseHeterogeneousEnsemble
-from sklearn.feature_selection import SelectFromModel, SelectKBest
-from sklearn.metrics import log_loss, r2_score
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.utils.metaestimators import _BaseComposition
+from omegaconf import MISSING
+from sklearn.base import clone
 from tqdm import tqdm
 
+from fseval.callbacks import WandbCallback
+from fseval.pipeline.estimator import Estimator
+
 from .._experiment import Experiment
-from .._pipeline import Pipeline
 from ._config import RankAndValidatePipeline
 from ._ranking_validator import RankingValidator
-
-
-@dataclass
-class SubsetValidator(Experiment, RankAndValidatePipeline):
-    """Validates one feature subset using a given validation estimator. i.e. it first
-    performs feature selection using the ranking made available in the fitted ranker,
-    `self.ranker`, and then fits/scores an estimator on that subset."""
-
-    bootstrap_state: int = MISSING
-    n_features_to_select: int = MISSING
-
-    def __post_init__(self):
-        if not self.validator.estimates_target:
-            raise IncompatibilityError(
-                f"{self.validator.name} does not predict targets: "
-                + "this estimator cannot be used as a validator."
-            )
-
-        super(SubsetValidator, self).__post_init__()
-
-    def _get_estimator(self):
-        yield self.validator
-
-    def _logger(self, estimator):
-        return lambda text: None
-
-    def _get_feature_importances(self, estimator: Estimator):
-        if estimator.estimates_feature_importances:
-            return estimator.feature_importances_
-        elif estimator.estimates_feature_ranking:
-            return estimator.feature_ranking_
-        else:
-            raise ValueError(
-                f"could not resolve feature_importances vector on {estimator.name}."
-            )
-
-    def _prepare_data(self, X, y):
-        # select n features: perform feature selection
-        selector = SelectFromModel(
-            estimator=self.ranker,
-            threshold=-np.inf,
-            max_features=self.n_features_to_select,
-            importance_getter=self._get_feature_importances,
-            prefit=True,
-        )
-        X = selector.transform(X)
-        return X, y
-
-    def fit(self, X, y):
-        override = f"bootstrap_state={self.bootstrap_state}"
-        override += f",n_features_to_select={self.n_features_to_select}"
-        filename = f"validation[{override}].pickle"
-        restored = self.storage_provider.restore_pickle(filename)
-
-        if restored:
-            self.validator.estimator = restored
-            self.logger.info("restored validator from storage provider ✓")
-        else:
-            super(SubsetValidator, self).fit(X, y)
-            self.storage_provider.save_pickle(filename, self.validator.estimator)
-
-    def score(self, X, y):
-        score = super(SubsetValidator, self).score(X, y)
-        score["n_features_to_select"] = self.n_features_to_select
-        score["fit_time"] = self.validator.fit_time_
-        return score
+from ._subset_validator import SubsetValidator
 
 
 @dataclass

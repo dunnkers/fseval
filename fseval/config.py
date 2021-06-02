@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict
 
 from hydra.core.config_store import ConfigStore
-from omegaconf import II, MISSING
+from omegaconf import MISSING
 
 from fseval.pipeline.cv import CrossValidatorConfig
 from fseval.pipeline.dataset import DatasetConfig

@@ -3,11 +3,8 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Optional
 
-import numpy as np
-from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
-from omegaconf import II, MISSING, DictConfig, OmegaConf
-from sklearn.base import BaseEstimator
+from omegaconf import II, MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
 
 from fseval.types import AbstractEstimator, IncompatibilityError, Task

@@ -7,7 +7,7 @@ import pandas as pd
 from humanfriendly import format_timespan
 
 from fseval.pipeline.estimator import Estimator
-from fseval.types import AbstractEstimator, Task, TerminalColor
+from fseval.types import AbstractEstimator, TerminalColor
 
 
 @dataclass

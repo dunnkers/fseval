@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-import numpy as np
 import wandb
 from omegaconf import MISSING
 

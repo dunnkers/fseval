@@ -1,6 +1,5 @@
 import numpy as np
 from boruta.boruta_py import BorutaPy
-from sklearn.base import BaseEstimator
 
 
 class Boruta(BorutaPy):
