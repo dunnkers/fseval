@@ -1,6 +1,7 @@
 import copy
 import sys
 import time
+from logging import Logger, getLogger
 from typing import Dict, Optional
 
 from fseval.types import Callback
@@ -45,6 +46,13 @@ class WandbCallback(Callback):
         # not want to log metrics, but just update the tables instead.
         kwargs.setdefault("log_metrics", True)
         self.log_metrics = kwargs.pop("log_metrics")
+
+        if not self.log_metrics:
+            logger: Logger = getLogger(__name__)
+            logger.warn(
+                "logging metrics was disabled by user: "
+                + "logging only summary and tables to wandb."
+            )
 
         # the `kwargs` are passed to `wandb.init`
         self.callback_config = kwargs
