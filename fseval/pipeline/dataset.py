@@ -7,7 +7,7 @@ import numpy as np
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
 
-from fseval.types import (Task, TerminalColor)
+from fseval.types import Task, TerminalColor
 
 
 @dataclass

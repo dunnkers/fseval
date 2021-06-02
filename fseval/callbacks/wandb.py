@@ -1,11 +1,12 @@
 import copy
 import sys
+import time
 from typing import Dict, Optional
 
-import wandb
+from fseval.types import Callback
 from omegaconf import OmegaConf
 
-from fseval.types import Callback
+import wandb
 
 
 # Recursive dictionary merge
@@ -40,6 +41,12 @@ class WandbCallback(Callback):
         kwargs = OmegaConf.create(kwargs)
         kwargs = OmegaConf.to_container(kwargs)
 
+        # whether to log metrics. in the case of a resumation run, a user might probably
+        # not want to log metrics, but just update the tables instead.
+        kwargs.setdefault("log_metrics", True)
+        self.log_metrics = kwargs.pop("log_metrics")
+
+        # the `kwargs` are passed to `wandb.init`
         self.callback_config = kwargs
 
     def on_begin(self):
@@ -62,8 +69,13 @@ class WandbCallback(Callback):
         dict_merge(wandb.config, config)
 
     def on_metrics(self, metrics):
-        if isinstance(metrics, Dict):
+        if not self.log_metrics:
+            return
+        elif isinstance(metrics, Dict):
             wandb.log(metrics)
+
+            # take wandb rate limiting into account: sleep to prevent getting limited
+            time.sleep(1.5)
         else:
             raise ValueError(f"Incorrect metric type passed: {type(metrics)}")
 

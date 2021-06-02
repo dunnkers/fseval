@@ -11,8 +11,12 @@ from fseval.config import BaseConfig
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.pipelines._callback_collection import CallbackCollection
-from fseval.types import (AbstractPipeline, AbstractStorageProvider,
-                          IncompatibilityError, TerminalColor)
+from fseval.types import (
+    AbstractPipeline,
+    AbstractStorageProvider,
+    IncompatibilityError,
+    TerminalColor,
+)
 
 
 @hydra.main(config_path="conf", config_name="my_config")
