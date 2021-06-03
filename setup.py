@@ -18,15 +18,15 @@ with open("README.md", "r") as fh:
         install_requires=[
             "hydra-core==1.1.0.rc1",
             "hydra-colorlog==1.1.0.dev1",
-            "numpy==1.20.2",
-            "pandas==1.2.4",
-            "scikit-learn==0.24.2",
-            "humanfriendly==9.1",
+            "numpy>=1.19",
+            "pandas>=1.1",
+            "scikit-learn>=0.24",
+            "humanfriendly>=9.1",
             # callbacks / storage providers / adapter
-            "wandb==0.10.31",
+            "wandb>=0.10.31",
             # adapters
-            "openml==0.12.1",
-            "l2x-synthetic==2.0.0",
+            "openml>=0.12",
+            "l2x-synthetic>=2.0.0",
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
