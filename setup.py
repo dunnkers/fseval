@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
         long_description_content_type="text/markdown",
         license="MIT",
         author="Jeroen Overschie",
-        url="https://dunnkers.com/",
+        url="https://github.com/dunnkers/fseval",
         include_package_data=True,
         install_requires=[
             "hydra-core==1.1.0.rc1",

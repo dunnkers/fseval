@@ -1,9 +1,0 @@
-name: Dresses sales
-task: classification
-adapter:
-  _target_: fseval.adapters.OpenML
-  dataset_id: 23381
-  target_column: Class
-# tags
-group: OpenML-CC18
-domain: sales

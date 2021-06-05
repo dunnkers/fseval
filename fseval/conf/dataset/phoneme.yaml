@@ -1,0 +1,7 @@
+name: Phoneme
+task: classification
+domain: biomedical
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 1489
+  target_column: Class

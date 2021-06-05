@@ -16,7 +16,7 @@ fseval --help
 
 Now, create a [wandb](https://wandb.ai/) account and login to the CLI. We are now able to run benchmarks 💪🏻. The results will automatically be uploaded to the wandb dashboard.
 
-Run ReliefF on Iris dataset:
+Run ANOVA F-Value on Iris dataset:
 ```shell
 fseval dataset=iris estimator@pipeline.ranker=anova_f_value
 ```

@@ -1,0 +1,7 @@
+name: Madelon
+task: classification
+domain: synthetic
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 1485
+  target_column: Class

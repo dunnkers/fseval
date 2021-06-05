@@ -1,0 +1,7 @@
+name: Nomao
+task: classification
+domain: geodata
+adapter:
+  _target_: fseval.adapters.OpenML
+  dataset_id: 1486
+  target_column: Class
