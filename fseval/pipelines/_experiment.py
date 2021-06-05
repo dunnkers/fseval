@@ -1,19 +1,20 @@
+import multiprocessing
 from dataclasses import dataclass, field
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
-from humanfriendly import format_timespan
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
+from humanfriendly import format_timespan
 
 
 @dataclass
 class Experiment(AbstractEstimator):
     estimators: List[AbstractEstimator] = field(default_factory=lambda: [])
     logger: Logger = getLogger(__name__)
+    n_jobs: Optional[int] = None
 
     def __post_init__(self):
         self.estimators = list(self._get_estimator())
@@ -51,6 +52,19 @@ class Experiment(AbstractEstimator):
     def _prepare_data(self, X, y):
         return X, y
 
+    def _fit_estimator(self, X, y, step_number, estimator):
+        logger = self._logger(estimator)
+        text = self._step_text("fit", step_number, estimator)
+
+        start_time = perf_counter()
+        estimator.fit(X, y)
+        fit_time = perf_counter() - start_time
+        setattr(estimator, "fit_time_", fit_time)
+
+        logger(text(fit_time))
+
+        return estimator
+
     def fit(self, X, y) -> AbstractEstimator:
         """Sequentially fits all estimators in this experiment, and record timings;
         which will be stored in a `fit_time_` attribute in each estimator itself.
@@ -61,16 +75,28 @@ class Experiment(AbstractEstimator):
 
         X, y = self._prepare_data(X, y)
 
-        for step_number, estimator in enumerate(self.estimators):
-            logger = self._logger(estimator)
-            text = self._step_text("fit", step_number, estimator)
+        if self.n_jobs is not None:
+            assert (
+                self.n_jobs >= 1 or self.n_jobs == -1
+            ), f"incorrect `n_jobs`: {self.n_jobs}"
 
-            start_time = perf_counter()
-            estimator.fit(X, y)
-            fit_time = perf_counter() - start_time
-            setattr(estimator, "fit_time_", fit_time)
+            cpus = multiprocessing.cpu_count() if self.n_jobs == -1 else self.n_jobs
+            self.logger.info(f"Using {cpus} CPU's in parallel (n_jobs={self.n_jobs})")
 
-            logger(text(fit_time))
+            star_input = [
+                (X, y, step_number, estimator)
+                for step_number, estimator in enumerate(self.estimators)
+            ]
+
+            pool = multiprocessing.Pool(processes=cpus)
+            estimators = pool.starmap(self._fit_estimator, star_input)
+            pool.close()
+            pool.join()
+
+            self.estimators = estimators
+        else:
+            for step_number, estimator in enumerate(self.estimators):
+                self._fit_estimator(X, y, step_number, estimator)
 
         return self
 

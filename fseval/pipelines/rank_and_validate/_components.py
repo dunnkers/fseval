@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import List, cast
+from typing import List, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -127,6 +127,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     that various metrics can be better approximated."""
 
     logger: Logger = getLogger(__name__)
+    n_jobs: Optional[int] = -1  # utilize all CPU's
 
     def _get_estimator(self):
         for bootstrap_state in np.arange(1, self.n_bootstraps + 1):

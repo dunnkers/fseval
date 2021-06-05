@@ -3,9 +3,9 @@ from logging import Logger, getLogger
 from pickle import dump, load
 from typing import Any, Callable, Dict
 
-import wandb
-
 from fseval.types import AbstractStorageProvider
+
+import wandb
 
 
 class WandbStorageProvider(AbstractStorageProvider):
@@ -18,6 +18,9 @@ class WandbStorageProvider(AbstractStorageProvider):
         super(WandbStorageProvider, self).set_config(config)
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
+        if __name__ != "__main__":
+            return
+
         filedir = wandb.run.dir  # type: ignore
         filepath = os.path.join(filedir, filename)
 
@@ -50,6 +53,9 @@ class WandbStorageProvider(AbstractStorageProvider):
             return None
 
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
+        if __name__ != "__main__":
+            return
+
         file_handle = self._get_restore_file_handle(filename)
 
         if not file_handle:
