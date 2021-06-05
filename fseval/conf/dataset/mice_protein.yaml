@@ -1,8 +1,0 @@
-name: Mice Protein
-group: OpenML-CC18
-task: classification
-domain: biological
-adapter:
-  _target_: fseval.adapters.OpenML
-  dataset_id: 40996
-  target_column: class

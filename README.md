@@ -37,11 +37,30 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 [Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git@master matplotlib` (ℹ️) | `estimator@pipeline.ranker=stability_selection`
 [TabNet](https://github.com/dreamquark-ai/tabnet) | `pip install pytorch-tabnet` | `estimator@pipeline.ranker=tabnet`
 [XGBoost](https://xgboost.readthedocs.io/) | `pip install xgboost` | `estimator@pipeline.ranker=xgb`
+[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git@master` (ℹ️) | `estimator@pipeline.ranker=infinite_selection`
 
 
 ℹ️ This library was customized to make it compatible with the fseval pipeline.
 
 If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
+## Wandb support
+Wandb is enabled by default. It's used to store metrics, but also files. Set any parameter to be passed to `wandb.init` like so:
+
+```shell
+fseval callbacks.wandb.project=<your-project-name> callbacks.wandb.group=<run-group>
+```
+
+Runs can be restored as follows:
+
+```shell
+fseval callbacks.wandb.id=<wandb_run_id> callbacks.wandb.log_metrics=false
+```
+→ make sure the rest of the config is the same as the previous run. You can now overwrite tables.
+
+To disable wandb, use:
+```shell
+fseval "~callbacks.wandb" "storage_provider=mock"
+```
 ### About
 Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis (_Data Science and Computational Complexity_ track at the University of Groningen).
