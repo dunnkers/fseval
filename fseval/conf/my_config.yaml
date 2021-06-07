@@ -6,7 +6,7 @@ hydra:
 
 defaults:
   - base_config
-  - dataset: iris
+  - dataset: synclf_easy
   - cv: kfold
   - pipeline: rank_and_validate
   - callbacks:

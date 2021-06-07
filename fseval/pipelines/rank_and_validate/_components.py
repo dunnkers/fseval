@@ -142,6 +142,22 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     def _get_overrides_text(self, estimator):
         return f"[bootstrap_state={estimator.bootstrap_state}] "
 
+    def _get_ranker_attribute_table(self, attribute: str, attribute_name: str):
+        attribute_table = pd.DataFrame()
+
+        for rank_and_validate in self.estimators:
+            ranker = rank_and_validate.ranker
+            attribute_value = getattr(ranker, attribute)
+            attribute_data = {
+                "bootstrap_state": rank_and_validate.bootstrap_state,
+                "feature_index": np.arange(1, self.dataset.p + 1),
+            }
+            attribute_data[attribute_name] = attribute_value
+            attribute_row = pd.DataFrame(attribute_data)
+            attribute_table = attribute_table.append(attribute_row)
+
+        return attribute_table
+
     def score(self, X, y):
         scores = super(BootstrappedRankAndValidate, self).score(X, y)
         self.storage_provider.save(
@@ -203,21 +219,12 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         if wandb_callback:
             wandb_callback = cast(WandbCallback, wandb_callback)
 
-            ### upload summary as table: meta data and best scores
-            # metadata
-            metadata = dict()
-            metadata["ranker.name"] = self.ranker.name
-            metadata["validator.name"] = self.validator.name
-            metadata["dataset.name"] = self.dataset.name
-            metadata_df = pd.DataFrame([metadata])
-            # best scores
+            ### upload best scores
             best_subset_prefixed = best_subset.add_prefix("validator.")
             best_ranker_prefixed = best_ranker.add_prefix("ranker.")
             best_scores = pd.concat([best_subset_prefixed, best_ranker_prefixed])
             best_scores_df = pd.DataFrame([best_scores])
-            # upload tabular summary
-            tabular_summary = best_scores_df.assign(**metadata_df)
-            wandb_callback.upload_table(tabular_summary, "tabular_summary")
+            wandb_callback.upload_table(best_scores_df, "best_scores")
 
             ### upload ranking scores
             wandb_callback.upload_table(ranking_scores.reset_index(), "ranking_scores")
@@ -227,7 +234,28 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
             ### upload mean validation scores
             all_agg_val_scores = agg_val_scores.reset_index()
-            all_agg_val_scores = all_agg_val_scores.assign(**metadata)
-            wandb_callback.upload_table(all_agg_val_scores, "mean_validation_scores")
+            wandb_callback.upload_table(all_agg_val_scores, "validation_scores_mean")
+
+            ### upload raw rankings
+            # feature importances
+            if self.ranker.estimates_feature_importances:
+                importances_table = self._get_ranker_attribute_table(
+                    "feature_importances_", "feature_importances"
+                )
+                wandb_callback.upload_table(importances_table, "feature_importances")
+
+            # feature support
+            if self.ranker.estimates_feature_support:
+                support_table = self._get_ranker_attribute_table(
+                    "feature_support_", "feature_support"
+                )
+                wandb_callback.upload_table(support_table, "feature_support")
+
+            # feature ranking
+            if self.ranker.estimates_feature_ranking:
+                ranking_table = self._get_ranker_attribute_table(
+                    "feature_ranking_", "feature_ranking"
+                )
+                wandb_callback.upload_table(ranking_table, "feature_ranking")
 
         return summary

@@ -1,7 +1,7 @@
 defaults:
   - base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: relieff
+  - /estimator@ranker: boruta
   - /estimator@validator: decision_tree
 n_bootstraps: 2
 all_features_to_select: range(1, min(50, p) + 1)
