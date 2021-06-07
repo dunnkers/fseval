@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from typing import Optional
 
 from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
 from fseval.pipeline.resample import Resample, ResampleConfig
@@ -20,6 +21,7 @@ class RankAndValidateConfig:
     ranker: TaskedEstimatorConfig = MISSING
     validator: TaskedEstimatorConfig = MISSING
     n_bootstraps: int = MISSING
+    n_jobs: Optional[int] = MISSING
     all_features_to_select: str = MISSING
 
 
@@ -33,6 +35,7 @@ class RankAndValidatePipeline(Pipeline):
     ranker: Estimator = MISSING
     validator: Estimator = MISSING
     n_bootstraps: int = MISSING
+    n_jobs: Optional[int] = MISSING
     all_features_to_select: str = MISSING
 
     def _get_config(self):

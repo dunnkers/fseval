@@ -30,20 +30,24 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
         super(RankingValidator, self).__post_init__()
 
+    @property
+    def _cache_filename(self):
+        override = f"bootstrap_state={self.bootstrap_state}"
+        filename = f"ranking[{override}].pickle"
+
+        return filename
+
     def _get_estimator(self):
         yield self.ranker
 
-    def fit(self, X, y):
-        override = f"bootstrap_state={self.bootstrap_state}"
-        filename = f"ranking[{override}].pickle"
-        restored = self.storage_provider.restore_pickle(filename)
+    def prefit(self):
+        self.ranker._load_cache(self._cache_filename, self.storage_provider)
 
-        if restored:
-            self.ranker.estimator = restored
-            self.logger.info("restored ranking from storage provider ✓")
-        else:
-            super(RankingValidator, self).fit(X, y)
-            self.storage_provider.save_pickle(filename, self.ranker.estimator)
+    def fit(self, X, y):
+        super(RankingValidator, self).fit(X, y)
+
+    def postfit(self):
+        self.ranker._save_cache(self._cache_filename, self.storage_provider)
 
     def _scores_to_ranking(self, scores):
         """Converts a scoring vector to a ranking vector, or standardizes an existing

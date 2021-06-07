@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import List, cast
+from typing import List, Optional, cast
 
 import numpy as np
 import pandas as pd
 from fseval.callbacks import WandbCallback
 from fseval.pipeline.estimator import Estimator
+from fseval.types import TerminalColor
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
@@ -116,7 +117,9 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         scores = scores.append(validation_score)
         scores["bootstrap_state"] = self.bootstrap_state
 
-        self.logger.info(f"scored bootstrap_state={self.bootstrap_state} ✓")
+        self.logger.info(
+            f"scored bootstrap_state={self.bootstrap_state} " + TerminalColor.green("✓")
+        )
         return scores
 
 
@@ -127,6 +130,11 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     that various metrics can be better approximated."""
 
     logger: Logger = getLogger(__name__)
+
+    def _get_n_jobs(self):
+        """Allow each bootstrap experiment to run on a separate CPU."""
+
+        return self.n_jobs
 
     def _get_estimator(self):
         for bootstrap_state in np.arange(1, self.n_bootstraps + 1):

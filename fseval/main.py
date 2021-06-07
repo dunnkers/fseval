@@ -82,18 +82,24 @@ def main(cfg: BaseConfig) -> None:
     X_train, X_test, y_train, y_test = cv.train_test_split(X, y)
 
     try:
+        logger.info(f"pipeline {TerminalColor.cyan('prefit')}...")
+        pipeline.prefit()
+        logger.info(f"pipeline {TerminalColor.cyan('fit')}...")
         pipeline.fit(X_train, y_train)
+        logger.info(f"pipeline {TerminalColor.cyan('postfit')}...")
+        pipeline.postfit()
+        logger.info(f"pipeline {TerminalColor.cyan('score')}...")
+        scores = pipeline.score(X_test, y_test)
     except Exception as e:
         print_exc()
         logger.error(e)
         logger.info(
-            "error occured during pipeline fitting step... "
+            "error occured during pipeline `prefit`, `fit` or `score` step... "
             + "exiting with a status code 1."
         )
         callbacks.on_end(exit_code=1)
         raise e
 
-    scores = pipeline.score(X_test, y_test)
     logger.info(f"{pipeline_name} pipeline finished {TerminalColor.green('✓')}")
     callbacks.on_summary(scores)
     callbacks.on_end()

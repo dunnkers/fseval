@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
 import numpy as np
-from omegaconf import MISSING
-from sklearn.feature_selection import SelectFromModel
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import IncompatibilityError
+from omegaconf import MISSING
+from sklearn.feature_selection import SelectFromModel
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -57,18 +56,22 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
         X = selector.transform(X)
         return X, y
 
-    def fit(self, X, y):
+    @property
+    def _cache_filename(self):
         override = f"bootstrap_state={self.bootstrap_state}"
         override += f",n_features_to_select={self.n_features_to_select}"
         filename = f"validation[{override}].pickle"
-        restored = self.storage_provider.restore_pickle(filename)
 
-        if restored:
-            self.validator.estimator = restored
-            self.logger.info("restored validator from storage provider ✓")
-        else:
-            super(SubsetValidator, self).fit(X, y)
-            self.storage_provider.save_pickle(filename, self.validator.estimator)
+        return filename
+
+    def prefit(self):
+        self.validator._load_cache(self._cache_filename, self.storage_provider)
+
+    def fit(self, X, y):
+        super(SubsetValidator, self).fit(X, y)
+
+    def postfit(self):
+        self.validator._save_cache(self._cache_filename, self.storage_provider)
 
     def score(self, X, y):
         score = super(SubsetValidator, self).score(X, y)

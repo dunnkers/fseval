@@ -1,7 +1,8 @@
+import multiprocessing
 from dataclasses import dataclass, field
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
@@ -16,6 +17,9 @@ class Experiment(AbstractEstimator):
 
     def __post_init__(self):
         self.estimators = list(self._get_estimator())
+
+    def _get_n_jobs(self):
+        return None
 
     def _get_estimator(self):
         return []
@@ -51,7 +55,29 @@ class Experiment(AbstractEstimator):
         )
 
     def _prepare_data(self, X, y):
+        """Callback. Can be used to implement any data preparation schemes."""
         return X, y
+
+    def prefit(self):
+        """Pre-fit hook. Is executed right before calling `fit()`. Can be used to load
+        estimators from cache or do any other preparatory work."""
+
+        for estimator in self.estimators:
+            if hasattr(estimator, "prefit") and callable(getattr(estimator, "prefit")):
+                estimator.prefit()
+
+    def _fit_estimator(self, X, y, step_number, estimator):
+        logger = self._logger(estimator)
+        text = self._step_text("fit", step_number, estimator)
+
+        start_time = perf_counter()
+        estimator.fit(X, y)
+        fit_time = perf_counter() - start_time
+        setattr(estimator, "fit_time_", fit_time)
+
+        logger(text(fit_time))
+
+        return estimator
 
     def fit(self, X, y) -> AbstractEstimator:
         """Sequentially fits all estimators in this experiment, and record timings;
@@ -63,18 +89,40 @@ class Experiment(AbstractEstimator):
 
         X, y = self._prepare_data(X, y)
 
-        for step_number, estimator in enumerate(self.estimators):
-            logger = self._logger(estimator)
-            text = self._step_text("fit", step_number, estimator)
+        ## Run `fit`
+        n_jobs = self._get_n_jobs()
+        if n_jobs is not None:
+            assert n_jobs >= 1 or n_jobs == -1, f"incorrect `n_jobs`: {n_jobs}"
 
-            start_time = perf_counter()
-            estimator.fit(X, y)
-            fit_time = perf_counter() - start_time
-            setattr(estimator, "fit_time_", fit_time)
+            cpus = multiprocessing.cpu_count() if n_jobs == -1 else n_jobs
+            self.logger.info(f"Using {cpus} CPU's in parallel (n_jobs={n_jobs})")
 
-            logger(text(fit_time))
+            star_input = [
+                (X, y, step_number, estimator)
+                for step_number, estimator in enumerate(self.estimators)
+            ]
+
+            pool = multiprocessing.Pool(processes=cpus)
+            estimators = pool.starmap(self._fit_estimator, star_input)
+            pool.close()
+            pool.join()
+
+            self.estimators = estimators
+        else:
+            for step_number, estimator in enumerate(self.estimators):
+                self._fit_estimator(X, y, step_number, estimator)
 
         return self
+
+    def postfit(self):
+        """Post-fit hook. Is executed right after calling `fit()`. Can be used to save
+        estimators to cache, for example."""
+
+        for estimator in self.estimators:
+            if hasattr(estimator, "postfit") and callable(
+                getattr(estimator, "postfit")
+            ):
+                estimator.postfit()
 
     def transform(self, X, y):
         ...
