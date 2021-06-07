@@ -8,14 +8,22 @@ from hydra.core.object_type import ObjectType
 from hydra.types import RunMode
 from omegaconf import DictConfig, OmegaConf
 
+"""Helper functions for Hydra-related operations. e.g. finding out what optionsa are
+available for some group, or getting a specific config for some group item. Enables
+fully automated testing of group configs.
+
+Author: Jeroen Overschie"""
+
 
 def _ensure_hydra_initialized() -> None:
+    """Initializes Hydra only if it is not already initialized."""
     gh = GlobalHydra()
     if not gh.is_initialized():
         initialize_config_module(config_module="fseval.conf", job_name="fseval_tests")
 
 
 def _get_config_loader() -> ConfigLoader:
+    """Grabs the Hydra `ConfigLoader`."""
     _ensure_hydra_initialized()
     gh = GlobalHydra()
     cl = gh.config_loader()
@@ -23,6 +31,8 @@ def _get_config_loader() -> ConfigLoader:
 
 
 def get_config() -> BaseConfig:
+    """Gets the fseval configuration as composed by Hydra. Local .yaml configuration
+    and defaults are automatically merged."""
     _ensure_hydra_initialized()
     config = compose(config_name="my_config")
     return config  # type: ignore
@@ -47,6 +57,10 @@ def get_single_config(group_name: str, option_name: str) -> DictConfig:
 def get_group_options(
     group_name: str, results_filter: Optional[ObjectType] = ObjectType.CONFIG
 ) -> List[str]:
+    """Gets the options for a certain grouop.
+
+    e.g. `get_group_options(<dataset_name>)` returns a list with all
+    available dataset names for use in fseval."""
     cl = _get_config_loader()
     group_options = cl.get_group_options(group_name)
     return group_options
@@ -55,6 +69,7 @@ def get_group_options(
 def get_group_configs(
     group_name: str, results_filter: Optional[ObjectType] = ObjectType.CONFIG
 ) -> List[DictConfig]:
+    """Gets the configs related to a certain group, as `DictConfig`'s."""
     group_options = get_group_options(group_name)
     group_configs = [
         get_single_config(group_name, option_name) for option_name in group_options
@@ -63,12 +78,17 @@ def get_group_configs(
 
 
 class TestGroupItem:
+    """Base class to test a single group item, e.g. a single dataset or estimator."""
+
     @staticmethod
     def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
         return cfg
 
 
 def generate_group_tests(group_name: str, metafunc):
+    """Function to be used with `pytest_generate_tests` in order togenerate Pytest
+    tests dynamically."""
+
     all_cfgs = get_group_configs(group_name)
 
     pytest_ids = []

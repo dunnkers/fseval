@@ -8,7 +8,7 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from sklearn.base import clone
 from sklearn.preprocessing import minmax_scale
-from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
+from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
 
 
 def pytest_generate_tests(metafunc):

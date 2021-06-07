@@ -5,7 +5,7 @@ import pytest
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from hydra.utils import instantiate
 from omegaconf import DictConfig
-from tests.integration.hydra_utils import TestGroupItem, generate_group_tests
+from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
 
 
 def pytest_generate_tests(metafunc):
