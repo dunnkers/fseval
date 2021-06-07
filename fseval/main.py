@@ -17,6 +17,7 @@ from fseval.types import (
     IncompatibilityError,
     TerminalColor,
 )
+from fseval.utils.dict_utils import dict_flatten
 
 
 @hydra.main(config_path="conf", config_name="my_config")
@@ -44,6 +45,7 @@ def main(cfg: BaseConfig) -> None:
     pipeline_cfg = prepared_cfg.pop("pipeline")
     prepared_cfg = {**pipeline_cfg, **prepared_cfg}
     prepared_cfg["pipeline"] = prepared_cfg.pop("name")
+    prepared_cfg = dict_flatten(prepared_cfg, sep="/")
     callbacks.set_config(prepared_cfg)
 
     # instantiate storage provider
