@@ -188,7 +188,6 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         ##### Summary
         best = {}
         # best validator
-        all_agg_val_scores = agg_val_scores.reset_index()
         best_subset_index = validation_scores["score"].argmax()
         best_subset = validation_scores.iloc[best_subset_index]
         best["validator"] = best_subset.to_dict()
@@ -225,5 +224,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
             ### upload validation scores
             wandb_callback.upload_table(validation_scores, "validation_scores")
+
+            ### upload mean validation scores
+            all_agg_val_scores = agg_val_scores.reset_index()
+            all_agg_val_scores = all_agg_val_scores.assign(**metadata)
+            wandb_callback.upload_table(all_agg_val_scores, "mean_validation_scores")
 
         return summary
