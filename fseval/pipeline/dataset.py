@@ -4,9 +4,10 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-from fseval.types import Task, TerminalColor
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
+
+from fseval.types import Task, TerminalColor
 
 
 @dataclass

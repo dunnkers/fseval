@@ -1,7 +1,8 @@
-from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
-from fseval.types import Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
+
+from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
+from fseval.types import Task
 
 
 def test_estimator_initiation():

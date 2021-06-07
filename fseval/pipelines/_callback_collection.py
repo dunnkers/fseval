@@ -1,6 +1,5 @@
 from typing import Any, Dict, Optional
 
-
 from fseval.types import Callback
 
 

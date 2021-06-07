@@ -1,6 +1,4 @@
-import numpy as np
 import pytest
-from hydra.utils import instantiate
 from omegaconf import DictConfig
 
 from fseval.config import BaseConfig

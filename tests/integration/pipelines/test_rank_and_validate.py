@@ -1,5 +1,9 @@
 import numpy as np
 import pytest
+from hydra.utils import instantiate
+from omegaconf import OmegaConf
+from sklearn.model_selection import ShuffleSplit
+
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset
 from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
@@ -14,9 +18,6 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
-from hydra.utils import instantiate
-from omegaconf import OmegaConf
-from sklearn.model_selection import ShuffleSplit
 
 
 class MockRanker(AbstractEstimator):

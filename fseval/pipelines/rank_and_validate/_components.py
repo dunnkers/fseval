@@ -1,74 +1,20 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import List, Optional, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
-from fseval.callbacks import WandbCallback
-from fseval.pipeline.estimator import Estimator
-from fseval.types import TerminalColor
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
 
+from fseval.callbacks import WandbCallback
+from fseval.types import TerminalColor
+
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
+from ._dataset_validator import DatasetValidator
 from ._ranking_validator import RankingValidator
-from ._subset_validator import SubsetValidator
-
-
-@dataclass
-class DatasetValidator(Experiment, RankAndValidatePipeline):
-    """Validates an entire dataset, given a fitted ranker and its feature ranking. Fits
-    at most `p` feature subsets, at each step incrementally including more top-features."""
-
-    bootstrap_state: int = MISSING
-
-    def _get_all_features_to_select(self, n: int, p: int) -> List[int]:
-        """parse all features to select from config"""
-        # set using `exec`
-        localz = locals()
-        exec(
-            f"all_features_to_select = {self.all_features_to_select}",
-            globals(),
-            localz,
-        )
-        all_features_to_select = localz["all_features_to_select"]
-        all_features_to_select = cast(List[int], all_features_to_select)
-        all_features_to_select = list(all_features_to_select)
-
-        assert (
-            all_features_to_select
-        ), f"Incorrect `all_features_to_select` string: {self.all_features_to_select}"
-
-        return all_features_to_select
-
-    def _get_estimator(self):
-        all_features_to_select = self._get_all_features_to_select(
-            self.dataset.n, self.dataset.p
-        )
-
-        # validate all subsets
-        for n_features_to_select in all_features_to_select:
-            config = self._get_config()
-            validator = config.pop("validator")
-
-            yield SubsetValidator(
-                **config,
-                validator=clone(validator),
-                n_features_to_select=n_features_to_select,
-                bootstrap_state=self.bootstrap_state,
-            )
-
-    def _get_estimator_repr(self, estimator):
-        return Estimator._get_estimator_repr(estimator.validator)
-
-    def _get_overrides_text(self, estimator):
-        return f"[n_features_to_select={estimator.n_features_to_select}] "
-
-    def score(self, X, y):
-        scores = super(DatasetValidator, self).score(X, y)
-        return scores
 
 
 @dataclass

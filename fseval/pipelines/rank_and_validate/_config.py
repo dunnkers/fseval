@@ -2,9 +2,10 @@ import logging
 from dataclasses import dataclass
 from typing import Optional
 
+from omegaconf import MISSING
+
 from fseval.pipeline.estimator import Estimator, TaskedEstimatorConfig
 from fseval.pipeline.resample import Resample, ResampleConfig
-from omegaconf import MISSING
 
 from .._pipeline import Pipeline
 

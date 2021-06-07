@@ -2,12 +2,12 @@ from typing import Optional
 
 import numpy as np
 import pytest
-from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimatorConfig
-from fseval.types import Task
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from sklearn.base import clone
-from sklearn.preprocessing import minmax_scale
+
+from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimatorConfig
+from fseval.types import Task
 from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
 
 

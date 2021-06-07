@@ -1,7 +1,5 @@
-from sklearn.base import BaseEstimator
-from sklearn.feature_selection import chi2
-
 from infinite_selection import InfFS
+from sklearn.base import BaseEstimator
 
 
 class InfiniteSelectionEstimator(BaseEstimator):
