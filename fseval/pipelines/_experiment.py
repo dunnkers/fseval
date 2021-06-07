@@ -4,10 +4,9 @@ from time import perf_counter
 from typing import List
 
 import pandas as pd
-from humanfriendly import format_timespan
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
+from humanfriendly import format_timespan
 
 
 @dataclass
@@ -31,6 +30,9 @@ class Experiment(AbstractEstimator):
         return lambda text: getLogger(type(estimator).__name__).info(text)
 
     def _step_text(self, step_name, step_number, estimator):
+        """Provides a console logging string for logging during an experiment phase,
+        like in `fit` or `score`. Adds coloring and fit times to stdout."""
+
         # step text variables
         step = step_number + 1
         n_steps = len(self.estimators)
