@@ -3,16 +3,22 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Optional
 
+from fseval.types import (
+    AbstractEstimator,
+    AbstractStorageProvider,
+    IncompatibilityError,
+    Task,
+)
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
-
-from fseval.types import AbstractEstimator, IncompatibilityError, Task
 
 
 @dataclass
 class EstimatorConfig:
     estimator: Any = None  # must have _target_ of type BaseEstimator.
+    use_cache_if_available: bool = True
+    # tags
     multioutput: Optional[bool] = None
     multioutput_only: Optional[bool] = None
     requires_positive_X: Optional[bool] = None
@@ -30,6 +36,7 @@ class TaskedEstimatorConfig(EstimatorConfig):
     name: str = MISSING
     classifier: Optional[EstimatorConfig] = None
     regressor: Optional[EstimatorConfig] = None
+    use_cache_if_available: bool = True
     # tags
     multioutput: Optional[bool] = False
     multioutput_only: Optional[bool] = False
@@ -51,6 +58,7 @@ class Estimator(AbstractEstimator, EstimatorConfig):
     task: Task = MISSING
 
     logger: Logger = getLogger(__name__)
+    _is_fitted: bool = False
 
     @classmethod
     def _get_estimator_repr(cls, estimator):
@@ -66,13 +74,27 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         class_name = type(estimator).__name__
         return f"{module_name}.{class_name}"
 
+    def _load_cache(self, filename: str, storage_provider: AbstractStorageProvider):
+        restored = storage_provider.restore_pickle(filename)
+        self.estimator = restored or self.estimator
+        self._is_fitted = restored
+
+    def _save_cache(self, filename: str, storage_provider: AbstractStorageProvider):
+        storage_provider.save_pickle(filename, self.estimator)
+
     def fit(self, X, y):
+        # don't refit if cache available and `use_cache_if_available` is enabled
+        if self._is_fitted and self.use_cache_if_available:
+            return self
+
+        # rescale if necessary
         if self.requires_positive_X:
             X = minmax_scale(X)
             self.logger.info(
                 "rescaled X: this estimator strictly requires positive features."
             )
 
+        # fit
         self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")
         self.estimator.fit(X, y)
         return self
