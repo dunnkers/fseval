@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
@@ -12,6 +12,7 @@ from fseval.pipelines.rank_and_validate import RankAndValidateConfig
 @dataclass
 class StorageProviderConfig:
     _target_: str = MISSING
+    local_dir: Optional[str] = None
 
 
 @dataclass

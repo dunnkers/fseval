@@ -4,12 +4,11 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
+from fseval.callbacks import WandbCallback
+from fseval.types import TerminalColor
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
-
-from fseval.callbacks import WandbCallback
-from fseval.types import TerminalColor
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -168,9 +167,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         # summary
         summary = dict(best=best)
 
-        ##### Upload tables
         wandb_callback = getattr(self.callbacks, "wandb", False)
         if wandb_callback:
+            ##### Upload tables
+            self.logger.info(f"Uploading tables to wandb...")
             wandb_callback = cast(WandbCallback, wandb_callback)
 
             ### upload best scores
@@ -211,5 +211,6 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
                     "feature_ranking_", "feature_ranking"
                 )
                 wandb_callback.upload_table(ranking_table, "feature_ranking")
+            self.logger.info(f"Tables uploaded {TerminalColor.green('✓')}")
 
         return summary
