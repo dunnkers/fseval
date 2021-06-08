@@ -17,9 +17,17 @@ class WandbStorageProvider(AbstractStorageProvider):
     Arguments:
         local_dir: Optional[str] - when set, an attempt is made to load from the
         designated local directory first, before downloading the data off of wandb. Can
-        be used to perform faster loads or prevent being rate-limited on wandb."""
+        be used to perform faster loads or prevent being rate-limited on wandb.
+
+        wandb_entity: Optional[str] - allows you to recover from a specific entity,
+        instead of using the entity that is set for the 'current' run.
+        wandb_project: Optional[str] - idem
+        wandb_run_id: Optional[str] - idem"""
 
     local_dir: Optional[str] = None
+    wandb_entity: Optional[str] = None
+    wandb_project: Optional[str] = None
+    wandb_run_id: Optional[str] = None
     logger: Logger = getLogger(__name__)
 
     def _assert_wandb_available(self):
@@ -55,7 +63,13 @@ class WandbStorageProvider(AbstractStorageProvider):
 
     def _get_restore_file_handle(self, filename: str):
         try:
-            file_handle = wandb.restore(filename)
+            entity = self.wandb_entity or wandb.run.entity  # type: ignore
+            project = self.wandb_project or wandb.run.project  # type: ignore
+            run_id = self.wandb_run_id or wandb.run.id  # type: ignore
+
+            file_handle = wandb.restore(
+                filename, run_path=f"{entity}/{project}/{run_id}"
+            )
             return file_handle
         except ValueError as err:
             config = self.config
@@ -115,8 +129,10 @@ class WandbStorageProvider(AbstractStorageProvider):
             )
 
             return file
+
         # (2) otherwise, restore by downloading from wandb
-        elif self._wandb_restoration(filename, reader, mode):
+        file = self._wandb_restoration(filename, reader, mode)
+        if file:
             self.logger.info(
                 f"successfully restored {TerminalColor.yellow(filename)} from "
                 + TerminalColor.blue("wandb servers ")
@@ -124,8 +140,9 @@ class WandbStorageProvider(AbstractStorageProvider):
             )
 
             return file
-        else:
-            return None
+
+        # (3) if no cache is available anywhere, return None.
+        return None
 
     def restore_pickle(self, filename: str) -> Any:
         return self.restore(filename, load, mode="rb")

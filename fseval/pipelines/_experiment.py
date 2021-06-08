@@ -5,10 +5,9 @@ from time import perf_counter
 from typing import List
 
 import pandas as pd
-from humanfriendly import format_timespan
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
+from humanfriendly import format_timespan
 
 
 @dataclass
@@ -92,7 +91,7 @@ class Experiment(AbstractEstimator):
 
         ## Run `fit`
         n_jobs = self._get_n_jobs()
-        if n_jobs is not None:
+        if n_jobs is not None and (n_jobs > 1 or n_jobs == -1):
             assert n_jobs >= 1 or n_jobs == -1, f"incorrect `n_jobs`: {n_jobs}"
 
             cpus = multiprocessing.cpu_count() if n_jobs == -1 else n_jobs

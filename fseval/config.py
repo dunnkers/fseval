@@ -10,19 +10,15 @@ from fseval.pipelines.rank_and_validate import RankAndValidateConfig
 
 
 @dataclass
-class StorageProviderConfig:
-    _target_: str = MISSING
-    local_dir: Optional[str] = None
-
-
-@dataclass
 class BaseConfig:
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     pipeline: Any = MISSING
     callbacks: Dict = field(default_factory=lambda: dict())
-    storage_provider: StorageProviderConfig = StorageProviderConfig(
-        _target_="fseval.storage_providers.mock.MockStorageProvider"
+    storage_provider: Any = field(
+        default_factory=lambda: dict(
+            _target_="fseval.storage_providers.mock.MockStorageProvider"
+        )
     )
 
 
