@@ -1,10 +1,11 @@
 from typing import Any, Dict, Optional
 
 from fseval.types import Callback
+from omegaconf import DictConfig
 
 
 class CallbackCollection(Callback):
-    def __init__(self, callbacks: Dict = {}):
+    def __init__(self, **callbacks):
         super(CallbackCollection, self).__init__()
 
         callback_names = []
@@ -18,15 +19,9 @@ class CallbackCollection(Callback):
     def _iterator(self):
         return [getattr(self, callback_name) for callback_name in self.callback_names]
 
-    def set_config(self, config: Dict):
-        self.config = config
-
+    def on_begin(self, config: DictConfig):
         for callback in self._iterator:
-            callback.set_config(config)
-
-    def on_begin(self):
-        for callback in self._iterator:
-            callback.on_begin()
+            callback.on_begin(config)
 
     def on_config_update(self, config: Dict):
         for callback in self._iterator:

@@ -1,13 +1,15 @@
+from typing import List, Tuple
+
 import numpy as np
 import pytest
-from fseval.pipeline.cv import CrossValidator
-from fseval.pipeline.dataset import Dataset
+from fseval.config import RankAndValidateConfig
+from fseval.pipeline.cv import CrossValidatorConfig
+from fseval.pipeline.dataset import Dataset, DatasetConfig
 from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
 from fseval.pipeline.resample import ResampleConfig
 from fseval.pipelines._callback_collection import CallbackCollection
-from fseval.pipelines.rank_and_validate import RankAndValidateConfig
-from fseval.storage_providers.mock import MockStorageProvider
 from fseval.types import (
+    AbstractAdapter,
     AbstractEstimator,
     AbstractStorageProvider,
     Callback,
@@ -50,6 +52,13 @@ class MockRanker(AbstractEstimator):
     @property
     def ranking_(self):
         return self._get_random_state().rand(self.n_features)
+
+
+class MockAdapter(AbstractAdapter):
+    def get_data(self) -> Tuple[List, List]:
+        X = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
+        y = [0, 1, 1, 0]
+        return X, y
 
 
 @pytest.fixture
@@ -96,88 +105,96 @@ def resample():
 
 
 @pytest.fixture
-def pipeline_cfg(classifier, ranker, validator, resample):
-    n_bootstraps: int = 2
-
-    config = RankAndValidateConfig(
-        resample=resample,
-        ranker=ranker,
-        validator=validator,
-        n_bootstraps=n_bootstraps,
-        n_jobs=None,
-        all_features_to_select="range(1, min(50, p) + 1)",
+def dataset():
+    return DatasetConfig(
+        name="some_dataset",
+        task=Task.classification,
+        adapter={
+            "_target_": "tests.integration.pipelines.test_rank_and_validate.MockAdapter"
+        },
     )
-
-    pipeline_cfg = OmegaConf.create(config.__dict__)
-    return pipeline_cfg
-
-
-@pytest.fixture
-def callbacks():
-    callbacks: Callback = CallbackCollection()
-    return callbacks
-
-
-@pytest.fixture
-def dataset_without_gt():
-    """Dataset without ground-truth: a feature importances vector attached; i.e. the
-    relevance per feature, known apriori."""
-    dataset: Dataset = Dataset(
-        name="some_dataset_name",
-        X=np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]),
-        y=np.array([0, 1, 1, 0]),
-        n=4,
-        p=2,
-        multioutput=False,
-    )
-    return dataset
-
-
-@pytest.fixture
-def dataset_with_gt(dataset_without_gt):
-    """Dataset **with** ground-truth."""
-    dataset_without_gt.feature_importances = np.array([0.5, 0.0, 0.5])
-    return dataset_without_gt
 
 
 @pytest.fixture
 def cv():
-    cv: CrossValidator = CrossValidator(
+    cv: CrossValidatorConfig = CrossValidatorConfig(
         name="train/test split",
-        splitter=ShuffleSplit(n_splits=1, test_size=0.25, random_state=0),
+        splitter=dict(
+            _target_="sklearn.model_selection.ShuffleSplit",
+            n_splits=1,
+            test_size=0.25,
+            random_state=0,
+        ),
     )
     return cv
 
 
 @pytest.fixture
-def storage_provider():
-    storage_provider: AbstractStorageProvider = MockStorageProvider()
-    return storage_provider
+def cfg(dataset, cv, resample, classifier, ranker, validator):
+    config = RankAndValidateConfig(
+        pipeline="testing",
+        dataset=dataset,
+        cv=cv,
+        callbacks=dict(
+            _target_="fseval.pipelines._callback_collection.CallbackCollection"
+        ),
+        resample=resample,
+        ranker=ranker,
+        validator=validator,
+        n_bootstraps=2,
+        n_jobs=None,
+        all_features_to_select="range(1, min(50, p) + 1)",
+    )
 
-    return pipeline
+    cfg = OmegaConf.create(config.__dict__)
+    return cfg
 
 
-def test_without_ranker_gt(
-    pipeline_cfg, callbacks, dataset_without_gt, cv, storage_provider
-):
-    dataset = dataset_without_gt
+def test_without_ranker_gt(cfg):
+    """Test without dataset ground-truth."""
 
-    pipeline = instantiate(pipeline_cfg, callbacks, dataset, cv, storage_provider)
-    X_train, X_test, y_train, y_test = cv.train_test_split(dataset.X, dataset.y)
+    # load dataset
+    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
+    dataset: Dataset = dataset_loader.load()
+    cfg.dataset.n = dataset.n
+    cfg.dataset.p = dataset.p
+    cfg.dataset.multioutput = dataset.multioutput
+
+    # fit pipeline
+    pipeline = instantiate(cfg)
+    X_train, X_test, y_train, y_test = pipeline.cv.train_test_split(
+        dataset.X, dataset.y
+    )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(X_test, y_test)
+    score = pipeline.score(
+        X_test, y_test, feature_importances=dataset.feature_importances
+    )
 
     assert score["best"]["validator"]["fit_time"] > 0
     assert score["best"]["validator"]["score"] >= 0.0
 
 
-def test_with_ranker_gt(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider):
-    dataset = dataset_with_gt
+def test_with_ranker_gt(cfg):
+    """Test with dataset ground-truth: a feature importances vector attached; i.e. the
+    relevance per feature, known apriori."""
+    cfg.dataset.feature_importances = {"X[:, :]": "1.0"}  # uniform
 
-    pipeline = instantiate(pipeline_cfg, callbacks, dataset, cv, storage_provider)
-    X_train, X_test, y_train, y_test = cv.train_test_split(dataset.X, dataset.y)
+    # load dataset
+    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
+    dataset: Dataset = dataset_loader.load()
+    cfg.dataset.n = dataset.n
+    cfg.dataset.p = dataset.p
+    cfg.dataset.multioutput = dataset.multioutput
+
+    # fit pipeline
+    pipeline = instantiate(cfg)
+    X_train, X_test, y_train, y_test = pipeline.cv.train_test_split(
+        dataset.X, dataset.y
+    )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(X_test, y_test)
+    score = pipeline.score(
+        X_test, y_test, feature_importances=dataset.feature_importances
+    )
 
     assert score["best"]["validator"]["fit_time"] > 0
     assert score["best"]["ranker"]["fit_time"] > 0
@@ -190,37 +207,49 @@ def test_with_ranker_gt(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_pr
     assert score["best"]["validator"]["score"] >= 0.0
 
 
-def test_with_ranker_gt_no_importances_substitution(
-    pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider
-):
+def test_with_ranker_gt_no_importances_substitution(cfg):
     """When no `feature_ranking` available, `feature_importances` should substitute
     for the ranking."""
 
-    dataset = dataset_with_gt
-    pipeline_cfg.ranker.estimates_feature_ranking = False
+    cfg.dataset.feature_importances = {"X[:, :]": "1.0"}  # uniform
+    cfg.ranker.estimates_feature_ranking = False
 
-    pipeline = instantiate(pipeline_cfg, callbacks, dataset, cv, storage_provider)
-    X_train, X_test, y_train, y_test = cv.train_test_split(dataset.X, dataset.y)
+    # load dataset
+    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
+    dataset: Dataset = dataset_loader.load()
+    cfg.dataset.n = dataset.n
+    cfg.dataset.p = dataset.p
+    cfg.dataset.multioutput = dataset.multioutput
+
+    # fit pipeline
+    pipeline = instantiate(cfg)
+    X_train, X_test, y_train, y_test = pipeline.cv.train_test_split(
+        dataset.X, dataset.y
+    )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(X_test, y_test)
+    score = pipeline.score(
+        X_test, y_test, feature_importances=dataset.feature_importances
+    )
 
     assert score["best"]["ranker"]["ranking.r2_score"] <= 1.0
     assert score["best"]["validator"]["score"] >= 0.0
 
 
-def test_validator_incompatibility_check(
-    pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider
-):
+def test_validator_incompatibility_check(cfg):
     with pytest.raises(IncompatibilityError):
-        pipeline_cfg["validator"]["estimates_target"] = False
-        instantiate(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider)
+        cfg.dataset.n = 5
+        cfg.dataset.p = 5
+        cfg.dataset.multioutput = False
+        cfg.validator.estimates_target = False
+        instantiate(cfg)
 
 
-def test_ranker_incompatibility_check(
-    pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider
-):
+def test_ranker_incompatibility_check(cfg):
     with pytest.raises(IncompatibilityError):
-        pipeline_cfg["ranker"]["estimates_feature_importances"] = False
-        pipeline_cfg["ranker"]["estimates_feature_support"] = False
-        pipeline_cfg["ranker"]["estimates_feature_ranking"] = False
-        instantiate(pipeline_cfg, callbacks, dataset_with_gt, cv, storage_provider)
+        cfg.dataset.n = 5
+        cfg.dataset.p = 5
+        cfg.dataset.multioutput = False
+        cfg.ranker.estimates_feature_importances = False
+        cfg.ranker.estimates_feature_support = False
+        cfg.ranker.estimates_feature_ranking = False
+        instantiate(cfg)

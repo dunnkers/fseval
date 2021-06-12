@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
 import numpy as np
-from omegaconf import MISSING
-from sklearn.feature_selection import SelectFromModel
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import IncompatibilityError
+from omegaconf import MISSING
+from sklearn.feature_selection import SelectFromModel
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -74,7 +73,7 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
     def postfit(self):
         self.validator._save_cache(self._cache_filename, self.storage_provider)
 
-    def score(self, X, y):
+    def score(self, X, y, **kwargs):
         score = super(SubsetValidator, self).score(X, y)
         score["n_features_to_select"] = self.n_features_to_select
         score["fit_time"] = self.validator.fit_time_

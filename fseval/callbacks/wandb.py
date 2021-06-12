@@ -2,13 +2,13 @@ import copy
 import sys
 import time
 from logging import Logger, getLogger
-from typing import Dict, Optional
-
-import wandb
-from omegaconf import OmegaConf
+from typing import Dict, Optional, cast
 
 from fseval.types import Callback
-from fseval.utils.dict_utils import dict_merge
+from fseval.utils.dict_utils import dict_flatten, dict_merge
+from omegaconf import DictConfig, OmegaConf
+
+import wandb
 
 
 class WandbCallback(Callback):
@@ -33,10 +33,17 @@ class WandbCallback(Callback):
         # the `kwargs` are passed to `wandb.init`
         self.callback_config = kwargs
 
-    def on_begin(self):
+    def on_begin(self, config: DictConfig):
+        # convert DictConfig to primitive type
+        primitive_cfg = OmegaConf.to_container(config, resolve=True)
+        primitive_cfg = cast(Dict, primitive_cfg)
+        # flatten dict and use `/` separators
+        prepared_cfg = copy.deepcopy(primitive_cfg)
+        prepared_cfg = dict_flatten(prepared_cfg, sep="/")
+
         # use (1) callback config (2) overriden by pipeline config as input to wandb.init
         init_kwargs = copy.deepcopy(self.callback_config)
-        config = copy.deepcopy(self.config)
+        config = copy.deepcopy(prepared_cfg)  # type: ignore
         dict_merge(init_kwargs, {"config": config})
 
         try:

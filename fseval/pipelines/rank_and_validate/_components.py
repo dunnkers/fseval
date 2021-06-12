@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import cast
+from typing import Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -50,8 +50,10 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         X, y = self.resample.transform(X, y)
         return X, y
 
-    def score(self, X, y):
-        ranking_score = self.ranking_validator.score(X, y)
+    def score(self, X, y, **kwargs):
+        ranking_score = self.ranking_validator.score(
+            X, y, feature_importances=kwargs.get("feature_importances")
+        )
         ranking_score["group"] = "ranking"
 
         validation_score = self.dataset_validator.score(X, y)
@@ -101,9 +103,11 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         for rank_and_validate in self.estimators:
             ranker = rank_and_validate.ranker
             attribute_value = getattr(ranker, attribute)
+            p = self.dataset.p
+            assert p is not None, "dataset must be loaded"
             attribute_data = {
                 "bootstrap_state": rank_and_validate.bootstrap_state,
-                "feature_index": np.arange(1, self.dataset.p + 1),
+                "feature_index": np.arange(1, p + 1),
             }
             attribute_data[attribute_name] = attribute_value
             attribute_row = pd.DataFrame(attribute_data)
@@ -111,11 +115,8 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
         return attribute_table
 
-    def score(self, X, y):
-        scores = super(BootstrappedRankAndValidate, self).score(X, y)
-        self.storage_provider.save(
-            "scores.csv", lambda file: scores.to_csv(file, index=False)
-        )
+    def score(self, X, y, **kwargs):
+        scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)
 
         ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
         ranking_scores = ranking_scores.drop(columns=["group"])

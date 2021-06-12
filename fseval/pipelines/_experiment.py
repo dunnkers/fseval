@@ -141,14 +141,14 @@ class Experiment(AbstractEstimator):
         else:
             raise ValueError(f"illegal score type received: {type(score)}")
 
-    def score(self, X, y) -> pd.DataFrame:
+    def score(self, X, y, **kwargs) -> pd.DataFrame:
         """Sequentially scores all estimators in this experiment, and appends the scores
         to a dataframe. Returns all accumulated scores."""
         X, y = self._prepare_data(X, y)
         scores = pd.DataFrame()
 
         for estimator in self.estimators:
-            score = estimator.score(X, y)
+            score = estimator.score(X, y, **kwargs)
             score = self._score_to_dataframe(score)
             scores = scores.append(score)
 

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
+from typing import Optional
 
 import numpy as np
 import pandas as pd
+from fseval.types import IncompatibilityError
 from omegaconf import MISSING
 from sklearn.metrics import accuracy_score, log_loss, r2_score
-
-from fseval.types import IncompatibilityError
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -70,14 +70,12 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
         return ranking
 
-    def _score_with_feature_importances(self, score):
+    def _score_with_feature_importances(self, score, X_importances):
         """Scores this feature ranker with the available dataset ground-truth relevant
         features, which are to be known apriori. Supports three types of feature rankings:
         - a real-valued feature importance vector
         - a boolean-valued feature support vector
         - an integer-valued feature ranking vector."""
-
-        X_importances = self.dataset.feature_importances
 
         ### Feature importances
         if self.ranker.estimates_feature_importances:
@@ -131,7 +129,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
                 y_true, y_pred, sample_weight=sample_weight
             )
 
-    def score(self, X, y):
+    def score(self, X, y, **kwargs):
         """Scores a feature ranker, if a ground-truth on the desired dataset
         feature importances is available. If this is the case, the estimated normalized
         feature importances are compared to the desired ones using two metrics:
@@ -143,12 +141,11 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             "bootstrap_state": self.bootstrap_state,
         }
 
-        if self.dataset.feature_importances is not None:
-            assert (
-                np.ndim(self.dataset.feature_importances) == 1
-            ), "instance-based not supported yet."
+        X_importances: Optional[np.ndarray] = kwargs.get("feature_importances")
+        if X_importances is not None:
+            assert np.ndim(X_importances) == 1, "instance-based not supported yet."
 
-            self._score_with_feature_importances(score)
+            self._score_with_feature_importances(score, X_importances)
 
         # put a in a dataframe so can be easily merged with other pipeline scores
         scores = pd.DataFrame([score])

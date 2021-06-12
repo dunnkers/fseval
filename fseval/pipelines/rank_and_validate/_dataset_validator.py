@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import List, cast
 
+from fseval.pipeline.estimator import Estimator
 from omegaconf import MISSING
 from sklearn.base import clone
-
-from fseval.pipeline.estimator import Estimator
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
@@ -20,6 +19,11 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
     def _get_all_features_to_select(self, n: int, p: int) -> List[int]:
         """parse all features to select from config"""
+        assert n is not None and p is not None, "dataset must be loaded!"
+        assert (
+            n > 0 and p > 0
+        ), f"dataset must have > 0 samples (n was {n} and p was {p})"
+
         # set using `exec`
         localz = locals()
         exec(
@@ -60,6 +64,6 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
     def _get_overrides_text(self, estimator):
         return f"[n_features_to_select={estimator.n_features_to_select}] "
 
-    def score(self, X, y):
-        scores = super(DatasetValidator, self).score(X, y)
+    def score(self, X, y, **kwargs):
+        scores = super(DatasetValidator, self).score(X, y, **kwargs)
         return scores

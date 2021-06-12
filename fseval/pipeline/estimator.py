@@ -110,7 +110,7 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         )
         return self.fit(X, y).transform(X, y)
 
-    def score(self, X, y):
+    def score(self, X, y, **kwargs):
         self.logger.debug(f"Scoring {Estimator._get_class_repr(self)}...")
         return self.estimator.score(X, y)
 

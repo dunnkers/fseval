@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from omegaconf import MISSING
+from omegaconf import MISSING, DictConfig
 from sklearn.base import BaseEstimator
 
 
@@ -29,7 +29,7 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
-    def score(self, X, y):
+    def score(self, X, y, **kwargs):
         ...
 
 
@@ -42,13 +42,7 @@ class AbstractAdapter(ABC, BaseEstimator):
 
 
 class Callback(ABC):
-    def __init__(self):
-        self.config = None
-
-    def set_config(self, config: Dict):
-        self.config = config
-
-    def on_begin(self):
+    def on_begin(self, config: DictConfig):
         ...
 
     def on_config_update(self, config: Dict):
@@ -68,31 +62,27 @@ class Callback(ABC):
 
 
 class AbstractStorageProvider(ABC):
-    def __init__(self):
-        self.config = None
-
-    def set_config(self, config: Dict):
-        self.config = config
-
-    @abstractmethod
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         ...
 
-    @abstractmethod
     def save_pickle(self, filename: str, obj: Any):
         ...
 
-    @abstractmethod
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
         ...
 
-    @abstractmethod
     def restore_pickle(self, filename: str) -> Any:
         ...
 
 
 class AbstractPipeline(AbstractEstimator, ABC):
-    ...
+    @abstractmethod
+    def prefit(self):
+        ...
+
+    @abstractmethod
+    def postfit(self):
+        ...
 
 
 class TerminalColor:

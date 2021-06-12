@@ -5,6 +5,7 @@ from pickle import dump, load
 from typing import Any, Callable, Dict, Optional
 
 from fseval.types import AbstractStorageProvider, TerminalColor
+from omegaconf import DictConfig
 
 import wandb
 
@@ -15,19 +16,25 @@ class WandbStorageProvider(AbstractStorageProvider):
     restore files to the service.
 
     Arguments:
+        resume: Optional[str] - interpolated string from wandb callback `resume`.
+
         local_dir: Optional[str] - when set, an attempt is made to load from the
         designated local directory first, before downloading the data off of wandb. Can
         be used to perform faster loads or prevent being rate-limited on wandb.
 
-        wandb_entity: Optional[str] - allows you to recover from a specific entity,
+        entity: Optional[str] - allows you to recover from a specific entity,
         instead of using the entity that is set for the 'current' run.
-        wandb_project: Optional[str] - idem
-        wandb_run_id: Optional[str] - idem"""
 
+        project: Optional[str] - recover from a specific project.
+
+        run_id: Optional[str] - recover from a specific run id."""
+
+    resume: Optional[str] = None
     local_dir: Optional[str] = None
-    wandb_entity: Optional[str] = None
-    wandb_project: Optional[str] = None
-    wandb_run_id: Optional[str] = None
+    entity: Optional[str] = None
+    project: Optional[str] = None
+    run_id: Optional[str] = None
+
     logger: Logger = getLogger(__name__)
 
     def _assert_wandb_available(self):
@@ -37,11 +44,10 @@ class WandbStorageProvider(AbstractStorageProvider):
             + "thread. see https://docs.wandb.ai/guides/track/advanced/distributed-training."
         )
 
-    def set_config(self, config: Dict):
-        assert config["callbacks"].get(
-            "wandb"
-        ), "wandb callback must be enabled to use wandb storage provider."
-        super(WandbStorageProvider, self).set_config(config)
+    # TODO better error when callback not enabled, i.e.
+    # assert config["callbacks"].get(
+    #     "wandb"
+    # ), "wandb callback must be enabled to use wandb storage provider."
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         self._assert_wandb_available()
@@ -63,26 +69,20 @@ class WandbStorageProvider(AbstractStorageProvider):
 
     def _get_restore_file_handle(self, filename: str):
         try:
-            entity = self.wandb_entity or wandb.run.entity  # type: ignore
-            project = self.wandb_project or wandb.run.project  # type: ignore
-            run_id = self.wandb_run_id or wandb.run.id  # type: ignore
+            entity = self.entity or wandb.run.entity  # type: ignore
+            project = self.project or wandb.run.project  # type: ignore
+            run_id = self.run_id or wandb.run.id  # type: ignore
 
             file_handle = wandb.restore(
                 filename, run_path=f"{entity}/{project}/{run_id}"
             )
             return file_handle
         except ValueError as err:
-            config = self.config
-            config_callbacks = config["callbacks"]
-            config_wandb = config_callbacks.get("wandb")
-            must_resume = config_wandb.get("resume", False) == "must"
-
-            if must_resume:
-                self.logger.warn(
-                    "wandb callback config got `resume=must` but restoring the file "
-                    + f"`{filename}` failed nonetheless:\n"
-                    + str(err)  # type: ignore
-                )
+            assert not self.resume == "must", (
+                "wandb callback config got `resume=must` but restoring the file "
+                + f"`{filename}` failed nonetheless:\n"
+                + str(err)  # type: ignore
+            )
 
             return None
 

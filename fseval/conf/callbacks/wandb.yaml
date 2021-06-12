@@ -1,5 +1,5 @@
 wandb:
   _target_: fseval.callbacks.WandbCallback
-  job_type: ${pipeline.name}
+  job_type: ${hydra:job.name}
   resume: allow
   project: uncategorized

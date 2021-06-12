@@ -1,0 +1,18 @@
+# @package _global_
+# this preset runs the pipeline using cached versions of the rankers, but does fit 
+# the validation estimator from scratch.
+defaults:
+  - override /callbacks:
+    - wandb
+  - override /storage_provider: wandb
+pipeline:
+  ranker:
+    use_cache_if_available: true
+  validator:
+    use_cache_if_available: false
+callbacks:
+  wandb:
+    id: 1mqj4u89
+    log_metrics: false
+storage_provider:
+  local_dir: null
