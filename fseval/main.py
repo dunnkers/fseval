@@ -49,6 +49,7 @@ def main(cfg: DictConfig) -> None:
     # run pipeline
     logger.info(f"starting {cfg.pipeline} pipeline...")
     pipeline.callbacks.on_begin(cfg)
+    # load dataset and cv split
     logger.info(
         f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
         + f"[{dataset._log_details}]"

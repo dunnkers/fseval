@@ -20,13 +20,25 @@ class StorageProviderConfig:
 
 @dataclass
 class WandbStorageProviderConfig(StorageProviderConfig):
-    resume: Optional[str] = None
+    ...
 
 
 cs.store(
     group="storage_provider",
     name="base_wandb_storage_provider",
     node=WandbStorageProviderConfig,
+)
+
+
+@dataclass
+class LocalStorageProviderConfig(StorageProviderConfig):
+    ...
+
+
+cs.store(
+    group="storage_provider",
+    name="base_local_storage_provider",
+    node=LocalStorageProviderConfig,
 )
 
 

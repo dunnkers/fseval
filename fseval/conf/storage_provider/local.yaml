@@ -1,0 +1,4 @@
+defaults:
+  - base_local_storage_provider
+
+_target_: fseval.storage_providers.LocalStorageProvider

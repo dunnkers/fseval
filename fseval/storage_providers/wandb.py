@@ -9,15 +9,15 @@ from omegaconf import DictConfig
 
 import wandb
 
+from .local import LocalStorageProvider
+
 
 @dataclass
-class WandbStorageProvider(AbstractStorageProvider):
+class WandbStorageProvider(LocalStorageProvider):
     """Storage provider for Weights and Biases (wandb), allowing users to save- and
     restore files to the service.
 
     Arguments:
-        resume: Optional[str] - interpolated string from wandb callback `resume`.
-
         local_dir: Optional[str] - when set, an attempt is made to load from the
         designated local directory first, before downloading the data off of wandb. Can
         be used to perform faster loads or prevent being rate-limited on wandb.
@@ -29,8 +29,6 @@ class WandbStorageProvider(AbstractStorageProvider):
 
         run_id: Optional[str] - recover from a specific run id."""
 
-    local_dir: Optional[str] = None
-    resume: Optional[str] = None
     entity: Optional[str] = None
     project: Optional[str] = None
     run_id: Optional[str] = None
@@ -49,65 +47,34 @@ class WandbStorageProvider(AbstractStorageProvider):
     #     "wandb"
     # ), "wandb callback must be enabled to use wandb storage provider."
 
-    def save(self, filename: str, writer: Callable, mode: str = "w"):
+    def _get_local_dir(self) -> str:
         self._assert_wandb_available()
-
         filedir = wandb.run.dir  # type: ignore
-        filepath = os.path.join(filedir, filename)
+        return filedir
 
-        with open(filepath, mode=mode) as file_handle:
-            writer(file_handle)
+    # a=wandb.Api().run("dunnkers/uncategorized/1wthczn7").config
+    def save(self, filename: str, writer: Callable, mode: str = "w"):
+        # save to local disk
+        super(WandbStorageProvider, self).save(filename, writer, mode)
 
+        # save to wandb
         wandb.save(filename, base_path="/")  # type: ignore
         self.logger.info(
-            f"successfully saved {TerminalColor.yellow(filename)} to wandb servers "
-            + TerminalColor.green("✓")
+            f"uploaded {TerminalColor.yellow(filename)} to "
+            + TerminalColor.blue("wandb servers")
+            + TerminalColor.green(" ✓")
         )
 
-    def save_pickle(self, filename: str, obj: Any):
-        self.save(filename, lambda file: dump(obj, file), mode="wb")
-
-    def _get_restore_file_handle(self, filename: str):
+    def _restore_from_wandb(self, filename: str):
         try:
             entity = self.entity or wandb.run.entity  # type: ignore
             project = self.project or wandb.run.project  # type: ignore
             run_id = self.run_id or wandb.run.id  # type: ignore
+            run_path = f"{entity}/{project}/{run_id}"
+            file_handle = wandb.restore(filename, run_path=run_path)
 
-            file_handle = wandb.restore(
-                filename, run_path=f"{entity}/{project}/{run_id}"
-            )
             return file_handle
         except ValueError as err:
-            assert not self.resume == "must", (
-                "wandb callback config got `resume=must` but restoring the file "
-                + f"`{filename}` failed nonetheless:\n"
-                + str(err)  # type: ignore
-            )
-
-            return None
-
-    def _local_restoration(self, filename: str, reader: Callable, mode: str = "r"):
-        local_file = os.path.join(self.local_dir or "", filename)
-        if self.local_dir is not None and os.path.exists(local_file):
-            filepath = local_file
-
-            with open(filepath, mode=mode) as file_handle:
-                file = reader(file_handle)
-
-            return file or None
-        else:
-            return None
-
-    def _wandb_restoration(self, filename: str, reader: Callable, mode: str = "r"):
-        if self._get_restore_file_handle(filename):
-            filedir = wandb.run.dir  # type: ignore
-            filepath = os.path.join(filedir, filename)
-
-            with open(filepath, mode=mode) as file_handle:
-                file = reader(file_handle)
-
-            return file or None
-        else:
             return None
 
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
@@ -117,32 +84,21 @@ class WandbStorageProvider(AbstractStorageProvider):
         `WandbStorageProvider` constructor. If this file is not found, the file will
         be downloaded fresh from wandb servers."""
 
-        self._assert_wandb_available()
-
         # (1) attempt local restoration if available
-        file = self._local_restoration(filename, reader, mode)
+        file = super(WandbStorageProvider, self).restore(filename, reader, mode)
         if file:
-            self.logger.info(
-                f"successfully restored {TerminalColor.yellow(filename)} from "
-                + TerminalColor.blue("disk ")
-                + TerminalColor.green("✓")
-            )
-
             return file
 
         # (2) otherwise, restore by downloading from wandb
-        file = self._wandb_restoration(filename, reader, mode)
+        file = self._restore_from_wandb(filename)
         if file:
             self.logger.info(
-                f"successfully restored {TerminalColor.yellow(filename)} from "
-                + TerminalColor.blue("wandb servers ")
-                + TerminalColor.green("✓")
+                f"downloaded {TerminalColor.yellow(filename)} from "
+                + TerminalColor.blue("wandb servers")
+                + TerminalColor.green(" ✓")
             )
-
+            file = super(WandbStorageProvider, self).restore(filename, reader, mode)
             return file
 
         # (3) if no cache is available anywhere, return None.
         return None
-
-    def restore_pickle(self, filename: str) -> Any:
-        return self.restore(filename, load, mode="rb")

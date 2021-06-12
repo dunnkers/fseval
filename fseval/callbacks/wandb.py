@@ -33,18 +33,23 @@ class WandbCallback(Callback):
         # the `kwargs` are passed to `wandb.init`
         self.callback_config = kwargs
 
+    def _prepare_cfg(self, cfg):
+        """Flatten dict and use `/` separators"""
+        prepared_cfg = copy.deepcopy(cfg)
+        prepared_cfg = dict_flatten(prepared_cfg, sep="/")
+
+        return prepared_cfg
+
     def on_begin(self, config: DictConfig):
         # convert DictConfig to primitive type
         primitive_cfg = OmegaConf.to_container(config, resolve=True)
         primitive_cfg = cast(Dict, primitive_cfg)
-        # flatten dict and use `/` separators
-        prepared_cfg = copy.deepcopy(primitive_cfg)
-        prepared_cfg = dict_flatten(prepared_cfg, sep="/")
+        # prepare
+        prepared_cfg = self._prepare_cfg(primitive_cfg)
 
         # use (1) callback config (2) overriden by pipeline config as input to wandb.init
         init_kwargs = copy.deepcopy(self.callback_config)
-        config = copy.deepcopy(prepared_cfg)  # type: ignore
-        dict_merge(init_kwargs, {"config": config})
+        dict_merge(init_kwargs, {"config": prepared_cfg})
 
         try:
             wandb.init(**init_kwargs)
@@ -55,9 +60,14 @@ class WandbCallback(Callback):
                 the `wandb.init` signature)"""
             ).with_traceback(sys.exc_info()[2])
 
+        assert (
+            wandb.run is not None
+        ), "failed to initialize wandb.run: `wandb.run` is None."
+        self.on_config_update({"storage_provider": {"save_dir": wandb.run.dir}})
+
     def on_config_update(self, config: Dict):
-        # merge recursively, to prevent overriding pipeline config using `wandb.update`
-        dict_merge(wandb.config, config)
+        prepared_cfg = self._prepare_cfg(config)
+        wandb.config.update(prepared_cfg)
 
     def on_metrics(self, metrics):
         if not self.log_metrics:

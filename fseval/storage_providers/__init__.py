@@ -2,6 +2,7 @@ from typing import Any, Callable
 
 from fseval.config import StorageProviderConfig
 
+from .local import LocalStorageProvider
 from .wandb import WandbStorageProvider
 
 
@@ -19,4 +20,4 @@ class MockStorageProvider(StorageProviderConfig):
         ...
 
 
-__all__ = ["WandbStorageProvider", "MockStorageProvider"]
+__all__ = ["WandbStorageProvider", "MockStorageProvider", "LocalStorageProvider"]
