@@ -29,8 +29,8 @@ class WandbStorageProvider(AbstractStorageProvider):
 
         run_id: Optional[str] - recover from a specific run id."""
 
-    resume: Optional[str] = None
     local_dir: Optional[str] = None
+    resume: Optional[str] = None
     entity: Optional[str] = None
     project: Optional[str] = None
     run_id: Optional[str] = None

@@ -144,6 +144,9 @@ def cfg(dataset, cv, resample, classifier, ranker, validator):
         n_bootstraps=2,
         n_jobs=None,
         all_features_to_select="range(1, min(50, p) + 1)",
+        upload_ranking_scores=True,
+        upload_validation_scores=True,
+        upload_best_scores=True,
     )
 
     cfg = OmegaConf.create(config.__dict__)

@@ -6,6 +6,7 @@ from typing import Any, Optional
 from fseval.types import (
     AbstractEstimator,
     AbstractStorageProvider,
+    CacheUsage,
     IncompatibilityError,
     Task,
 )
@@ -17,7 +18,8 @@ from sklearn.preprocessing import minmax_scale
 @dataclass
 class EstimatorConfig:
     estimator: Any = None  # must have _target_ of type BaseEstimator.
-    use_cache_if_available: bool = True
+    load_cache: CacheUsage = CacheUsage.allow
+    save_cache: CacheUsage = CacheUsage.allow
     # tags
     multioutput: Optional[bool] = None
     multioutput_only: Optional[bool] = None
@@ -36,7 +38,8 @@ class TaskedEstimatorConfig(EstimatorConfig):
     name: str = MISSING
     classifier: Optional[EstimatorConfig] = None
     regressor: Optional[EstimatorConfig] = None
-    use_cache_if_available: bool = True
+    load_cache: CacheUsage = CacheUsage.allow
+    save_cache: CacheUsage = CacheUsage.allow
     # tags
     multioutput: Optional[bool] = False
     multioutput_only: Optional[bool] = False
@@ -75,16 +78,31 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         return f"{module_name}.{class_name}"
 
     def _load_cache(self, filename: str, storage_provider: AbstractStorageProvider):
+        if self.load_cache == CacheUsage.never:
+            self.logger.info("ignoring cache load completely.")
+            return
+
         restored = storage_provider.restore_pickle(filename)
         self.estimator = restored or self.estimator
         self._is_fitted = bool(restored)
 
+        if self.load_cache == CacheUsage.must:
+            assert self._is_fitted, (
+                "Cache usage was set to 'must' but loading cached estimator failed."
+                + " Pickle file might be corrupt or could not be found."
+            )
+
     def _save_cache(self, filename: str, storage_provider: AbstractStorageProvider):
-        storage_provider.save_pickle(filename, self.estimator)
+        if self.save_cache == CacheUsage.never:
+            self.logger.info("ignoring cache save completely.")
+            return
+        else:
+            storage_provider.save_pickle(filename, self.estimator)
+            # TODO check whether file was successfully saved.
 
     def fit(self, X, y):
         # don't refit if cache available and `use_cache_if_available` is enabled
-        if self._is_fitted and self.use_cache_if_available:
+        if self._is_fitted:
             self.logger.debug("using estimator from cache.")
             return self
 
