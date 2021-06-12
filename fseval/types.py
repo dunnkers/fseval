@@ -42,35 +42,41 @@ class AbstractAdapter(ABC, BaseEstimator):
 
 
 class Callback(ABC):
+    @abstractmethod
     def on_begin(self, config: DictConfig):
         ...
 
+    @abstractmethod
     def on_config_update(self, config: Dict):
         ...
 
-    def on_log(self, msg: Any, *args: Any):
-        ...
-
+    @abstractmethod
     def on_metrics(self, metrics):
         ...
 
+    @abstractmethod
     def on_summary(self, summary: Dict):
         ...
 
+    @abstractmethod
     def on_end(self, exit_code: Optional[int] = None):
         ...
 
 
 class AbstractStorageProvider(ABC):
+    @abstractmethod
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         ...
 
+    @abstractmethod
     def save_pickle(self, filename: str, obj: Any):
         ...
 
+    @abstractmethod
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
         ...
 
+    @abstractmethod
     def restore_pickle(self, filename: str) -> Any:
         ...
 

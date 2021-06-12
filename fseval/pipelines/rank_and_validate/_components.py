@@ -5,7 +5,7 @@ from typing import Optional, cast
 import numpy as np
 import pandas as pd
 from fseval.callbacks import WandbCallback
-from fseval.types import TerminalColor
+from fseval.types import TerminalColor as tc
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
@@ -65,7 +65,7 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         scores["bootstrap_state"] = self.bootstrap_state
 
         self.logger.info(
-            f"scored bootstrap_state={self.bootstrap_state} " + TerminalColor.green("✓")
+            f"scored bootstrap_state={self.bootstrap_state} " + tc.green("✓")
         )
         return scores
 
@@ -127,7 +127,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         ##### Ranking scores - aggregation
         agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
         # print scores
-        self.logger.info(f"{self.ranker.name} ranking scores:")
+        self.logger.info(f"{tc.yellow(self.ranker.name)} ranking scores:")
         print(agg_ranking_scores)
         # send metrics
         agg_ranking_scores = agg_ranking_scores.to_dict()
@@ -151,7 +151,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
         # print scores
         print()
-        self.logger.info(f"{self.validator.name} validation scores:")
+        self.logger.info(f"{tc.yellow(self.validator.name)} validation scores:")
         agg_val_scores = val_scores_per_feature.mean().drop(columns=["bootstrap_state"])
         print(agg_val_scores)
 
@@ -168,30 +168,17 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         # summary
         summary = dict(best=best)
 
+        ##### Upload tables
         wandb_callback = getattr(self.callbacks, "wandb", False)
         if wandb_callback:
-            ##### Upload tables
             self.logger.info(f"Uploading tables to wandb...")
             wandb_callback = cast(WandbCallback, wandb_callback)
 
-            ### upload best scores
-            best_subset_prefixed = best_subset.add_prefix("validator.")
-            best_ranker_prefixed = best_ranker.add_prefix("ranker.")
-            best_scores = pd.concat([best_subset_prefixed, best_ranker_prefixed])
-            best_scores_df = pd.DataFrame([best_scores])
-            wandb_callback.upload_table(best_scores_df, "best_scores")
+        ### ranking scores
+        if wandb_callback and self.upload_ranking_scores:
+            self.logger.info(f"Uploading ranking scores...")
 
-            ### upload ranking scores
-            wandb_callback.upload_table(ranking_scores.reset_index(), "ranking_scores")
-
-            ### upload validation scores
-            wandb_callback.upload_table(validation_scores, "validation_scores")
-
-            ### upload mean validation scores
-            all_agg_val_scores = agg_val_scores.reset_index()
-            wandb_callback.upload_table(all_agg_val_scores, "validation_scores_mean")
-
-            ### upload raw rankings
+            ## upload raw rankings
             # feature importances
             if self.ranker.estimates_feature_importances:
                 importances_table = self._get_ranker_attribute_table(
@@ -212,6 +199,33 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
                     "feature_ranking_", "feature_ranking"
                 )
                 wandb_callback.upload_table(ranking_table, "feature_ranking")
-            self.logger.info(f"Tables uploaded {TerminalColor.green('✓')}")
+
+            ## upload ranking scores
+            wandb_callback.upload_table(ranking_scores.reset_index(), "ranking_scores")
+
+        ### validation scores
+        if wandb_callback and self.upload_validation_scores:
+            self.logger.info(f"Uploading validation scores...")
+
+            ## upload validation scores
+            wandb_callback.upload_table(validation_scores, "validation_scores")
+
+            ## upload mean validation scores
+            all_agg_val_scores = agg_val_scores.reset_index()
+            wandb_callback.upload_table(all_agg_val_scores, "validation_scores_mean")
+
+        ### upload best scores
+        if wandb_callback and self.upload_best_scores:
+            self.logger.info(f"Uploading best scores...")
+
+            ## best ranker- and validation scores
+            best_subset_prefixed = best_subset.add_prefix("validator.")
+            best_ranker_prefixed = best_ranker.add_prefix("ranker.")
+            best_scores = pd.concat([best_subset_prefixed, best_ranker_prefixed])
+            best_scores_df = pd.DataFrame([best_scores])
+            wandb_callback.upload_table(best_scores_df, "best_scores")
+
+        if wandb_callback:
+            self.logger.info(f"Tables uploaded {tc.green('✓')}")
 
         return summary

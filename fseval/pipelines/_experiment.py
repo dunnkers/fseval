@@ -44,8 +44,9 @@ class Experiment(AbstractEstimator):
         estimator_repr = self._get_estimator_repr(estimator)
 
         return lambda secs: (
-            TerminalColor.yellow(f"{overrides_text}")
-            + f"{estimator_repr} ... {step_name} "
+            overrides_text
+            + TerminalColor.yellow(f"{estimator_repr}")
+            + f" ... {step_name} "
             + "in "
             + TerminalColor.cyan(f"{format_timespan(secs)} ")
             + TerminalColor.green("✓ ")

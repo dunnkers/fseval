@@ -41,10 +41,10 @@ class TaskedEstimatorConfig(EstimatorConfig):
     multioutput: Optional[bool] = False
     multioutput_only: Optional[bool] = False
     requires_positive_X: Optional[bool] = False
-    estimates_feature_importances: Optional[bool] = False  # returns importance scores
-    estimates_feature_support: Optional[bool] = False  # returns feature subset
-    estimates_feature_ranking: Optional[bool] = False  # returns feature ranking
-    estimates_target: Optional[bool] = False  # can predict target
+    estimates_feature_importances: Optional[bool] = False
+    estimates_feature_support: Optional[bool] = False
+    estimates_feature_ranking: Optional[bool] = False
+    estimates_target: Optional[bool] = False
     # runtime properties
     task: Task = II("dataset.task")
     is_multioutput_dataset: bool = II("dataset.multioutput")

@@ -4,7 +4,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from fseval.types import IncompatibilityError
+from fseval.types import IncompatibilityError, TerminalColor
 from omegaconf import MISSING
 from sklearn.metrics import accuracy_score, log_loss, r2_score
 
@@ -45,6 +45,8 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         self.ranker._load_cache(self._cache_filename, self.storage_provider)
 
     def fit(self, X, y):
+        self.logger.info(f"fitting ranker: " + TerminalColor.yellow(self.ranker.name))
+
         super(RankingValidator, self).fit(X, y)
 
     def postfit(self):

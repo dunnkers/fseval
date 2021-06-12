@@ -1,2 +1,5 @@
+defaults:
+  - base_wandb_storage_provider
+
 _target_: fseval.storage_providers.WandbStorageProvider
 resume: ${callbacks.wandb.resume}

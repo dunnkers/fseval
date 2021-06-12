@@ -27,10 +27,6 @@ class CallbackCollection(Callback):
         for callback in self._iterator:
             callback.on_config_update(config)
 
-    def on_log(self, msg: Any, *args: Any):
-        for callback in self._iterator:
-            callback.on_log(msg, *args)
-
     def on_metrics(self, metrics):
         for callback in self._iterator:
             callback.on_metrics(metrics)

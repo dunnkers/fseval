@@ -18,7 +18,7 @@ Now, create a [wandb](https://wandb.ai/) account and login to the CLI. We are no
 
 Run ANOVA F-Value on Iris dataset:
 ```shell
-fseval dataset=iris estimator@pipeline.ranker=anova_f_value
+fseval dataset=iris estimator@ranker=anova_f_value
 ```
 
 ## Supported Feature Rankers
@@ -26,18 +26,18 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 
 | Ranker | Dependency | Command line argument
 --- | --- | ---
-[ANOVA F-Value](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html#sklearn.feature_selection.f_classif) | \<no dep\> | `estimator@pipeline.ranker=anova_f_value`
-[Boruta](https://github.com/scikit-learn-contrib/boruta_py) | `pip install Boruta` | `estimator@pipeline.ranker=boruta`
-[Chi2](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html) | \<no dep\> | `estimator@pipeline.ranker=chi2`
-[Decision Tree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) | \<no dep\> | `estimator@pipeline.ranker=decision_tree`
-[FeatBoost](https://github.com/amjams/FeatBoost) | `pip install git+https://github.com/dunnkers/FeatBoost.git@support-cloning` (ℹ️) | `estimator@pipeline.ranker=featboost`
-[MultiSURF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `estimator@pipeline.ranker=multisurf`
-[Mutual Info](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html) | \<no dep\> | `estimator@pipeline.ranker=mutual_info`
-[ReliefF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `estimator@pipeline.ranker=relieff`
-[Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git@master matplotlib` (ℹ️) | `estimator@pipeline.ranker=stability_selection`
-[TabNet](https://github.com/dreamquark-ai/tabnet) | `pip install pytorch-tabnet` | `estimator@pipeline.ranker=tabnet`
-[XGBoost](https://xgboost.readthedocs.io/) | `pip install xgboost` | `estimator@pipeline.ranker=xgb`
-[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git@master` (ℹ️) | `estimator@pipeline.ranker=infinite_selection`
+[ANOVA F-Value](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html#sklearn.feature_selection.f_classif) | \<no dep\> | `estimator@ranker=anova_f_value`
+[Boruta](https://github.com/scikit-learn-contrib/boruta_py) | `pip install Boruta` | `estimator@ranker=boruta`
+[Chi2](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html) | \<no dep\> | `estimator@ranker=chi2`
+[Decision Tree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) | \<no dep\> | `estimator@ranker=decision_tree`
+[FeatBoost](https://github.com/amjams/FeatBoost) | `pip install git+https://github.com/dunnkers/FeatBoost.git@support-cloning` (ℹ️) | `estimator@ranker=featboost`
+[MultiSURF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `estimator@ranker=multisurf`
+[Mutual Info](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html) | \<no dep\> | `estimator@ranker=mutual_info`
+[ReliefF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `estimator@ranker=relieff`
+[Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git@master matplotlib` (ℹ️) | `estimator@ranker=stability_selection`
+[TabNet](https://github.com/dreamquark-ai/tabnet) | `pip install pytorch-tabnet` | `estimator@ranker=tabnet`
+[XGBoost](https://xgboost.readthedocs.io/) | `pip install xgboost` | `estimator@ranker=xgb`
+[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git@master` (ℹ️) | `estimator@ranker=infinite_selection`
 
 
 ℹ️ This library was customized to make it compatible with the fseval pipeline.

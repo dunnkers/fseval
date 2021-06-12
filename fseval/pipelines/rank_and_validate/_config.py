@@ -24,6 +24,9 @@ class RankAndValidatePipeline(Pipeline):
     n_bootstraps: int = MISSING
     n_jobs: Optional[int] = MISSING
     all_features_to_select: str = MISSING
+    upload_ranking_scores: bool = MISSING
+    upload_validation_scores: bool = MISSING
+    upload_best_scores: bool = MISSING
 
     def _get_config(self):
         return {
