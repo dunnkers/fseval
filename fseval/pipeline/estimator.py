@@ -3,10 +3,6 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Optional
 
-from hydra.utils import instantiate
-from omegaconf import II, MISSING, OmegaConf
-from sklearn.preprocessing import minmax_scale
-
 from fseval.types import (
     AbstractEstimator,
     AbstractStorageProvider,
@@ -14,13 +10,16 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
+from hydra.utils import instantiate
+from omegaconf import II, MISSING, OmegaConf
+from sklearn.preprocessing import minmax_scale
 
 
 @dataclass
 class EstimatorConfig:
     estimator: Any = None  # must have _target_ of type BaseEstimator.
-    load_cache: CacheUsage = CacheUsage.allow
-    save_cache: CacheUsage = CacheUsage.allow
+    load_cache: Optional[CacheUsage] = None
+    save_cache: Optional[CacheUsage] = None
     # tags
     multioutput: Optional[bool] = None
     multioutput_only: Optional[bool] = None
@@ -42,13 +41,13 @@ class TaskedEstimatorConfig(EstimatorConfig):
     load_cache: CacheUsage = CacheUsage.allow
     save_cache: CacheUsage = CacheUsage.allow
     # tags
-    multioutput: Optional[bool] = False
-    multioutput_only: Optional[bool] = False
-    requires_positive_X: Optional[bool] = False
-    estimates_feature_importances: Optional[bool] = False
-    estimates_feature_support: Optional[bool] = False
-    estimates_feature_ranking: Optional[bool] = False
-    estimates_target: Optional[bool] = False
+    multioutput: bool = False
+    multioutput_only: bool = False
+    requires_positive_X: bool = False
+    estimates_feature_importances: bool = False
+    estimates_feature_support: bool = False
+    estimates_feature_ranking: bool = False
+    estimates_target: bool = False
     # runtime properties
     task: Task = II("dataset.task")
     is_multioutput_dataset: bool = II("dataset.multioutput")
