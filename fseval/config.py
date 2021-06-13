@@ -61,9 +61,7 @@ cs.store(name="base_config", node=BaseConfig)
 
 @dataclass
 class RankAndValidateConfig(BaseConfig):
-    _target_: str = (
-        "fseval.pipelines.rank_and_validate._components.BootstrappedRankAndValidate"
-    )
+    _target_: str = "fseval.pipelines.rank_and_validate.BootstrappedRankAndValidate"
     resample: ResampleConfig = MISSING
     ranker: TaskedEstimatorConfig = MISSING
     validator: TaskedEstimatorConfig = MISSING
