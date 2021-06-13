@@ -1,0 +1,6 @@
+name: k-NN
+classifier:
+  estimator:
+    _target_: sklearn.neighbors.KNeighborsClassifier
+multioutput: false
+estimates_target: true
