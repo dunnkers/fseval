@@ -45,10 +45,11 @@ cs.store(
 
 @dataclass
 class BaseConfig:
+    pipeline: str = MISSING  # pipeline name
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     callbacks: Dict[str, Any] = field(default_factory=dict)
-    storage_provider: Optional[StorageProviderConfig] = field(
+    storage_provider: StorageProviderConfig = field(
         default_factory=lambda: StorageProviderConfig(
             _target_="fseval.storage_providers.MockStorageProvider"
         )
@@ -63,7 +64,6 @@ class RankAndValidateConfig(BaseConfig):
     _target_: str = (
         "fseval.pipelines.rank_and_validate._components.BootstrappedRankAndValidate"
     )
-    pipeline: str = MISSING
     resample: ResampleConfig = MISSING
     ranker: TaskedEstimatorConfig = MISSING
     validator: TaskedEstimatorConfig = MISSING
