@@ -4,7 +4,6 @@ from logging import Logger, getLogger
 from pickle import dump, load
 from typing import Any, Callable, Optional
 
-
 from fseval.types import AbstractStorageProvider, TerminalColor
 
 
@@ -16,10 +15,12 @@ class LocalStorageProvider(AbstractStorageProvider):
     logger: Logger = getLogger(__name__)
 
     def get_load_dir(self) -> str:
-        return self.load_dir or "."
+        load_dir = self.load_dir or "."
+        return load_dir
 
     def get_save_dir(self) -> str:
-        return self.save_dir or "."
+        save_dir = self.save_dir or "."
+        return save_dir
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         filedir = self.get_save_dir()
@@ -33,6 +34,7 @@ class LocalStorageProvider(AbstractStorageProvider):
             + TerminalColor.yellow("local disk")
             + TerminalColor.green(" ✓")
         )
+        print(TerminalColor.blue(filepath))
 
     def save_pickle(self, filename: str, obj: Any):
         self.save(filename, lambda file: dump(obj, file), mode="wb")
@@ -40,6 +42,9 @@ class LocalStorageProvider(AbstractStorageProvider):
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
         filedir = self.get_load_dir()
         filepath = os.path.join(filedir, filename)
+
+        self.logger.info("attempting to restore:")
+        print(TerminalColor.blue(filepath))
 
         if not os.path.exists(filepath):
             return None

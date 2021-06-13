@@ -1,12 +1,23 @@
-from typing import Any, Callable
+from dataclasses import dataclass
+from typing import Any, Callable, Optional
 
-from fseval.config import StorageProviderConfig
+from fseval.types import AbstractStorageProvider
 
 from .local import LocalStorageProvider
 from .wandb import WandbStorageProvider
 
 
-class MockStorageProvider(StorageProviderConfig):
+@dataclass
+class MockStorageProvider(AbstractStorageProvider):
+    load_dir: Optional[str] = None
+    save_dir: Optional[str] = None
+
+    def get_load_dir(self) -> str:
+        ...
+
+    def get_save_dir(self) -> str:
+        ...
+
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         ...
 

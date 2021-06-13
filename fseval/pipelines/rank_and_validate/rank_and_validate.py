@@ -4,17 +4,17 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
+from fseval.callbacks import WandbCallback
+from fseval.types import TerminalColor as tc
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
-
-from fseval.callbacks import WandbCallback
-from fseval.types import TerminalColor as tc
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
 from ._dataset_validator import DatasetValidator
 from ._ranking_validator import RankingValidator
+from ._support_validator import SupportValidator
 
 
 @dataclass
@@ -29,45 +29,70 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
     logger: Logger = getLogger(__name__)
 
     def _get_estimator(self):
+        estimators = []
+
+        # make sure to clone the validator for support- and dataset validation.
+        config = self._get_config()
+        validator = config.pop("validator")
+
+        ## first fit ranker, then run all validations
         # instantiate ranking validator. pass bootstrap state for the cache filename
         self.ranking_validator = RankingValidator(
             **self._get_config(), bootstrap_state=self.bootstrap_state
         )
+        estimators.append(self.ranking_validator)
+
+        # validate feature support - if available
+        if self.ranker.estimates_feature_support:
+            self.support_validator = SupportValidator(
+                **config,
+                validator=clone(validator),
+                bootstrap_state=self.bootstrap_state,
+            )
+            estimators.append(self.support_validator)
 
         # instantiate dataset validator.
         self.dataset_validator = DatasetValidator(
-            **self._get_config(), bootstrap_state=self.bootstrap_state
+            **config, validator=clone(validator), bootstrap_state=self.bootstrap_state
         )
+        estimators.append(self.dataset_validator)
 
-        # first fit ranker, then run all validations
-        return [
-            self.ranking_validator,
-            self.dataset_validator,
-        ]
+        return estimators
 
     def _prepare_data(self, X, y):
         # resample dataset: perform a bootstrap
         self.resample.random_state = self.bootstrap_state
         X, y = self.resample.transform(X, y)
+
         return X, y
 
     def score(self, X, y, **kwargs):
+        scores = pd.DataFrame()
+
+        # ranking scores
         ranking_score = self.ranking_validator.score(
             X, y, feature_importances=kwargs.get("feature_importances")
         )
         ranking_score["group"] = "ranking"
+        scores = scores.append(ranking_score)
 
+        # feature support scores - if available
+        if self.ranker.estimates_feature_support:
+            support_score = self.support_validator.score(X, y)
+            support_score["group"] = "support"
+            scores = scores.append(support_score)
+
+        # validation scores
         validation_score = self.dataset_validator.score(X, y)
         validation_score["group"] = "validation"
-
-        scores = pd.DataFrame()
-        scores = scores.append(ranking_score)
         scores = scores.append(validation_score)
-        scores["bootstrap_state"] = self.bootstrap_state
 
+        # attach bootstrap and finish
+        scores["bootstrap_state"] = self.bootstrap_state
         self.logger.info(
             f"scored bootstrap_state={self.bootstrap_state} " + tc.green("✓")
         )
+
         return scores
 
 
@@ -102,10 +127,15 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         attribute_table = pd.DataFrame()
 
         for rank_and_validate in self.estimators:
-            ranker = rank_and_validate.ranker
-            attribute_value = getattr(ranker, attribute)
+            # ensure dataset loaded
             p = self.dataset.p
             assert p is not None, "dataset must be loaded"
+
+            # get attribute from ranker
+            ranker = rank_and_validate.ranker
+            attribute_value = getattr(ranker, attribute)
+
+            # construct dataframe
             attribute_data = {
                 "bootstrap_state": rank_and_validate.bootstrap_state,
                 "feature_index": np.arange(1, p + 1),
@@ -122,6 +152,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
         ranking_scores = ranking_scores.drop(columns=["group"])
         ranking_scores = ranking_scores.set_index("bootstrap_state")
+
+        support_scores = scores[scores["group"] == "support"].dropna(axis=1)
+        support_scores = support_scores.drop(columns=["group"])
+
         validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
         validation_scores = validation_scores.drop(columns=["group"])
 
@@ -185,6 +219,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
                 importances_table = self._get_ranker_attribute_table(
                     "feature_importances_", "feature_importances"
                 )
+                # TODO normalize feature importances
                 wandb_callback.upload_table(importances_table, "feature_importances")
 
             # feature support
@@ -207,6 +242,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         ### validation scores
         if wandb_callback and self.upload_validation_scores:
             self.logger.info(f"Uploading validation scores...")
+
+            ## upload support scores
+            if self.ranker.estimates_feature_support:
+                wandb_callback.upload_table(support_scores, "support_scores")
 
             ## upload validation scores
             wandb_callback.upload_table(validation_scores, "validation_scores")
