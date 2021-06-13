@@ -90,7 +90,7 @@ class AbstractStorageProvider(ABC):
     @abstractmethod
     def get_save_dir(self) -> str:
         ...
-        
+
     @abstractmethod
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         ...

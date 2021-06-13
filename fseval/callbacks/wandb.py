@@ -4,11 +4,11 @@ import time
 from logging import Logger, getLogger
 from typing import Dict, Optional, cast
 
-from fseval.types import Callback
-from fseval.utils.dict_utils import dict_flatten, dict_merge
+import wandb
 from omegaconf import DictConfig, OmegaConf
 
-import wandb
+from fseval.types import Callback
+from fseval.utils.dict_utils import dict_flatten, dict_merge
 
 
 class WandbCallback(Callback):

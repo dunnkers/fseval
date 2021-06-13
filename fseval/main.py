@@ -1,23 +1,12 @@
-from copy import deepcopy
 from logging import getLogger
 from traceback import print_exc
-from typing import Dict, cast
 
 import hydra
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
-from fseval.config import BaseConfig
-from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import Dataset, DatasetLoader
-from fseval.pipelines._callback_collection import CallbackCollection
-from fseval.types import (
-    AbstractPipeline,
-    AbstractStorageProvider,
-    Callback,
-    IncompatibilityError,
-    TerminalColor,
-)
+from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
 @hydra.main(config_path="conf", config_name="my_config")
@@ -48,8 +37,8 @@ def main(cfg: DictConfig) -> None:
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
-    del cfg.storage_provider.load_dir
-    del cfg.storage_provider.save_dir
+    del cfg.storage_provider.load_dir  # set these after callbacks were initialized
+    del cfg.storage_provider.save_dir  # set these after callbacks were initialized
     pipeline.callbacks.on_begin(cfg)
     pipeline.callbacks.on_config_update(
         {

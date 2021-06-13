@@ -3,6 +3,10 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Optional
 
+from hydra.utils import instantiate
+from omegaconf import II, MISSING, OmegaConf
+from sklearn.preprocessing import minmax_scale
+
 from fseval.types import (
     AbstractEstimator,
     AbstractStorageProvider,
@@ -10,9 +14,6 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
-from hydra.utils import instantiate
-from omegaconf import II, MISSING, OmegaConf
-from sklearn.preprocessing import minmax_scale
 
 
 @dataclass

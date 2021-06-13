@@ -1,7 +1,8 @@
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
+
+from omegaconf import DictConfig
 
 from fseval.types import Callback
-from omegaconf import DictConfig
 
 
 class CallbackCollection(Callback):

@@ -1,14 +1,15 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Optional, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
-from fseval.callbacks import WandbCallback
-from fseval.types import TerminalColor as tc
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
+
+from fseval.callbacks import WandbCallback
+from fseval.types import TerminalColor as tc
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline

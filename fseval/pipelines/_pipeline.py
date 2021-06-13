@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Dict
 
+from omegaconf import MISSING
+
 from fseval.pipeline.cv import CrossValidator
 from fseval.pipeline.dataset import DatasetLoader
 from fseval.types import AbstractStorageProvider, Callback
-from omegaconf import MISSING
 
 
 @dataclass

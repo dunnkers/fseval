@@ -2,10 +2,10 @@ import os
 from dataclasses import dataclass
 from logging import Logger, getLogger
 from pickle import dump, load
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
+
 
 from fseval.types import AbstractStorageProvider, TerminalColor
-from omegaconf import DictConfig
 
 
 @dataclass

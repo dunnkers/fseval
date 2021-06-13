@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import List, cast
 
-from fseval.pipeline.estimator import Estimator
 from omegaconf import MISSING
 from sklearn.base import clone
+
+from fseval.pipeline.estimator import Estimator
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
