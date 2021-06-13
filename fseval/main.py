@@ -47,8 +47,18 @@ def main(cfg: DictConfig) -> None:
         return
 
     # run pipeline
-    logger.info(f"starting {cfg.pipeline} pipeline...")
+    logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
+    del cfg.storage_provider.load_dir
+    del cfg.storage_provider.save_dir
     pipeline.callbacks.on_begin(cfg)
+    pipeline.callbacks.on_config_update(
+        {
+            "storage_provider": {
+                "load_dir": pipeline.storage_provider.get_load_dir(),
+                "save_dir": pipeline.storage_provider.get_save_dir(),
+            }
+        }
+    )
     # load dataset and cv split
     logger.info(
         f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
@@ -78,7 +88,10 @@ def main(cfg: DictConfig) -> None:
         pipeline.callbacks.on_end(exit_code=1)
         raise e
 
-    logger.info(f"{cfg.pipeline} pipeline finished {TerminalColor.green('✓')}")
+    logger.info(
+        f"{TerminalColor.yellow(cfg.pipeline)} pipeline "
+        + f"finished {TerminalColor.green('✓')}"
+    )
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
 

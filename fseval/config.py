@@ -15,19 +15,8 @@ cs = ConfigStore.instance()
 @dataclass
 class StorageProviderConfig:
     _target_: str = MISSING
-    local_dir: Optional[str] = None
-
-
-@dataclass
-class WandbStorageProviderConfig(StorageProviderConfig):
-    ...
-
-
-cs.store(
-    group="storage_provider",
-    name="base_wandb_storage_provider",
-    node=WandbStorageProviderConfig,
-)
+    load_dir: Optional[str] = None
+    save_dir: Optional[str] = None
 
 
 @dataclass
@@ -35,10 +24,22 @@ class LocalStorageProviderConfig(StorageProviderConfig):
     ...
 
 
+@dataclass
+class WandbStorageProviderConfig(LocalStorageProviderConfig):
+    entity: Optional[str] = None
+    project: Optional[str] = None
+    run_id: Optional[str] = None
+
+
 cs.store(
     group="storage_provider",
     name="base_local_storage_provider",
     node=LocalStorageProviderConfig,
+)
+cs.store(
+    group="storage_provider",
+    name="base_wandb_storage_provider",
+    node=WandbStorageProviderConfig,
 )
 
 

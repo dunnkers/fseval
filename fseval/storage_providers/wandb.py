@@ -18,9 +18,12 @@ class WandbStorageProvider(LocalStorageProvider):
     restore files to the service.
 
     Arguments:
-        local_dir: Optional[str] - when set, an attempt is made to load from the
+        load_dir: Optional[str] - when set, an attempt is made to load from the
         designated local directory first, before downloading the data off of wandb. Can
         be used to perform faster loads or prevent being rate-limited on wandb.
+
+        save_dir: Optional[str] - when set, uses this directory to save files, instead
+        of the usual wandb run directory, under the `files` subdirectory.
 
         entity: Optional[str] - allows you to recover from a specific entity,
         instead of using the entity that is set for the 'current' run.
@@ -42,17 +45,67 @@ class WandbStorageProvider(LocalStorageProvider):
             + "thread. see https://docs.wandb.ai/guides/track/advanced/distributed-training."
         )
 
-    # TODO better error when callback not enabled, i.e.
-    # assert config["callbacks"].get(
-    #     "wandb"
-    # ), "wandb callback must be enabled to use wandb storage provider."
+    def _get_wandb_run_path(self) -> str:
+        entity: str = self.entity or wandb.run.entity  # type: ignore
+        project: str = self.project or wandb.run.project  # type: ignore
+        run_id: str = self.run_id or wandb.run.id  # type: ignore
+        run_path = f"{entity}/{project}/{run_id}"
 
-    def _get_local_dir(self) -> str:
+        return run_path
+
+    def _get_wandb_load_dir(self) -> str:
         self._assert_wandb_available()
-        filedir = wandb.run.dir  # type: ignore
-        return filedir
 
-    # a=wandb.Api().run("dunnkers/uncategorized/1wthczn7").config
+        # (1) run was resumed: use last run's local dir.
+        if wandb.run.resumed:  # type: ignore
+            load_dir = wandb.run.config["storage_provider/save_dir"]  # type: ignore
+            self.logger.info("run was resumed: local storage load directory set to:")
+            self.logger.info(TerminalColor.blue(load_dir))
+
+            return load_dir
+
+        # (2) use configured run, or otherwise current directory.
+        run_path = self._get_wandb_run_path()
+        api = wandb.Api()
+        try:
+            run = api.run(run_path)
+            load_dir = run.config["storage_provider/save_dir"]
+            self.logger.info("remote run found: local storage load directory set to:")
+            self.logger.info(TerminalColor.blue(load_dir))
+
+            return load_dir
+        except Exception:
+            ...
+
+        # (3) use current directory.
+        load_dir = wandb.run.dir  # type: ignore
+        self.logger.info("no previous run found, using current directory as load dir:")
+        self.logger.info(TerminalColor.blue(load_dir))
+
+        return load_dir
+
+    def get_load_dir(self) -> str:
+        load_dir = self.load_dir or self._get_wandb_load_dir()
+        self.load_dir = load_dir
+
+        return load_dir
+
+    def _get_wandb_save_dir(self) -> str:
+        self._assert_wandb_available()
+
+        # for saving, always use the current run dir.
+        save_dir = wandb.run.dir  # type: ignore
+        self.logger.info("saving files to:")
+        self.logger.info(save_dir)
+
+        return save_dir
+
+    def get_save_dir(self) -> str:
+        save_dir = self.save_dir or self._get_wandb_save_dir()
+        self.save_dir = save_dir
+
+        return save_dir
+
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         # save to local disk
         super(WandbStorageProvider, self).save(filename, writer, mode)
@@ -60,17 +113,14 @@ class WandbStorageProvider(LocalStorageProvider):
         # save to wandb
         wandb.save(filename, base_path="/")  # type: ignore
         self.logger.info(
-            f"uploaded {TerminalColor.yellow(filename)} to "
-            + TerminalColor.blue("wandb servers")
+            f"uploaded {TerminalColor.blue(filename)} to "
+            + TerminalColor.yellow("wandb servers")
             + TerminalColor.green(" ✓")
         )
 
     def _restore_from_wandb(self, filename: str):
         try:
-            entity = self.entity or wandb.run.entity  # type: ignore
-            project = self.project or wandb.run.project  # type: ignore
-            run_id = self.run_id or wandb.run.id  # type: ignore
-            run_path = f"{entity}/{project}/{run_id}"
+            run_path = self._get_wandb_run_path()
             file_handle = wandb.restore(filename, run_path=run_path)
 
             return file_handle
@@ -93,8 +143,8 @@ class WandbStorageProvider(LocalStorageProvider):
         file = self._restore_from_wandb(filename)
         if file:
             self.logger.info(
-                f"downloaded {TerminalColor.yellow(filename)} from "
-                + TerminalColor.blue("wandb servers")
+                f"downloaded {TerminalColor.blue(filename)} from "
+                + TerminalColor.yellow("wandb servers")
                 + TerminalColor.green(" ✓")
             )
             file = super(WandbStorageProvider, self).restore(filename, reader, mode)

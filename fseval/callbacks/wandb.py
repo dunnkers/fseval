@@ -60,14 +60,9 @@ class WandbCallback(Callback):
                 the `wandb.init` signature)"""
             ).with_traceback(sys.exc_info()[2])
 
-        assert (
-            wandb.run is not None
-        ), "failed to initialize wandb.run: `wandb.run` is None."
-        self.on_config_update({"storage_provider": {"save_dir": wandb.run.dir}})
-
     def on_config_update(self, config: Dict):
         prepared_cfg = self._prepare_cfg(config)
-        wandb.config.update(prepared_cfg)
+        wandb.config.update(prepared_cfg, allow_val_change=True)
 
     def on_metrics(self, metrics):
         if not self.log_metrics:

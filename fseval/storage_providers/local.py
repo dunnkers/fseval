@@ -10,23 +10,27 @@ from omegaconf import DictConfig
 
 @dataclass
 class LocalStorageProvider(AbstractStorageProvider):
-    local_dir: Optional[str] = None
+    load_dir: Optional[str] = None
+    save_dir: Optional[str] = None
 
     logger: Logger = getLogger(__name__)
 
-    def _get_local_dir(self) -> str:
-        return self.local_dir or "."
+    def get_load_dir(self) -> str:
+        return self.load_dir or "."
+
+    def get_save_dir(self) -> str:
+        return self.save_dir or "."
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
-        filedir = self._get_local_dir()
+        filedir = self.get_save_dir()
         filepath = os.path.join(filedir, filename)
 
         with open(filepath, mode=mode) as file_handle:
             writer(file_handle)
 
         self.logger.info(
-            f"successfully saved {TerminalColor.yellow(filename)} to "
-            + TerminalColor.blue("local disk")
+            f"successfully saved {TerminalColor.blue(filename)} to "
+            + TerminalColor.yellow("local disk")
             + TerminalColor.green(" ✓")
         )
 
@@ -34,10 +38,10 @@ class LocalStorageProvider(AbstractStorageProvider):
         self.save(filename, lambda file: dump(obj, file), mode="wb")
 
     def restore(self, filename: str, reader: Callable, mode: str = "r") -> Any:
-        filedir = self._get_local_dir()
+        filedir = self.get_load_dir()
         filepath = os.path.join(filedir, filename)
 
-        if self.local_dir is None or not os.path.exists(filepath):
+        if not os.path.exists(filepath):
             return None
 
         with open(filepath, mode=mode) as file_handle:
@@ -45,10 +49,11 @@ class LocalStorageProvider(AbstractStorageProvider):
 
         if file:
             self.logger.info(
-                f"successfully restored {TerminalColor.yellow(filename)} from "
-                + TerminalColor.blue("local disk")
+                f"successfully restored {TerminalColor.blue(filename)} from "
+                + TerminalColor.yellow("local disk")
                 + TerminalColor.green(" ✓")
             )
+            return file
         else:
             return None
 
