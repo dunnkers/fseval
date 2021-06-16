@@ -2,13 +2,12 @@ from typing import Optional
 
 import numpy as np
 import pytest
-from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
-from sklearn.base import clone
-
 from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimatorConfig
 from fseval.types import Task
 from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
+from hydra.utils import instantiate
+from omegaconf import DictConfig, OmegaConf
+from sklearn.base import clone
 
 
 def pytest_generate_tests(metafunc):
@@ -48,7 +47,7 @@ class TestEstimator(TestGroupItem):
 
     @pytest.fixture
     def X(self) -> np.ndarray:
-        return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1]])
+        return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1], [1, 4, 5]])
 
     def test_clone(self, estimator):
         estimator_cloned = clone(estimator)
@@ -97,7 +96,7 @@ class TestClassifiers(TestEstimator):
 
     @pytest.fixture
     def y(self) -> np.ndarray:
-        return np.array([0, 1, 0, 1])
+        return np.array([0, 1, 0, 1, 0])
 
 
 class TestMultioutputClassifiers(TestClassifiers):
@@ -118,7 +117,7 @@ class TestMultioutputClassifiers(TestClassifiers):
 
     @pytest.fixture
     def y(self) -> np.ndarray:
-        return np.array([[0, 1], [1, 1], [0, 1], [1, 0]])
+        return np.array([[0, 1], [1, 1], [0, 1], [1, 0], [1, 0]])
 
 
 class TestRegressors(TestEstimator):
@@ -135,7 +134,7 @@ class TestRegressors(TestEstimator):
 
     @pytest.fixture
     def y(self) -> np.ndarray:
-        return np.array([0.2, 1.5, 0.1, 1.7])
+        return np.array([0.2, 1.5, 0.1, 1.7, 442.1])
 
 
 class TestMultioutputRegressors(TestRegressors):
@@ -156,4 +155,4 @@ class TestMultioutputRegressors(TestRegressors):
 
     @pytest.fixture
     def y(self) -> np.ndarray:
-        return np.array([[0.0, 1.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0]])
+        return np.array([[0.0, 1.0], [1.0, 1.0], [0.0, 1.0], [1.0, 0.0], [1.0, 3.0]])
