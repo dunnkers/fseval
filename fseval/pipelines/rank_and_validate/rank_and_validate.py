@@ -123,26 +123,43 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     def _get_overrides_text(self, estimator):
         return f"[bootstrap_state={estimator.bootstrap_state}] "
 
-    def _get_ranker_attribute_table(self, attribute: str, attribute_name: str):
+    def _get_ranker_attribute_table(self, attribute: str):
+        # ensure dataset loaded
+        p = self.dataset.p
+        assert p is not None, "dataset must be loaded"
+
+        # construct attribute table
         attribute_table = pd.DataFrame()
 
-        for rank_and_validate in self.estimators:
-            # ensure dataset loaded
-            p = self.dataset.p
-            assert p is not None, "dataset must be loaded"
-
-            # get attribute from ranker
-            ranker = rank_and_validate.ranker
-            attribute_value = getattr(ranker, attribute)
-
-            # construct dataframe
+        def get_attribute_row(attribute_value: np.ndarray, group: str):
             attribute_data = {
-                "bootstrap_state": rank_and_validate.bootstrap_state,
-                "feature_index": np.arange(1, p + 1),
+                "feature_index": np.arange(1, p + 1),  # type: ignore
             }
-            attribute_data[attribute_name] = attribute_value
+            attribute_data[attribute] = attribute_value
+            attribute_data["group"] = group
             attribute_row = pd.DataFrame(attribute_data)
-            attribute_table = attribute_table.append(attribute_row)
+
+            return attribute_row
+
+        # attach estimated attributes
+        has_ground_truth = False
+        for rank_and_validate in self.estimators:
+            # get attributes from rank and validate estimator
+            ranking_validator = rank_and_validate.ranking_validator
+            bootstrap_state = ranking_validator.bootstrap_state
+            has_ground_truth = ranking_validator.X_importances is not None
+
+            # attach estimated
+            estimated = getattr(ranking_validator, f"estimated_{attribute}")
+            estimated_row = get_attribute_row(estimated, "estimated")
+            estimated_row["bootstrap_state"] = bootstrap_state
+            attribute_table = attribute_table.append(estimated_row)
+
+        # attach ground truth, if available
+        if has_ground_truth:
+            ground_truth = getattr(ranking_validator, f"ground_truth_{attribute}")
+            ground_truth_row = get_attribute_row(ground_truth, "ground_truth")
+            attribute_table = attribute_table.append(ground_truth_row)
 
         return attribute_table
 
@@ -217,23 +234,18 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             # feature importances
             if self.ranker.estimates_feature_importances:
                 importances_table = self._get_ranker_attribute_table(
-                    "feature_importances_", "feature_importances"
+                    "feature_importances"
                 )
-                # TODO normalize feature importances
                 wandb_callback.upload_table(importances_table, "feature_importances")
 
             # feature support
             if self.ranker.estimates_feature_support:
-                support_table = self._get_ranker_attribute_table(
-                    "feature_support_", "feature_support"
-                )
+                support_table = self._get_ranker_attribute_table("feature_support")
                 wandb_callback.upload_table(support_table, "feature_support")
 
             # feature ranking
             if self.ranker.estimates_feature_ranking:
-                ranking_table = self._get_ranker_attribute_table(
-                    "feature_ranking_", "feature_ranking"
-                )
+                ranking_table = self._get_ranker_attribute_table("feature_ranking")
                 wandb_callback.upload_table(ranking_table, "feature_ranking")
 
             ## upload ranking scores
