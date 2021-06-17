@@ -9,9 +9,10 @@ adapter:
   n_repeated: 0
   n_samples: 10000
   random_state: 0
+  shuffle: false
 domain: synthetic
 feature_importances:
-  X[:, 0:4]: 1.0
+  X[:, 0:3]: 1.0
 group: Synclf
 name: Synclf hard
 task: classification

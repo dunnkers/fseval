@@ -1,17 +1,28 @@
-name: Synreg medium
-group: Synreg
-task: regression
-domain: synthetic
 adapter:
   _target_: sklearn.datasets.make_regression
-  n_samples: 10000
+  bias: 200
+  coef: false
+  effective_rank: null
   n_features: 10
   n_informative: 2
+  n_samples: 10000
   n_targets: 1
-  bias: 200
-  effective_rank: null
   noise: 0.15
-  coef: False
   random_state: 0
+  shuffle: false
+domain: synthetic
 feature_importances:
-  X[:, :]: [0.0, 0.0, 0.0, 0.5398622871951788, 0.0, 0.0, 0.4601377128048212, 0.0, 0.0, 0.0]
+  X[:, :]:
+  - 0.6696632156761879
+  - 0.3303367843238121
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+group: Synreg
+name: Synreg medium
+task: regression
