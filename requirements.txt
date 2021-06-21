@@ -25,8 +25,8 @@ Flask==1.1.2
 gitdb==4.0.7
 GitPython==3.1.14
 humanfriendly==9.1
-hydra-colorlog==1.1.0.dev1
-hydra-core==1.1.0rc1
+hydra-colorlog==1.1.0
+hydra-core==1.1.0
 idna==2.10
 -e git+https://github.com/dunnkers/infinite-selection.git@33ee7caed9ce38607d432750fa562bb40aa72b42#egg=infinite_selection
 iniconfig==1.1.1
@@ -105,8 +105,8 @@ tqdm==4.60.0
 traitlets==5.0.5
 typed-ast==1.4.3
 typing-extensions==3.7.4.3
-urllib3==1.26.5
-wandb==0.10.31
+urllib3==1.26.4
+wandb==0.10.32
 wcwidth==0.2.5
 Werkzeug==1.0.1
 xgboost==1.4.2

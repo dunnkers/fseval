@@ -9,6 +9,7 @@ with open("README.md", "r") as fh:
         version="2.0.5",
         packages=find_packages(include=["fseval", "fseval.*"]),
         entry_points={"console_scripts": ["fseval = fseval.main:main"]},
+        description="Benchmarking framework for Feature Selection algorithms 🚀",
         long_description=LONG_DESC,
         long_description_content_type="text/markdown",
         license="MIT",
@@ -16,8 +17,8 @@ with open("README.md", "r") as fh:
         url="https://github.com/dunnkers/fseval",
         include_package_data=True,
         install_requires=[
-            "hydra-core==1.1.0.rc1",
-            "hydra-colorlog==1.1.0.dev1",
+            "hydra-core==1.1.0",
+            "hydra-colorlog==1.1.0",
             "numpy>=1.19",
             "pandas>=1.1",
             "scikit-learn>=0.24",
