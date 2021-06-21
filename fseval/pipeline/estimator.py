@@ -1,15 +1,11 @@
 import inspect
 from dataclasses import dataclass
 from logging import Logger, getLogger
+from time import perf_counter
 from typing import Any, Optional
 
-from fseval.types import (
-    AbstractEstimator,
-    AbstractStorageProvider,
-    CacheUsage,
-    IncompatibilityError,
-    Task,
-)
+from fseval.types import (AbstractEstimator, AbstractStorageProvider,
+                          CacheUsage, IncompatibilityError, Task)
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
@@ -79,7 +75,9 @@ class Estimator(AbstractEstimator, EstimatorConfig):
 
     def _load_cache(self, filename: str, storage_provider: AbstractStorageProvider):
         if self.load_cache == CacheUsage.never:
-            self.logger.info("ignoring cache load completely.")
+            self.logger.debug(
+                "cache loading set to `never`: not attempting to load estimator from cache."
+            )
             return
 
         restored = storage_provider.restore_pickle(filename)
@@ -94,7 +92,7 @@ class Estimator(AbstractEstimator, EstimatorConfig):
 
     def _save_cache(self, filename: str, storage_provider: AbstractStorageProvider):
         if self.save_cache == CacheUsage.never:
-            self.logger.info("ignoring cache save completely.")
+            self.logger.debug("cache saving set to `never`: not caching estimator.")
             return
         else:
             storage_provider.save_pickle(filename, self.estimator)
@@ -103,7 +101,7 @@ class Estimator(AbstractEstimator, EstimatorConfig):
     def fit(self, X, y):
         # don't refit if cache available and `use_cache_if_available` is enabled
         if self._is_fitted:
-            self.logger.debug("using estimator from cache.")
+            self.logger.debug("using estimator from cache, skipping fit step.")
             return self
 
         # rescale if necessary
@@ -115,7 +113,11 @@ class Estimator(AbstractEstimator, EstimatorConfig):
 
         # fit
         self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")
+        start_time = perf_counter()
         self.estimator.fit(X, y)
+        fit_time = perf_counter() - start_time
+        self.fit_time_ = fit_time
+
         return self
 
     def transform(self, X, y):
@@ -153,10 +155,14 @@ class Estimator(AbstractEstimator, EstimatorConfig):
 
     @property
     def fit_time_(self):
+        """ "Retrieves the estimator fitting time. Either the cached fitting time, or
+        the time that was just recorded."""
         return self.estimator._fseval_internal_fit_time_
 
     @fit_time_.setter
     def fit_time_(self, fit_time_):
+        """Store the recorded fitting time. Stored in an attribute on the estimator
+        itself, so the fitting time is cached inside the estimator object."""
         setattr(self.estimator, "_fseval_internal_fit_time_", fit_time_)
 
 

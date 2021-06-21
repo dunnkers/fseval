@@ -5,10 +5,9 @@ from time import perf_counter
 from typing import List
 
 import pandas as pd
-from humanfriendly import format_timespan
-
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
+from humanfriendly import format_timespan
 
 
 @dataclass
@@ -72,18 +71,16 @@ class Experiment(AbstractEstimator):
         logger = self._logger(estimator)
         text = self._step_text("fit", step_number, estimator)
 
+        # fit & print time elapsed
         start_time = perf_counter()
         estimator.fit(X, y)
         fit_time = perf_counter() - start_time
-        setattr(estimator, "fit_time_", fit_time)
-
         logger(text(fit_time))
 
         return estimator
 
     def fit(self, X, y) -> AbstractEstimator:
-        """Sequentially fits all estimators in this experiment, and record timings;
-        which will be stored in a `fit_time_` attribute in each estimator itself.
+        """Sequentially fits all estimators in this experiment.
 
         Args:
             X (np.ndarray): design matrix X

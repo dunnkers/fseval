@@ -1,4 +1,6 @@
+from glob import glob
 from logging import getLogger
+from os import path
 from traceback import print_exc
 
 import hydra
@@ -41,14 +43,18 @@ def main(cfg: BaseConfig) -> None:
     del cfg.storage_provider.load_dir  # set these after callbacks were initialized
     del cfg.storage_provider.save_dir  # set these after callbacks were initialized
     pipeline.callbacks.on_begin(cfg)
+    # set storage provider load- and save dirs
+    load_dir = pipeline.storage_provider.get_load_dir()
+    save_dir = pipeline.storage_provider.get_save_dir()
     pipeline.callbacks.on_config_update(
         {
             "storage_provider": {
-                "load_dir": pipeline.storage_provider.get_load_dir(),
-                "save_dir": pipeline.storage_provider.get_save_dir(),
+                "load_dir": load_dir,
+                "save_dir": save_dir,
             }
         }
     )
+    logger.info(f"loading files from: {TerminalColor.blue(path.abspath(load_dir))}")
     # load dataset and cv split
     logger.info(
         f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
@@ -78,6 +84,11 @@ def main(cfg: BaseConfig) -> None:
         pipeline.callbacks.on_end(exit_code=1)
         raise e
 
+    n_saved_files = len(glob("./*"))
+    logger.info(
+        f"saved {n_saved_files} files to {TerminalColor.blue(path.abspath(save_dir))} "
+        + TerminalColor.green("✓")
+    )
     logger.info(
         f"{TerminalColor.yellow(cfg.pipeline)} pipeline "
         + f"finished {TerminalColor.green('✓')}"
