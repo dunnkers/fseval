@@ -4,8 +4,13 @@ from logging import Logger, getLogger
 from time import perf_counter
 from typing import Any, Optional
 
-from fseval.types import (AbstractEstimator, AbstractStorageProvider,
-                          CacheUsage, IncompatibilityError, Task)
+from fseval.types import (
+    AbstractEstimator,
+    AbstractStorageProvider,
+    CacheUsage,
+    IncompatibilityError,
+    Task,
+)
 from hydra.utils import instantiate
 from omegaconf import II, MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
