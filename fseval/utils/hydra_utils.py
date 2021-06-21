@@ -1,13 +1,12 @@
 from typing import List, Optional
 
+from fseval.config import BaseConfig
 from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
 from hydra.core.object_type import ObjectType
 from hydra.types import RunMode
 from omegaconf import DictConfig, OmegaConf
-
-from fseval.config import BaseConfig
 
 """Helper functions for Hydra-related operations. e.g. finding out what optionsa are
 available for some group, or getting a specific config for some group item. Enables
@@ -31,11 +30,13 @@ def _get_config_loader() -> ConfigLoader:
     return cl
 
 
-def get_config() -> BaseConfig:
+def get_config(
+    config_name: Optional[str] = "my_config", overrides: List[str] = []
+) -> BaseConfig:
     """Gets the fseval configuration as composed by Hydra. Local .yaml configuration
     and defaults are automatically merged."""
     _ensure_hydra_initialized()
-    config = compose(config_name="my_config")
+    config = compose(config_name=config_name, overrides=overrides)
     return config  # type: ignore
 
 
