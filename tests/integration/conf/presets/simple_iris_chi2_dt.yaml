@@ -1,0 +1,5 @@
+# @package _global_
+defaults:
+  - /dataset: iris
+  - /estimator@ranker: chi2
+  - /estimator@validator: decision_tree
