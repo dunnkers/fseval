@@ -9,10 +9,8 @@ hydra:
 defaults:
   - base_config
   - pipeline/rank_and_validate
-  - dataset: synclf_easy
   - cv: kfold
   - callbacks: []
-  - storage_provider: null
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
 

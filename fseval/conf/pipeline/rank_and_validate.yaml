@@ -2,8 +2,6 @@
 defaults:
   - /base_rank_and_validate
   - /resample: bootstrap
-  - /estimator@ranker: chi2
-  - /estimator@validator: decision_tree
 
 pipeline: rank-and-validate
 n_bootstraps: 2

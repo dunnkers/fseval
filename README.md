@@ -18,7 +18,7 @@ Now, create a [wandb](https://wandb.ai/) account and login to the CLI. We are no
 
 Run ANOVA F-Value on Iris dataset:
 ```shell
-fseval dataset=iris estimator@ranker=anova_f_value
+fseval +dataset=iris +estimator@ranker=anova_f_value +estimator@validator=decision_tree
 ```
 
 ## Supported Feature Rankers
@@ -45,7 +45,7 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
 ## Wandb support
-Wandb is enabled by default. It's used to store metrics, but also files. Set any parameter to be passed to `wandb.init` like so:
+Wandb can be enabled by using `+backend=wandb`. It's used to store metrics, but also files. Set any parameter to be passed to `wandb.init` like so:
 
 ```shell
 fseval callbacks.wandb.project=<your-project-name> callbacks.wandb.group=<run-group>
@@ -60,7 +60,7 @@ fseval callbacks.wandb.id=<wandb_run_id> callbacks.wandb.log_metrics=false
 
 To disable wandb, use:
 ```shell
-fseval "~callbacks.wandb" "storage_provider=mock"
+fseval "~callbacks.wandb"
 ```
 ### About
 Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis (_Data Science and Computational Complexity_ track at the University of Groningen).
