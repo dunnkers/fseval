@@ -8,7 +8,7 @@ from hydra.core.object_type import ObjectType
 from hydra.types import RunMode
 from omegaconf import DictConfig, OmegaConf
 
-"""Helper functions for Hydra-related operations. e.g. finding out what optionsa are
+"""Helper functions for Hydra-related operations. e.g. finding out what options are
 available for some group, or getting a specific config for some group item. Enables
 fully automated testing of group configs.
 

@@ -29,6 +29,9 @@ class CrossValidator:
 
     def _ensure_splitter(self):
         assert self.splitter is not None, "no splitter configured!"
+        assert hasattr(
+            self.splitter, "split"
+        ), "cv splitter must have `split()` function."
 
     def split(self, X, y=None, groups=None) -> Generator[Tuple[List, List], None, None]:
         self._ensure_splitter()
