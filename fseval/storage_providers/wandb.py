@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, Callable, Optional
 
-import wandb
-
 from fseval.types import TerminalColor
+
+import wandb
 
 from .local import LocalStorageProvider
 
@@ -64,7 +64,7 @@ class WandbStorageProvider(LocalStorageProvider):
                 + TerminalColor.cyan("resumed")
                 + "):"
             )
-            print(TerminalColor.blue(load_dir))
+            self.logger.info(TerminalColor.blue(load_dir))
 
             return load_dir
 
@@ -79,7 +79,7 @@ class WandbStorageProvider(LocalStorageProvider):
                 + TerminalColor.cyan("remote run")
                 + " was found):"
             )
-            print(TerminalColor.blue(load_dir))
+            self.logger.info(TerminalColor.blue(load_dir))
 
             return load_dir
         except Exception:
@@ -92,7 +92,7 @@ class WandbStorageProvider(LocalStorageProvider):
             + TerminalColor.cyan("no existing")
             + " run found):"
         )
-        print(TerminalColor.blue(load_dir))
+        self.logger.info(TerminalColor.blue(load_dir))
 
         return load_dir
 
@@ -108,7 +108,7 @@ class WandbStorageProvider(LocalStorageProvider):
         # for saving, always use the current run dir.
         save_dir = wandb.run.dir  # type: ignore
         self.logger.info(TerminalColor.yellow("saving") + " files to:")
-        print(TerminalColor.blue(save_dir))
+        self.logger.info(TerminalColor.blue(save_dir))
 
         return save_dir
 

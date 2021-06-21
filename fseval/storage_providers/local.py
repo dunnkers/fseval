@@ -29,12 +29,12 @@ class LocalStorageProvider(AbstractStorageProvider):
         with open(filepath, mode=mode) as file_handle:
             writer(file_handle)
 
-        self.logger.info(
+        self.logger.debug(
             f"successfully saved {TerminalColor.blue(filename)} to "
             + TerminalColor.yellow("local disk")
             + TerminalColor.green(" ✓")
         )
-        print(TerminalColor.blue(filepath))
+        self.logger.debug(TerminalColor.blue(filepath))
 
     def save_pickle(self, filename: str, obj: Any):
         self.save(filename, lambda file: dump(obj, file), mode="wb")
@@ -43,8 +43,8 @@ class LocalStorageProvider(AbstractStorageProvider):
         filedir = self.get_load_dir()
         filepath = os.path.join(filedir, filename)
 
-        self.logger.info("attempting to restore:")
-        print(TerminalColor.blue(filepath))
+        self.logger.debug("attempting to restore:")
+        self.logger.debug(TerminalColor.blue(filepath))
 
         if not os.path.exists(filepath):
             return None
@@ -53,7 +53,7 @@ class LocalStorageProvider(AbstractStorageProvider):
             file = reader(file_handle)
 
         if file:
-            self.logger.info(
+            self.logger.debug(
                 f"successfully restored {TerminalColor.blue(filename)} from "
                 + TerminalColor.yellow("local disk")
                 + TerminalColor.green(" ✓")
