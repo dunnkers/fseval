@@ -16,11 +16,13 @@ class LocalStorageProvider(AbstractStorageProvider):
 
     def get_load_dir(self) -> str:
         load_dir = self.load_dir or "."
-        return load_dir
+
+        return os.path.abspath(load_dir)
 
     def get_save_dir(self) -> str:
         save_dir = self.save_dir or "."
-        return save_dir
+
+        return os.path.abspath(save_dir)
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         filedir = self.get_save_dir()

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
+from os import path
 from typing import Any, Callable, Optional
 
 from fseval.types import TerminalColor
@@ -60,11 +61,10 @@ class WandbStorageProvider(LocalStorageProvider):
         if wandb.run.resumed:  # type: ignore
             load_dir = wandb.run.config["storage_provider/save_dir"]  # type: ignore
             self.logger.info(
-                f"{TerminalColor.yellow('loading')} files from (run was "
-                + TerminalColor.cyan("resumed")
-                + "):"
+                f"{TerminalColor.yellow('loading')} files from: "
+                + TerminalColor.cyan("wandb save dir")
+                + " (run was resumed)"
             )
-            self.logger.info(TerminalColor.blue(load_dir))
 
             return load_dir
 
@@ -75,11 +75,9 @@ class WandbStorageProvider(LocalStorageProvider):
             run = api.run(run_path)
             load_dir = run.config["storage_provider/save_dir"]
             self.logger.info(
-                f"{TerminalColor.yellow('loading')} files from ("
+                f"{TerminalColor.yellow('loading')} files from: "
                 + TerminalColor.cyan("remote run")
-                + " was found):"
             )
-            self.logger.info(TerminalColor.blue(load_dir))
 
             return load_dir
         except Exception:
@@ -88,11 +86,10 @@ class WandbStorageProvider(LocalStorageProvider):
         # (3) use current directory.
         load_dir = wandb.run.dir  # type: ignore
         self.logger.info(
-            f"{TerminalColor.yellow('loading')} files from ("
-            + TerminalColor.cyan("no existing")
-            + " run found):"
+            f"{TerminalColor.yellow('loading')} files from: "
+            + TerminalColor.cyan("current directory")
+            + " (no existing run found)"
         )
-        self.logger.info(TerminalColor.blue(load_dir))
 
         return load_dir
 
@@ -100,15 +97,16 @@ class WandbStorageProvider(LocalStorageProvider):
         load_dir = self.load_dir or self._get_wandb_load_dir()
         self.load_dir = load_dir
 
-        return load_dir
+        return path.abspath(load_dir)
 
     def _get_wandb_save_dir(self) -> str:
         self._assert_wandb_available()
 
         # for saving, always use the current run dir.
         save_dir = wandb.run.dir  # type: ignore
-        self.logger.info(TerminalColor.yellow("saving") + " files to:")
-        self.logger.info(TerminalColor.blue(save_dir))
+        self.logger.info(TerminalColor.yellow("saving") + " files to: "
+            + TerminalColor.cyan("wandb run dir")
+        )
 
         return save_dir
 
@@ -116,7 +114,7 @@ class WandbStorageProvider(LocalStorageProvider):
         save_dir = self.save_dir or self._get_wandb_save_dir()
         self.save_dir = save_dir
 
-        return save_dir
+        return path.abspath(save_dir)
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         # save to local disk

@@ -1,6 +1,5 @@
 from glob import glob
 from logging import getLogger
-from os import path
 from traceback import print_exc
 
 import hydra
@@ -54,7 +53,7 @@ def main(cfg: BaseConfig) -> None:
             }
         }
     )
-    logger.info(f"loading files from: {TerminalColor.blue(path.abspath(load_dir))}")
+    logger.info(f"loading files from: {TerminalColor.blue(load_dir)}")
     # load dataset and cv split
     logger.info(
         f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
@@ -86,7 +85,7 @@ def main(cfg: BaseConfig) -> None:
 
     n_saved_files = len(glob("./*"))
     logger.info(
-        f"saved {n_saved_files} files to {TerminalColor.blue(path.abspath(save_dir))} "
+        f"saved {n_saved_files} files to {TerminalColor.blue(save_dir)} "
         + TerminalColor.green("✓")
     )
     logger.info(
