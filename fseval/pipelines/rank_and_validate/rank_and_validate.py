@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from fseval.callbacks import WandbCallback
 from fseval.types import TerminalColor as tc
+from fseval.utils.dict_utils import dict_flatten
 from omegaconf import MISSING
 from sklearn.base import clone
 from tqdm import tqdm
@@ -181,26 +182,9 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         # print scores
         self.logger.info(f"{tc.yellow(self.ranker.name)} ranking scores:")
         print(agg_ranking_scores)
-        # send metrics
-        agg_ranking_scores = agg_ranking_scores.to_dict()
-        self.callbacks.on_metrics(dict(ranker=agg_ranking_scores))
 
         ##### Validation scores - aggregation
         val_scores_per_feature = validation_scores.groupby("n_features_to_select")
-        progbar = tqdm(list(val_scores_per_feature), desc="uploading validation scores")
-
-        for n_features_to_select, feature_scores in progbar:
-            feature_scores = feature_scores.drop(
-                columns=["bootstrap_state", "n_features_to_select"]
-            )
-            agg_feature_scores = feature_scores.agg(
-                ["mean", "std", "var", "min", "max"]
-            )
-
-            # send metrics
-            agg_feature_scores_dict = agg_feature_scores.to_dict()
-            agg_feature_scores_dict["n_features_to_select"] = int(n_features_to_select)
-            self.callbacks.on_metrics(dict(validator=agg_feature_scores_dict))
         # print scores
         print()
         self.logger.info(f"{tc.yellow(self.validator.name)} validation scores:")
@@ -208,17 +192,19 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         print(agg_val_scores)
 
         ##### Summary
-        best = {}
-        # best validator
-        best_subset_index = validation_scores["score"].argmax()
-        best_subset = validation_scores.iloc[best_subset_index]
-        best["validator"] = best_subset.to_dict()
-        # best accompanying ranking
-        best_subset_bootstrap_state = best_subset["bootstrap_state"]
-        best_ranker = ranking_scores.loc[best_subset_bootstrap_state]
-        best["ranker"] = best_ranker.to_dict()
-        # summary
-        summary = dict(best=best)
+        summary = dict()
+        ### Mean ranking score
+        ranking_scores_mean = ranking_scores.agg(["mean"])
+        ranking_scores_mean = ranking_scores_mean.add_prefix("ranker/")
+        ranking_scores_mean_dict = ranking_scores_mean.to_dict()
+        ranking_scores_mean_flat = dict_flatten(ranking_scores_mean_dict, sep="/")
+        summary = dict(**summary, **ranking_scores_mean_flat)
+        ### Mean validation score
+        validation_scores_mean = agg_val_scores.agg(["mean"])
+        validation_scores_mean = validation_scores_mean.add_prefix("validator/")
+        validation_scores_mean_dict = validation_scores_mean.to_dict()
+        validation_scores_mean_flat = dict_flatten(validation_scores_mean_dict, sep="/")
+        summary = dict(**summary, **validation_scores_mean_flat)
 
         ##### Upload tables
         wandb_callback = getattr(self.callbacks, "wandb", False)
@@ -265,17 +251,6 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             ## upload mean validation scores
             all_agg_val_scores = agg_val_scores.reset_index()
             wandb_callback.upload_table(all_agg_val_scores, "validation_scores_mean")
-
-        ### upload best scores
-        if wandb_callback and self.upload_best_scores:
-            self.logger.info(f"Uploading best scores...")
-
-            ## best ranker- and validation scores
-            best_subset_prefixed = best_subset.add_prefix("validator.")
-            best_ranker_prefixed = best_ranker.add_prefix("ranker.")
-            best_scores = pd.concat([best_subset_prefixed, best_ranker_prefixed])
-            best_scores_df = pd.DataFrame([best_scores])
-            wandb_callback.upload_table(best_scores_df, "best_scores")
 
         if wandb_callback:
             self.logger.info(f"Tables uploaded {tc.green('✓')}")

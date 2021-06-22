@@ -146,7 +146,6 @@ def cfg(dataset, cv, resample, classifier, ranker, validator):
         all_features_to_select="range(1, min(50, p) + 1)",
         upload_ranking_scores=True,
         upload_validation_scores=True,
-        upload_best_scores=True,
     )
 
     cfg = OmegaConf.create(config.__dict__)
@@ -173,8 +172,8 @@ def test_without_ranker_gt(cfg):
         X_test, y_test, feature_importances=dataset.feature_importances
     )
 
-    assert score["best"]["validator"]["fit_time"] > 0
-    assert score["best"]["validator"]["score"] >= 0.0
+    assert score["validator/fit_time/mean"] > 0
+    assert score["validator/score/mean"] >= 0.0
 
 
 def test_with_ranker_gt(cfg):
@@ -199,15 +198,15 @@ def test_with_ranker_gt(cfg):
         X_test, y_test, feature_importances=dataset.feature_importances
     )
 
-    assert score["best"]["validator"]["fit_time"] > 0
-    assert score["best"]["ranker"]["fit_time"] > 0
+    assert score["validator/fit_time/mean"] > 0
+    assert score["ranker/fit_time/mean"] > 0
 
-    assert score["best"]["ranker"]["importance.r2_score"] <= 1.0
-    assert score["best"]["ranker"]["importance.log_loss"] >= 0
-    assert score["best"]["ranker"]["support.accuracy"] >= 0.0
-    assert score["best"]["ranker"]["support.accuracy"] <= 1.0
-    assert score["best"]["ranker"]["ranking.r2_score"] <= 1.0
-    assert score["best"]["validator"]["score"] >= 0.0
+    assert score["ranker/importance/r2_score/mean"] <= 1.0
+    assert score["ranker/importance/log_loss/mean"] >= 0
+    assert score["ranker/support/accuracy/mean"] >= 0.0
+    assert score["ranker/support/accuracy/mean"] <= 1.0
+    assert score["ranker/ranking/r2_score/mean"] <= 1.0
+    assert score["validator/score/mean"] >= 0.0
 
 
 def test_with_ranker_gt_no_importances_substitution(cfg):
@@ -234,8 +233,8 @@ def test_with_ranker_gt_no_importances_substitution(cfg):
         X_test, y_test, feature_importances=dataset.feature_importances
     )
 
-    assert score["best"]["ranker"]["ranking.r2_score"] <= 1.0
-    assert score["best"]["validator"]["score"] >= 0.0
+    assert score["ranker/ranking/r2_score/mean"] <= 1.0
+    assert score["validator/score/mean"] >= 0.0
 
 
 def test_validator_incompatibility_check(cfg):

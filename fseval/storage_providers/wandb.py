@@ -104,7 +104,9 @@ class WandbStorageProvider(LocalStorageProvider):
 
         # for saving, always use the current run dir.
         save_dir = wandb.run.dir  # type: ignore
-        self.logger.info(TerminalColor.yellow("saving") + " files to: "
+        self.logger.info(
+            TerminalColor.yellow("saving")
+            + " files to: "
             + TerminalColor.cyan("wandb run dir")
         )
 

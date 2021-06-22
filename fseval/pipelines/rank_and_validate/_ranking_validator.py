@@ -158,18 +158,18 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             # r2 score
             y_true = self.ground_truth_feature_importances
             y_pred = self.estimated_feature_importances
-            score["importance.r2_score"] = r2_score(y_true, y_pred)
+            score["importance/r2_score"] = r2_score(y_true, y_pred)
 
             # log loss
             y_true = self.ground_truth_feature_support
-            score["importance.log_loss"] = log_loss(y_true, y_pred, labels=[0, 1])
+            score["importance/log_loss"] = log_loss(y_true, y_pred, labels=[0, 1])
 
         ### Feature support
         if self.ranker.estimates_feature_support:
             # accuracy
             y_true = self.ground_truth_feature_support
             y_pred = self.estimated_feature_support
-            score["support.accuracy"] = accuracy_score(y_true, y_pred)
+            score["support/accuracy"] = accuracy_score(y_true, y_pred)
 
         ### Feature ranking
         if (
@@ -187,7 +187,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             sample_weight[self.X_importances == 0] = 0.0
 
             # r2 score
-            score["ranking.r2_score"] = r2_score(
+            score["ranking/r2_score"] = r2_score(
                 y_true, y_pred, sample_weight=sample_weight
             )
 
