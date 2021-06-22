@@ -255,4 +255,11 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         if wandb_callback:
             self.logger.info(f"Tables uploaded {tc.green('✓')}")
 
+        # Upload charts
+        # create chart:
+        if wandb_callback:
+            # use wandb_callback.add_panel
+            # "dunnkers/fseval/feature-importances-all-bootstraps-with-ticks"
+            ...
+
         return summary

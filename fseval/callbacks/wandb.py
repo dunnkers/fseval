@@ -4,11 +4,12 @@ import time
 from logging import Logger, getLogger
 from typing import Dict, Optional, cast
 
-import wandb
-from omegaconf import DictConfig, OmegaConf
-
 from fseval.types import Callback
 from fseval.utils.dict_utils import dict_flatten, dict_merge
+from omegaconf import DictConfig, OmegaConf
+
+import wandb
+from wandb.viz import CustomChart, custom_chart_panel_config
 
 
 class WandbCallback(Callback):
@@ -90,3 +91,46 @@ class WandbCallback(Callback):
         logs = {}
         logs[name] = table
         wandb.log(logs)
+
+    def add_panel(
+        self,
+        viz_id: str,
+        panel_name: str,
+        table_key: str,
+        fields: Dict = {},
+        string_fields: Dict = {},
+        panel_config_callback=lambda panel_config: panel_config,
+    ):
+        """Adds a custom chart panel to the current wandb run. This function uses
+        internal wandb functions, so might be prone to changes in their code. The
+        function is a mixup of the following modules / functions:
+
+        - `wandb.viz`: has `CustomChart` and `custom_chart_panel_config` functions.
+            see https://github.com/wandb/client/blob/master/wandb/viz.py
+        - `wandb.sdk.wandb_run.Run`: has `_add_panel` and `_backend` functions. This
+        function mainly replicates whatever `_history_callback` is doing.
+            see https://github.com/wandb/client/blob/master/wandb/sdk/wandb_run.py
+        """
+
+        assert wandb.run is not None, "no wandb run in progress. wandb.run is None."
+
+        # create custom chart. is just a data holder class for its attributes.
+        custom_chart = CustomChart(
+            viz_id=viz_id,
+            table=None,
+            fields=fields,
+            string_fields=string_fields,
+        )
+
+        # create custom chart config.
+        # Function `custom_chart_panel_config(custom_chart, key, table_key)` has a
+        # useless attribute, `key`.
+        panel_config = custom_chart_panel_config(custom_chart, None, table_key)
+        panel_config = panel_config_callback(panel_config)
+
+        # add chart to current run.
+        wandb.run._add_panel(panel_name, "Vega2", panel_config)
+
+        # "publish" chart to backend
+        if wandb.run._backend:
+            wandb.run._backend.interface.publish_history({}, wandb.run.step)
