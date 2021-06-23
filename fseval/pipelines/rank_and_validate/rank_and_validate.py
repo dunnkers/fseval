@@ -255,11 +255,183 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         if wandb_callback:
             self.logger.info(f"Tables uploaded {tc.green('✓')}")
 
-        # Upload charts
-        # create chart:
+        ##### Upload charts
+        # has ground truth
+        rank_and_validate_estimator = self.estimators[0]
+        ranking_validator_estimator = rank_and_validate_estimator.ranking_validator
+        X_importances = ranking_validator_estimator.X_importances
+        has_ground_truth = X_importances is not None
+
+        ### Aggregated charts
         if wandb_callback:
-            # use wandb_callback.add_panel
-            # "dunnkers/fseval/feature-importances-all-bootstraps-with-ticks"
-            ...
+            # mean validation scores
+            wandb_callback.add_panel(
+                panel_name="mean_validation_score",
+                viz_id="dunnkers/fseval/datasets-vs-rankers",
+                table_key="validation_scores_mean",
+                config_fields=[
+                    "ranker/name",
+                    "dataset/name",
+                    "validator/name",
+                    "dataset/task",
+                ],
+                fields={
+                    "validator": "validator/name",
+                    "score": "score",
+                    "x": "ranker/name",
+                    "y": "dataset/name",
+                    "task": "dataset/task",
+                },
+                string_fields={
+                    "title": "Feature ranker performance",
+                    "subtitle": "→ Mean validation score over all bootstraps",
+                    "ylabel": "accuracy or r2-score",
+                    "aggregation_op": "mean",
+                    "scale_type": "pow",
+                    "color_exponent": "5",
+                    "opacity_exponent": "15",
+                    "scale_string": "x^5",
+                    "color_scheme": "redyellowblue",
+                    "reverse_colorscheme": "",
+                    "text_threshold": "0.95",
+                },
+            )
+
+            # stability scores
+            wandb_callback.add_panel(
+                panel_name="feature_importance_stability",
+                viz_id="dunnkers/fseval/datasets-vs-rankers",
+                table_key="feature_importances",
+                config_fields=[
+                    "ranker/name",
+                    "dataset/name",
+                    "validator/name",
+                    "dataset/task",
+                ],
+                fields={
+                    "validator": "validator/name",
+                    "score": "feature_importances",
+                    "x": "ranker/name",
+                    "y": "dataset/name",
+                    "task": "dataset/task",
+                },
+                string_fields={
+                    "title": "Algorithm Stability",
+                    "subtitle": "→ Mean stdev of feature importances. Lower is better.",
+                    "aggregation_op": "stdev",
+                    "scale_type": "quantile",
+                    "color_exponent": "5",
+                    "opacity_exponent": "0",
+                    "scale_string": "qnt",
+                    "color_scheme": "reds",
+                    "reverse_colorscheme": "",
+                    "text_threshold": "0.95",
+                },
+            )
+
+            # fitting time
+            wandb_callback.add_panel(
+                panel_name="fitting_times",
+                viz_id="dunnkers/fseval/datasets-vs-rankers",
+                table_key="ranking_scores",
+                config_fields=[
+                    "ranker/name",
+                    "dataset/name",
+                    "validator/name",
+                    "dataset/task",
+                ],
+                fields={
+                    "validator": "validator/name",
+                    "score": "fit_time",
+                    "x": "ranker/name",
+                    "y": "dataset/name",
+                    "task": "dataset/task",
+                },
+                string_fields={
+                    "title": "Fitting time (seconds)",
+                    "subtitle": "→ As mean over all bootstraps",
+                    "aggregation_op": "mean",
+                    "scale_type": "pow",
+                    "color_exponent": "0.1",
+                    "opacity_exponent": "15",
+                    "scale_string": "x^0.1",
+                    "color_scheme": "redyellowblue",
+                    "reverse_colorscheme": "true",
+                    "text_threshold": "0.95",
+                },
+            )
+
+        ### Individual charts
+        if wandb_callback:
+            # validation scores bootstraps
+            wandb_callback.add_panel(
+                panel_name="validation_score_bootstraps",
+                viz_id="dunnkers/fseval/validation-score-bootstraps",
+                table_key="validation_scores",
+                config_fields=["validator/name", "ranker/name"],
+                string_fields={
+                    "title": "Classification accuracy vs. Subset size",
+                    "subtitle": "→ for all bootstraps",
+                    "ylabel": "accuracy or r2-score",
+                },
+            )
+
+            # validation scores
+            wandb_callback.add_panel(
+                panel_name="validation_score",
+                viz_id="dunnkers/fseval/validation-score",
+                table_key="validation_scores",
+                config_fields=["ranker/name"],
+                fields={
+                    "hue": "ranker/name",
+                },
+                string_fields={
+                    "title": "Classification accuracy vs. Subset size",
+                    "subtitle": "→ as the mean over all bootstraps",
+                    "ylabel": "accuracy or r2-score",
+                },
+            )
+
+            # mean feature importance
+            wandb_callback.add_panel(
+                panel_name="feature_importances_mean",
+                viz_id="wandb/bar/v0",
+                table_key="feature_importances",
+                fields={
+                    "label": "feature_index",
+                    "value": "feature_importances",
+                },
+                string_fields={"title": "Feature importance per feature"},
+            )
+
+            # feature importance & stability
+            wandb_callback.add_panel(
+                panel_name="feature_importances_stability",
+                viz_id="dunnkers/fseval/feature-importances-stability",
+                table_key="feature_importances",
+                fields={
+                    "x": "feature_index",
+                    "y": "feature_importances",
+                },
+                string_fields={
+                    "title": "Feature importance & Stability",
+                    "subtitle": "→ a smaller stdev means more stability",
+                },
+            )
+
+            # feature importance vs feature index
+            wandb_callback.add_panel(
+                panel_name="feature_importances_all_bootstraps",
+                viz_id="dunnkers/fseval/feature-importances-all-bootstraps-with-ticks",
+                table_key="feature_importances",
+                fields={
+                    "x": "feature_index",
+                    "y": "feature_importances",
+                },
+                string_fields={
+                    "title": "Feature importance vs. Feature index",
+                    "subtitle": "→ estimated feature importance per feature",
+                },
+            )
 
         return summary
