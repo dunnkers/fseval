@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
-        version="2.1.0",
+        version="2.1.1",
         packages=find_packages(include=["fseval", "fseval.*"]),
         entry_points={"console_scripts": ["fseval = fseval.main:main"]},
         description="Benchmarking framework for Feature Selection algorithms 🚀",
