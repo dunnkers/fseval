@@ -28,14 +28,15 @@ fseval +dataset=synclf_easy +estimator@ranker=chi2 +estimator@validator=decision
 
 This runs an experiment and uploads the results to wandb:
 <p align="center">
-  <img width="600" src="./docs/run-cli-example.svg">
+  <img width="800" src="./docs/run-cli-example.svg">
 </p>
 
 
-Which now allows us to visit the results online 💪🏻:
+We can now explore the results on the online dashboard:
+
 [![run-wandb-example](./docs/run-wandb-example.png)](https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e)
 
-(see [https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e](https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e))
+✨
 
 
 To see all the configurable options, run:
@@ -43,7 +44,26 @@ To see all the configurable options, run:
 fseval --help
 ```
 
-## Supported Feature Rankers
+### Running bootstraps
+_Bootstraps_ can be run, to approximate the stability of an algorithm. Bootstrapping works by creating multiple dataset permutations and running the algorithm on each of them. A simple way to create dataset permutations is to resample **with replacement**.
+
+In fseval, bootstrapping can be configured like so:
+
+```shell
+fseval [...] **resample=bootstrap n_bootstraps=8**
+```
+
+To run the entire experiment 8 times, each for a resampled dataset. Ideally, when multiple processors are used, the number of bootstraps is set to an amount that is divisible by the amount of CPU's. For example:
+
+```shell
+fseval [...] resample=bootstrap n_bootstraps=8 **n_jobs=4**
+```
+
+would cause all 8 CPU's to be utilized efficiently.
+
+When using bootstraps, all results in the dashboard will be aggregated over all bootstraps. ✨
+
+## Built-in Feature Rankers
 A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) of feature rankers are already built-in, which can be used without further configuring. Others need their dependencies installed. List of rankers:
 
 | Ranker | Dependency | Command line argument
@@ -52,14 +72,14 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 [Boruta](https://github.com/scikit-learn-contrib/boruta_py) | `pip install Boruta` | `+estimator@ranker=boruta`
 [Chi2](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html) | \<no dep\> | `+estimator@ranker=chi2`
 [Decision Tree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) | \<no dep\> | `+estimator@ranker=decision_tree`
-[FeatBoost](https://github.com/amjams/FeatBoost) | `pip install git+https://github.com/dunnkers/FeatBoost.git@support-cloning` (ℹ️) | `+estimator@ranker=featboost`
+[FeatBoost](https://github.com/amjams/FeatBoost) | `pip install git+https://github.com/amjams/FeatBoost.git` | `+estimator@ranker=featboost`
 [MultiSURF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `+estimator@ranker=multisurf`
 [Mutual Info](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html) | \<no dep\> | `+estimator@ranker=mutual_info`
 [ReliefF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `+estimator@ranker=relieff`
-[Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git@master matplotlib` (ℹ️) | `+estimator@ranker=stability_selection`
+[Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git matplotlib` (ℹ️) | `+estimator@ranker=stability_selection`
 [TabNet](https://github.com/dreamquark-ai/tabnet) | `pip install pytorch-tabnet` | `+estimator@ranker=tabnet`
 [XGBoost](https://xgboost.readthedocs.io/) | `pip install xgboost` | `+estimator@ranker=xgb`
-[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git@master` (ℹ️) | `+estimator@ranker=infinite_selection`
+[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git` (ℹ️) | `+estimator@ranker=infinite_selection`
 
 
 ℹ️ This library was customized to make it compatible with the fseval pipeline.
