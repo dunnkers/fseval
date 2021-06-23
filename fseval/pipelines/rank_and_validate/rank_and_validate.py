@@ -9,7 +9,6 @@ from fseval.types import TerminalColor as tc
 from fseval.utils.dict_utils import dict_flatten
 from omegaconf import MISSING
 from sklearn.base import clone
-from tqdm import tqdm
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline
