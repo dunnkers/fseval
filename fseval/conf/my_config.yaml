@@ -10,6 +10,7 @@ defaults:
   - base_config
   - pipeline/rank_and_validate
   - cv: kfold
+  - storage: local
   - callbacks: []
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog

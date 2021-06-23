@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 from fseval.types import (
     AbstractEstimator,
-    AbstractStorageProvider,
+    AbstractStorage,
     CacheUsage,
     IncompatibilityError,
     Task,
@@ -78,14 +78,14 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         class_name = type(estimator).__name__
         return f"{module_name}.{class_name}"
 
-    def _load_cache(self, filename: str, storage_provider: AbstractStorageProvider):
+    def _load_cache(self, filename: str, storage: AbstractStorage):
         if self.load_cache == CacheUsage.never:
             self.logger.debug(
                 "cache loading set to `never`: not attempting to load estimator from cache."
             )
             return
 
-        restored = storage_provider.restore_pickle(filename)
+        restored = storage.restore_pickle(filename)
         self.estimator = restored or self.estimator
         self._is_fitted = bool(restored)
 
@@ -95,12 +95,12 @@ class Estimator(AbstractEstimator, EstimatorConfig):
                 + " Pickle file might be corrupt or could not be found."
             )
 
-    def _save_cache(self, filename: str, storage_provider: AbstractStorageProvider):
+    def _save_cache(self, filename: str, storage: AbstractStorage):
         if self.save_cache == CacheUsage.never:
             self.logger.debug("cache saving set to `never`: not caching estimator.")
             return
         else:
-            storage_provider.save_pickle(filename, self.estimator)
+            storage.save_pickle(filename, self.estimator)
             # TODO check whether file was successfully saved.
 
     def fit(self, X, y):

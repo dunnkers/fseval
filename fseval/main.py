@@ -39,15 +39,15 @@ def main(cfg: BaseConfig) -> None:
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
-    del cfg.storage_provider.load_dir  # set these after callbacks were initialized
-    del cfg.storage_provider.save_dir  # set these after callbacks were initialized
+    del cfg.storage.load_dir  # set these after callbacks were initialized
+    del cfg.storage.save_dir  # set these after callbacks were initialized
     pipeline.callbacks.on_begin(cfg)
-    # set storage provider load- and save dirs
-    load_dir = pipeline.storage_provider.get_load_dir()
-    save_dir = pipeline.storage_provider.get_save_dir()
+    # set storage load- and save dirs
+    load_dir = pipeline.storage.get_load_dir()
+    save_dir = pipeline.storage.get_save_dir()
     pipeline.callbacks.on_config_update(
         {
-            "storage_provider": {
+            "storage": {
                 "load_dir": load_dir,
                 "save_dir": save_dir,
             }
@@ -84,10 +84,11 @@ def main(cfg: BaseConfig) -> None:
         raise e
 
     n_saved_files = len(glob("./*"))
-    logger.info(
-        f"saved {n_saved_files} files to {TerminalColor.blue(save_dir)} "
-        + TerminalColor.green("✓")
-    )
+    if save_dir:
+        logger.info(
+            f"saved {n_saved_files} files to {TerminalColor.blue(save_dir)} "
+            + TerminalColor.green("✓")
+        )
     logger.info(
         f"{TerminalColor.yellow(cfg.pipeline)} pipeline "
         + f"finished {TerminalColor.green('✓')}"

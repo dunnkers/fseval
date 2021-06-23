@@ -13,33 +13,33 @@ cs = ConfigStore.instance()
 
 
 @dataclass
-class StorageProviderConfig:
+class StorageConfig:
     _target_: str = MISSING
     load_dir: Optional[str] = None
     save_dir: Optional[str] = None
 
 
 @dataclass
-class LocalStorageProviderConfig(StorageProviderConfig):
+class LocalStorageConfig(StorageConfig):
     ...
 
 
 @dataclass
-class WandbStorageProviderConfig(LocalStorageProviderConfig):
+class WandbStorageConfig(LocalStorageConfig):
     entity: Optional[str] = None
     project: Optional[str] = None
     run_id: Optional[str] = None
 
 
 cs.store(
-    group="storage_provider",
-    name="base_local_storage_provider",
-    node=LocalStorageProviderConfig,
+    group="storage",
+    name="base_local_storage",
+    node=LocalStorageConfig,
 )
 cs.store(
-    group="storage_provider",
-    name="base_wandb_storage_provider",
-    node=WandbStorageProviderConfig,
+    group="storage",
+    name="base_wandb_storage",
+    node=WandbStorageConfig,
 )
 
 
@@ -49,10 +49,8 @@ class BaseConfig:
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     callbacks: Dict[str, Any] = field(default_factory=dict)
-    storage_provider: StorageProviderConfig = field(
-        default_factory=lambda: StorageProviderConfig(
-            _target_="fseval.storage_providers.MockStorageProvider"
-        )
+    storage: StorageConfig = field(
+        default_factory=lambda: StorageConfig(_target_="fseval.storage.MockStorage")
     )
 
 

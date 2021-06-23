@@ -4,11 +4,11 @@ from logging import Logger, getLogger
 from pickle import dump, load
 from typing import Any, Callable, Optional
 
-from fseval.types import AbstractStorageProvider, TerminalColor
+from fseval.types import AbstractStorage, TerminalColor
 
 
 @dataclass
-class LocalStorageProvider(AbstractStorageProvider):
+class LocalStorage(AbstractStorage):
     load_dir: Optional[str] = None
     save_dir: Optional[str] = None
 

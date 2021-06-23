@@ -42,7 +42,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         yield self.ranker
 
     def prefit(self):
-        self.ranker._load_cache(self._cache_filename, self.storage_provider)
+        self.ranker._load_cache(self._cache_filename, self.storage)
 
     def fit(self, X, y):
         self.logger.info(f"fitting ranker: " + TerminalColor.yellow(self.ranker.name))
@@ -50,7 +50,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         super(RankingValidator, self).fit(X, y)
 
     def postfit(self):
-        self.ranker._save_cache(self._cache_filename, self.storage_provider)
+        self.ranker._save_cache(self._cache_filename, self.storage)
 
     def _scores_to_ranking(self, scores):
         """Converts a scoring vector to a ranking vector, or standardizes an existing

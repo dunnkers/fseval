@@ -82,7 +82,7 @@ class Callback(ABC):
         ...
 
 
-class AbstractStorageProvider(ABC):
+class AbstractStorage(ABC):
     @abstractmethod
     def get_load_dir(self) -> str:
         ...

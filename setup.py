@@ -23,7 +23,7 @@ with open("README.md", "r") as fh:
             "pandas>=1.1",
             "scikit-learn>=0.24",
             "humanfriendly>=9.1",
-            # callbacks / storage providers / adapter
+            # callbacks / storage / adapter
             "wandb>=0.10.31",
             # adapters
             "openml>=0.12",

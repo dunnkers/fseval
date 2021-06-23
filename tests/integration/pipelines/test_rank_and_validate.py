@@ -11,7 +11,7 @@ from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import (
     AbstractAdapter,
     AbstractEstimator,
-    AbstractStorageProvider,
+    AbstractStorage,
     Callback,
     IncompatibilityError,
     Task,

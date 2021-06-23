@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
-from fseval.types import AbstractStorageProvider
+from fseval.types import AbstractStorage
 
-from .local import LocalStorageProvider
-from .wandb import WandbStorageProvider
+from .local import LocalStorage
+from .wandb import WandbStorage
 
 
 @dataclass
-class MockStorageProvider(AbstractStorageProvider):
+class MockStorage(AbstractStorage):
     load_dir: Optional[str] = None
     save_dir: Optional[str] = None
 
@@ -31,4 +31,4 @@ class MockStorageProvider(AbstractStorageProvider):
         ...
 
 
-__all__ = ["WandbStorageProvider", "MockStorageProvider", "LocalStorageProvider"]
+__all__ = ["WandbStorage", "MockStorage", "LocalStorage"]

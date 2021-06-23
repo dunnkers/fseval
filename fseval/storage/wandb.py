@@ -7,12 +7,12 @@ from fseval.types import TerminalColor
 
 import wandb
 
-from .local import LocalStorageProvider
+from .local import LocalStorage
 
 
 @dataclass
-class WandbStorageProvider(LocalStorageProvider):
-    """Storage provider for Weights and Biases (wandb), allowing users to save- and
+class WandbStorage(LocalStorage):
+    """Storage for Weights and Biases (wandb), allowing users to save- and
     restore files to the service.
 
     Arguments:
@@ -42,7 +42,7 @@ class WandbStorageProvider(LocalStorageProvider):
             + "(1) the wandb callback is not enabled. enable it by setting "
             + "`callbacks=[wandb]`. "
             + "(2) you are using multi-processing: make sure to only use the wandb "
-            + "storage provider from the main thread. "
+            + "storage  from the main thread. "
             + "see https://docs.wandb.ai/guides/track/advanced/distributed-training."
         )
 
@@ -59,7 +59,7 @@ class WandbStorageProvider(LocalStorageProvider):
 
         # (1) run was resumed: use last run's local dir.
         if wandb.run.resumed:  # type: ignore
-            load_dir = wandb.run.config["storage_provider/save_dir"]  # type: ignore
+            load_dir = wandb.run.config["storage/save_dir"]  # type: ignore
             self.logger.info(
                 f"{TerminalColor.yellow('loading')} files from: "
                 + TerminalColor.cyan("wandb save dir")
@@ -73,7 +73,7 @@ class WandbStorageProvider(LocalStorageProvider):
         api = wandb.Api()
         try:
             run = api.run(run_path)
-            load_dir = run.config["storage_provider/save_dir"]
+            load_dir = run.config["storage/save_dir"]
             self.logger.info(
                 f"{TerminalColor.yellow('loading')} files from: "
                 + TerminalColor.cyan("remote run")
@@ -120,7 +120,7 @@ class WandbStorageProvider(LocalStorageProvider):
 
     def save(self, filename: str, writer: Callable, mode: str = "w"):
         # save to local disk
-        super(WandbStorageProvider, self).save(filename, writer, mode)
+        super(WandbStorage, self).save(filename, writer, mode)
 
         # save to wandb
         wandb.save(filename, base_path="/")  # type: ignore
@@ -143,11 +143,11 @@ class WandbStorageProvider(LocalStorageProvider):
         """Given a filename, restores the file either from local disk or from wandb,
         depending on the availability of the file. First, the local disk is searched
         for the file, taking in regard the `local_dir` value in the
-        `WandbStorageProvider` constructor. If this file is not found, the file will
+        `WandbStorage` constructor. If this file is not found, the file will
         be downloaded fresh from wandb servers."""
 
         # (1) attempt local restoration if available
-        file = super(WandbStorageProvider, self).restore(filename, reader, mode)
+        file = super(WandbStorage, self).restore(filename, reader, mode)
         if file:
             return file
 
@@ -159,7 +159,7 @@ class WandbStorageProvider(LocalStorageProvider):
                 + TerminalColor.yellow("wandb servers")
                 + TerminalColor.green(" ✓")
             )
-            file = super(WandbStorageProvider, self).restore(filename, reader, mode)
+            file = super(WandbStorage, self).restore(filename, reader, mode)
             return file
 
         # (3) if no cache is available anywhere, return None.
