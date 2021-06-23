@@ -19,22 +19,26 @@ fseval +dataset=synclf_easy +estimator@ranker=chi2 +estimator@validator=decision
 Which runs Chi2 feature ranking on the 'Iris' dataset, and validates feature subsets using k-NN. The results can be uploaded to a backend. We can use **wandb** for this.
 
 
-### Integration with wandb
-Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, we can upload results to wandb using `+callbacks="[wandb]"`, like so:
+### Weights and Biases integration
+Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, we can upload results like so:
 
 ```shell
-fseval +dataset=synclf_easy +estimator@ranker=chi2 +estimator@validator=decision_tree callbacks="[wandb]" +callbacks.wandb.project=fseval-readme
+fseval [...] callbacks="[wandb]" +callbacks.wandb.project=fseval-readme
 ```
 
-This runs an experiment and uploads the results to wandb:
+Replace `[...]` with your dataset, ranker and validator config. This runs an experiment and uploads the results to wandb:
 <p align="center">
-  <img width="800" src="./docs/run-cli-example.svg">
+  <img width="600" src="./docs/run-cli-example.svg">
 </p>
 
 
 We can now explore the results on the online dashboard:
 
-[![run-wandb-example](./docs/run-wandb-example.png)](https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e)
+<p align="center">
+    <a href="https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e">
+        <img width="600" src="./docs/run-wandb-example.png">
+  </a>
+</p>
 
 ✨
 
@@ -50,18 +54,36 @@ _Bootstraps_ can be run, to approximate the stability of an algorithm. Bootstrap
 In fseval, bootstrapping can be configured like so:
 
 ```shell
-fseval [...] **resample=bootstrap n_bootstraps=8**
+fseval [...] resample=bootstrap n_bootstraps=8
 ```
 
 To run the entire experiment 8 times, each for a resampled dataset. Ideally, when multiple processors are used, the number of bootstraps is set to an amount that is divisible by the amount of CPU's. For example:
 
 ```shell
-fseval [...] resample=bootstrap n_bootstraps=8 **n_jobs=4**
+fseval [...] resample=bootstrap n_bootstraps=8 n_jobs=4
 ```
 
 would cause all 8 CPU's to be utilized efficiently.
 
 When using bootstraps, all results in the dashboard will be aggregated over all bootstraps. ✨
+
+### Multiprocessing
+The experiment can run in parallel. The list of bootstraps is distributed over the CPU's. To use all available processors:
+
+```shell
+fseval [...] n_jobs=-1
+```
+
+Alternatively, set `n_jobs` to the specific amount of processors to use. e.g. `n_jobs=4` if you have a quad-core.
+
+### Configuring a Feature Ranker
+Setting hyper-parameters of an estimator is easy. For example:
+
+```shell
+fseval [...] +validator.classifier.estimator.criterion=entropy
+```
+
+Changes the Decision Tree criterion to entropy.
 
 ## Built-in Feature Rankers
 A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) of feature rankers are already built-in, which can be used without further configuring. Others need their dependencies installed. List of rankers:
