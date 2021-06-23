@@ -2,7 +2,7 @@
 
 [![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/)
 
-A Feature Selector and Feature Ranker benchmarking library. Neatly integrates with [Weights and Biases](https://wandb.ai) and [Sci-kit Learn](https://scikit-learn.org/). Uses [Hydra](https://hydra.cc/) as a config parser.
+A Feature Selector and Feature Ranker benchmarking library. Neatly integrates with [wandb](https://wandb.ai) and [sklearn](https://scikit-learn.org/). Uses [Hydra](https://hydra.cc/) as a config parser.
 
 ## Install
 
@@ -63,9 +63,12 @@ To run the entire experiment 8 times, each for a resampled dataset. Ideally, whe
 fseval [...] resample=bootstrap n_bootstraps=8 n_jobs=4
 ```
 
-would cause all 8 CPU's to be utilized efficiently.
+would cause all 8 CPU's to be utilized efficiently. In the dashboard, plots are already set up to support bootstrapping. For example:
+<p align="center">
+  <img width="600" src="./docs/run-bootstraps-example.svg">
+</p>
 
-When using bootstraps, all results in the dashboard will be aggregated over all bootstraps. ✨
+Shows the validation results for **25** bootstraps. ✨
 
 ### Multiprocessing
 The experiment can run in parallel. The list of bootstraps is distributed over the CPU's. To use all available processors:
@@ -76,14 +79,46 @@ fseval [...] n_jobs=-1
 
 Alternatively, set `n_jobs` to the specific amount of processors to use. e.g. `n_jobs=4` if you have a quad-core.
 
+### Distributed processing
+Since fseval uses [Hydra](https://hydra.cc/), all Hydra plugins can also be used. Some of the plugins for distributed processing are:
+
+- [RQ launcher](https://hydra.cc/docs/plugins/rq_launcher/). Uses [Redis Queue](https://python-rq.org/) (RQ) to launch jobs.
+- [Submitit Launcher](https://hydra.cc/docs/plugins/submitit_launcher). Submits jobs directly to a [SLURM](https://slurm.schedmd.com/) cluster.
+
+Example:
+```shell
+fseval --multirun [...] hydra/launcher=rq
+```
+
+To submit jobs to RQ.
+
 ### Configuring a Feature Ranker
-Setting hyper-parameters of an estimator is easy. For example:
+The entirety of the config can be overriden like pleased. Like such, also feature rankers can be configured. For example:
 
 ```shell
 fseval [...] +validator.classifier.estimator.criterion=entropy
 ```
 
 Changes the Decision Tree criterion to entropy.
+
+## Custom configuration
+To further customize fseval, config can be loaded from a dir. It is configured like so:
+
+```shell
+fseval [...] --config-dir ./conf
+```
+
+With the `./conf` directory containing:
+
+```shell
+├── estimator
+│   ├── my_custom_ranker.yaml
+└── dataset
+    ├── my_custom_dataset.yaml
+```
+
+Where `my_custom_ranker.yaml` would be any [estimator](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) definition, and `my_custom_dataset.yaml` any [dataset](https://github.com/dunnkers/fseval/tree/master/fseval/conf/dataset) dataset definition.
+
 
 ## Built-in Feature Rankers
 A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) of feature rankers are already built-in, which can be used without further configuring. Others need their dependencies installed. List of rankers:
@@ -109,4 +144,4 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
 ### About
-Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis (_Data Science and Computational Complexity_ track at the University of Groningen).
+Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis. Track: Data Science and Computational Complexity at the University of Groningen).
