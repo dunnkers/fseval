@@ -4,17 +4,28 @@
 
 A Feature Selector and Feature Ranker benchmarking library. Neatly integrates with [wandb](https://wandb.ai) and [sklearn](https://scikit-learn.org/). Uses [Hydra](https://hydra.cc/) as a config parser.
 
-## Usage
+## Install
+
 ```shell
 pip install fseval
 ```
 
-fseval help:
+## Usage
+fseval is run via a CLI. As an example, this runs a very simple benchmark:
+```shell
+fseval +dataset=iris +estimator@ranker=relieff +estimator@validator=knn n_bootstraps=1
+```
+
+Which runs ReliefF on 1 bootstrap resampling of the 'Iris' dataset, and validates the subsets using k-NN.
+
+
+To see all the configurable options, run:
 ```shell
 fseval --help
 ```
+### Uploading data to wandb
 
-Now, create a [wandb](https://wandb.ai/) account and login to the CLI. We are now able to run benchmarks 💪🏻. The results will automatically be uploaded to the wandb dashboard.
+Create a [wandb](https://wandb.ai/) account and login to the CLI. We are now able to run benchmarks 💪🏻. The results will automatically be uploaded to the wandb dashboard.
 
 Run ANOVA F-Value on Iris dataset:
 ```shell
