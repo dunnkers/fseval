@@ -2,7 +2,13 @@
 
 [![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/)
 
-A Feature Selector and Feature Ranker benchmarking library. Neatly integrates with [wandb](https://wandb.ai) and [sklearn](https://scikit-learn.org/). Uses [Hydra](https://hydra.cc/) as a config parser.
+A Feature Selector and Feature Ranker benchmarking library. The library allows you to run a Feature Ranker and validate a number of feature subsets afterwards, using a validation estimator. Neatly integrates with [wandb](https://wandb.ai) and [sklearn](https://scikit-learn.org/). Uses [Hydra](https://hydra.cc/) as a config parser.
+
+Main features:
+- ...
+- ...
+- ...
+- ...
 
 ## Install
 
@@ -11,22 +17,27 @@ pip install fseval
 ```
 
 ## Usage
-fseval is run via a CLI. As an example, this runs a very simple benchmark:
+fseval is run via a CLI. Example:
 ```shell
 fseval +dataset=synclf_easy +estimator@ranker=chi2 +estimator@validator=decision_tree
 ```
 
-Which runs Chi2 feature ranking on the 'Iris' dataset, and validates feature subsets using k-NN. The results can be uploaded to a backend. We can use **wandb** for this.
+Which runs Chi2 feature ranking on the 'Iris' dataset, and validates feature subsets using k-NN.
+
+To see all the configurable options, run:
+```shell
+fseval --help
+```
 
 
 ### Weights and Biases integration
-Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, we can upload results like so:
+Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, enable wandb using `callbacks="[wandb]"`:
 
 ```shell
-fseval [...] callbacks="[wandb]" +callbacks.wandb.project=fseval-readme
+fseval callbacks="[wandb]" +callbacks.wandb.project=fseval-readme [...]
 ```
 
-Replace `[...]` with your dataset, ranker and validator config. This runs an experiment and uploads the results to wandb:
+This runs an experiment and uploads the results to wandb:
 <p align="center">
   <img width="600" src="./docs/run-cli-example.svg">
 </p>
@@ -36,20 +47,14 @@ We can now explore the results on the online dashboard:
 
 <p align="center">
     <a href="https://wandb.ai/dunnkers/fseval-readme/runs/11b4t26e">
-        <img width="600" src="./docs/run-wandb-example.png">
+        <img width="650" src="./docs/run-wandb-example.png">
   </a>
 </p>
 
 ✨
 
-
-To see all the configurable options, run:
-```shell
-fseval --help
-```
-
 ### Running bootstraps
-_Bootstraps_ can be run, to approximate the stability of an algorithm. Bootstrapping works by creating multiple dataset permutations and running the algorithm on each of them. A simple way to create dataset permutations is to resample **with replacement**.
+_Bootstraps_ can be run, to approximate the stability of an algorithm. Bootstrapping works by creating multiple dataset permutations and running the algorithm on each of them. A simple way to create dataset permutations is to **resample with replacement**.
 
 In fseval, bootstrapping can be configured like so:
 
@@ -57,13 +62,9 @@ In fseval, bootstrapping can be configured like so:
 fseval [...] resample=bootstrap n_bootstraps=8
 ```
 
-To run the entire experiment 8 times, each for a resampled dataset. Ideally, when multiple processors are used, the number of bootstraps is set to an amount that is divisible by the amount of CPU's. For example:
+To run the entire experiment 8 times, each for a resampled dataset.
 
-```shell
-fseval [...] resample=bootstrap n_bootstraps=8 n_jobs=4
-```
-
-would cause all 8 CPU's to be utilized efficiently. In the dashboard, plots are already set up to support bootstrapping. For example:
+In the dashboard, plots are already set up to support bootstrapping:
 <p align="center">
   <img width="600" src="./docs/run-bootstraps-example.svg">
 </p>
@@ -78,6 +79,14 @@ fseval [...] n_jobs=-1
 ```
 
 Alternatively, set `n_jobs` to the specific amount of processors to use. e.g. `n_jobs=4` if you have a quad-core.
+
+When using bootstraps, it can be efficient to use an amount that is divisible by the amount of CPU's:
+
+```shell
+fseval [...] resample=bootstrap n_bootstraps=8 n_jobs=4
+```
+
+would cause all 8 CPU's to be utilized efficiently. 
 
 ### Distributed processing
 Since fseval uses [Hydra](https://hydra.cc/), all Hydra plugins can also be used. Some of the plugins for distributed processing are:
@@ -101,21 +110,32 @@ fseval [...] +validator.classifier.estimator.criterion=entropy
 
 Changes the Decision Tree criterion to entropy.
 
-## Custom configuration
-To further customize fseval, config can be loaded from a dir. It is configured like so:
+## Config directory
+Any configuration can also be loaded from a dir. It is configured like so:
 
 ```shell
-fseval [...] --config-dir ./conf
+fseval --config-dir ./conf
 ```
 
 With the `./conf` directory containing:
 
 ```shell
-├── estimator
-│   ├── my_custom_ranker.yaml
-└── dataset
-    ├── my_custom_dataset.yaml
+.
+└── conf
+    ├── estimator
+    │   └── my_custom_ranker.yaml
+    └── dataset
+        └── my_custom_dataset.yaml
 ```
+
+We can now use the newly installed estimator and dataset:
+
+```shell
+fseval --config-dir ./conf +estimator@ranker=my_custom_ranker +dataset=my_custom_dataset
+```
+
+🙌🏻
+
 
 Where `my_custom_ranker.yaml` would be any [estimator](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) definition, and `my_custom_dataset.yaml` any [dataset](https://github.com/dunnkers/fseval/tree/master/fseval/conf/dataset) dataset definition.
 
@@ -140,8 +160,6 @@ A [collection](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estima
 
 
 ℹ️ This library was customized to make it compatible with the fseval pipeline.
-
-If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
 ### About
 Built by [Jeroen Overschie](https://dunnkers.com/) as part of the Masters Thesis. Track: Data Science and Computational Complexity at the University of Groningen).

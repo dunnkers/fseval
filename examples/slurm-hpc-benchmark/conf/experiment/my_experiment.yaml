@@ -1,0 +1,14 @@
+# @package _global_
+### Experiment setup for running 10 bootstraps, on 10 CPU's. Uploads results to wandb.
+
+defaults:
+  - override /resample: bootstrap
+  - override /callbacks:
+    - wandb
+
+callbacks:
+  wandb:
+    project: slurm-hpc-benchmark
+
+n_bootstraps: 10
+n_jobs: 10
