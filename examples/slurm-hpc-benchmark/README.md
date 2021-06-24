@@ -29,3 +29,9 @@ fseval --config-dir ./conf \
 ```
 
 Your jobs are now submitted to SLURM ✨. You can CTRL+C out of the job submission screen. Sit back and watch your jobs run.
+
+```
+[2021-06-24 12:39:24,604][HYDRA] Submitit 'slurm' sweep output dir : multirun/2021-06-24/12-39-22
+[2021-06-24 12:39:24,607][HYDRA] 	#0 : +experiment=my_experiment +hpc=slurm +dataset=iris +estimator@ranker=relieff +estimator@validator=decision_tree
+[2021-06-24 12:39:24,621][HYDRA] 	#1 : +experiment=my_experiment +hpc=slurm +dataset=iris +estimator@ranker=relieff +estimator@validator=knn
+```
