@@ -1,8 +1,12 @@
+<p align="center">
+  <img width="100%" src="./docs/header.png">
+</p>
+
 # fseval
 
 [![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/)
 
-A Feature Ranker benchmarking library. Useful for Feature Selection and Interpretable AI methods. Neatly integrates [Hydra](https://hydra.cc/) with [wandb](https://wandb.ai).
+A Feature Ranker benchmarking library. Useful for Feature Selection and Interpretable AI methods. Allows plotting feature importance scores on an online dashboard. Neatly integrates [Hydra](https://hydra.cc/) with [wandb](https://wandb.ai).
 
 Any [sklearn](https://scikit-learn.org/) style estimator can be used as a Feature Ranker. Estimator must estimate at least one of:
 
@@ -11,7 +15,7 @@ Any [sklearn](https://scikit-learn.org/) style estimator can be used as a Featur
 3. **Feature ranking**, using `feature_ranking_`.
 
 Main functionality:
-- 📊 **Online dashboard**. Experiments can be uploaded to [wandb](https://wandb.ai) for seamless experiment tracking and visualization. 
+- 📊 **Online dashboard**. Experiments can be uploaded to [wandb](https://wandb.ai) for seamless experiment tracking and visualization. Feature importance and subset validation plots are built-in. 
 - 🔄 **Scikit-Learn integration**. Integrates nicely with [sklearn](https://scikit-learn.org/). Any estimator that implements `fit` is supported.
 - 🗄 **Dataset adapters**. Datasets can be loaded dynamically using an _adapter_. [OpenML](https://www.openml.org/search?type=data) support is built-in.
 - 🎛 **Synthetic dataset generation**. Synthetic datasets can be generated and configured right in the library itself.
