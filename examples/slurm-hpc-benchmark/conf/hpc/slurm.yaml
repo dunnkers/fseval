@@ -8,3 +8,4 @@ hydra:
     tasks_per_node: 1
     mem_gb: 50
     partition: regular
+    timeout_min: 600 # 10 hours

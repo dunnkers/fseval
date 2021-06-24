@@ -4,31 +4,28 @@ Example setup for running experiments on a [SLURM](https://slurm.schedmd.com/) c
 
 ## Install
 
-Clone fseval on your cluster, and cd into this example:
+SSH into your cluster, and clone fseval:
 ```shell
 git clone https://github.com/dunnkers/fseval.git
-cd fseval/examples/slurm-hpc-benchmark/
 ```
 
-Then, run:
+Then, install the dependencies:
 ```shell
+cd fseval/examples/slurm-hpc-benchmark/
 pip install -r requirements.txt --user
 ```
 
 ## Usage
 
-Cd into the `slurm-hpc-benchmark` directory. On your **cluster**, run:
+On your **cluster**, make sure you are in `slurm-hpc-benchmark`. Then to run _all_ rankers and _all_ datasets, run:
 ```shell
 fseval --config-dir ./conf \
     --multirun \
     +experiment=my_experiment \
     +hpc=slurm \
-    +dataset="iris" \
-    +estimator@ranker="relieff" \
+    +dataset="glob(*)" \
+    +estimator@ranker="glob(*)" \
     +estimator@validator=decision_tree,knn
 ```
-→ runs all rankers on all datasets, and validates with Decision Tree and k-NN. Sends jobs to SLURM.
 
-```shell
-
-```
+Your jobs are now submitted to SLURM ✨. You can CTRL+C out of the job submission screen. Sit back and watch your jobs run.
