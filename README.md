@@ -97,7 +97,7 @@ In the dashboard, plots are already set up to support bootstrapping:
 Shows the validation results for **25** bootstraps. ✨
 
 ### Launching multiple experiments at once
-To launch multiple experiments, use `[--multirun](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run)`.
+To launch multiple experiments, use [`--multirun`](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run).
 
 ```shell
 fseval \
