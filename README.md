@@ -34,12 +34,12 @@ pip install fseval
 fseval is run via a CLI. Example:
 ```shell
 fseval \
-    +dataset=synclf_easy \
-    +estimator@ranker=chi2 \
-    +estimator@validator=decision_tree
+  +dataset=synclf_easy \
+  +estimator@ranker=chi2 \
+  +estimator@validator=decision_tree
 ```
 
-Which runs [Chi2](https://github.com/dunnkers/fseval/blob/master/fseval/conf/estimator/chi2.yaml) feature ranking on the [Iris](https://github.com/dunnkers/fseval/blob/master/fseval/conf/dataset/iris.yaml) dataset, and validates feature subsets using a [Decision Tree](https://github.com/dunnkers/fseval/blob/master/fseval/conf/estimator/decision_tree.yaml).
+Which runs [Chi2](https://github.com/dunnkers/fseval/blob/master/fseval/conf/estimator/chi2.yaml) feature ranking on the [Synclf easy](https://github.com/dunnkers/fseval/blob/master/fseval/conf/dataset/synclf_easy.yaml) dataset, and validates feature subsets using a [Decision Tree](https://github.com/dunnkers/fseval/blob/master/fseval/conf/estimator/decision_tree.yaml).
 
 <p align="center">
   <img width="600" src="./docs/run-cli-example.svg">
@@ -56,11 +56,11 @@ Integration with [wandb](https://wandb.ai) is built-in. Create an account and lo
 
 ```shell
 fseval \
-    callbacks="[wandb]" \
-    +callbacks.wandb.project=fseval-readme \
-    +dataset=synclf_easy \
-    +estimator@ranker=chi2 \
-    +estimator@validator=decision_tree
+  callbacks="[wandb]" \
+  +callbacks.wandb.project=fseval-readme \
+  +dataset=synclf_easy \
+  +estimator@ranker=chi2 \
+  +estimator@validator=decision_tree
 ```
 
 We can now explore the results on the online dashboard:
@@ -79,7 +79,12 @@ _Bootstraps_ can be run, to approximate the stability of an algorithm. Bootstrap
 In fseval, bootstrapping can be configured with `resample=bootstrap`:
 
 ```shell
-fseval [...] resample=bootstrap n_bootstraps=8
+fseval \
+  resample=bootstrap \
+  n_bootstraps=8 \
+  +dataset=synclf_easy \
+  +estimator@ranker=chi2 \
+  +estimator@validator=decision_tree 
 ```
 
 To run the entire experiment 8 times, each for a resampled dataset.
@@ -90,6 +95,21 @@ In the dashboard, plots are already set up to support bootstrapping:
 </p>
 
 Shows the validation results for **25** bootstraps. ✨
+
+### Launching multiple experiments at once
+To launch multiple experiments, use `[--multirun](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run)`.
+
+```shell
+fseval \
+  --multirun \
+  +dataset=synclf_easy \
+  +estimator@ranker=[boruta,featboost,chi2] \
+  +estimator@validator=decision_tree 
+```
+
+Which launches 3 jobs.
+
+See the multirun overriding [syntax](https://hydra.cc/docs/advanced/override_grammar/extended). For example, you can select multiple groups using `[]`, a range using `range(start, stop, step)` and all options using `glob(*)`.
 
 ### Multiprocessing
 The experiment can run in parallel. The list of bootstraps is distributed over the CPU's. To use all available processors set `n_jobs=-1`:
@@ -119,7 +139,7 @@ Example:
 fseval --multirun [...] hydra/launcher=rq
 ```
 
-To submit jobs to RQ. See [multirun](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run) docs.
+To submit jobs to RQ.
 
 ### Configuring a Feature Ranker
 The entirety of the config can be overriden like pleased. Like such, also feature rankers can be configured. For example:
@@ -217,7 +237,9 @@ A number of rankers are already built-in, which can be used without further conf
 [Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git` ℹ️ | `+estimator@ranker=infinite_selection`
 
 
-ℹ️ This library was customized to make it compatible with the fseval pipeline.
+ℹ️  This library was customized to make it compatible with the fseval pipeline.
+
+If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
 ### About
 Built by [Jeroen Overschie](https://dunnkers.com/) as part of a Masters Thesis.
