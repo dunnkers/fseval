@@ -101,7 +101,6 @@ class Estimator(AbstractEstimator, EstimatorConfig):
             return
         else:
             storage.save_pickle(filename, self.estimator)
-            # TODO check whether file was successfully saved.
 
     def fit(self, X, y):
         # don't refit if cache available and `use_cache_if_available` is enabled
