@@ -217,31 +217,63 @@ fseval --config-dir ./conf +estimator@ranker=my_custom_ranker +dataset=my_custom
 
 Where `my_custom_ranker.yaml` would be any [estimator](https://github.com/dunnkers/fseval/tree/master/fseval/conf/estimator) definition, and `my_custom_dataset.yaml` any [dataset](https://github.com/dunnkers/fseval/tree/master/fseval/conf/dataset) dataset definition.
 
+## Built-ins
+<details>
+<summary>Built-in Feature Rankers</summary>
 
-## Built-in Feature Rankers
 A number of rankers are already built-in, which can be used without further configuring. See:
 
-| Ranker | Dependency | Command line argument
---- | --- | ---
-[ANOVA F-Value](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html#sklearn.feature_selection.f_classif) | - | `+estimator@ranker=anova_f_value`
-[Boruta](https://github.com/scikit-learn-contrib/boruta_py) | `pip install Boruta` | `+estimator@ranker=boruta`
-[Chi2](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html) | - | `+estimator@ranker=chi2`
-[Decision Tree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) | - | `+estimator@ranker=decision_tree`
-[FeatBoost](https://github.com/amjams/FeatBoost) | `pip install git+https://github.com/amjams/FeatBoost.git` | `+estimator@ranker=featboost`
-[MultiSURF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `+estimator@ranker=multisurf`
-[Mutual Info](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html) | - | `+estimator@ranker=mutual_info`
-[ReliefF](https://github.com/EpistasisLab/scikit-rebate) | `pip install skrebate` | `+estimator@ranker=relieff`
-[Stability Selection](https://github.com/scikit-learn-contrib/stability-selection) | `pip install git+https://github.com/dunnkers/stability-selection.git matplotlib` ℹ️ | `+estimator@ranker=stability_selection`
-[TabNet](https://github.com/dreamquark-ai/tabnet) | `pip install pytorch-tabnet` | `+estimator@ranker=tabnet`
-[XGBoost](https://xgboost.readthedocs.io/) | `pip install xgboost` | `+estimator@ranker=xgb`
-[Infinite Selection](https://github.com/giorgioroffo/Infinite-Feature-Selection) | `pip install git+https://github.com/dunnkers/infinite-selection.git` ℹ️ | `+estimator@ranker=infinite_selection`
+| Method | CLI | Classif- ication | Regr- ession | Multi output | Feature importance | Feature support | Feature ranking |
+|-|-|-|-|-|-|-|-|
+| ANOVA F-value ([sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html)) | `anova_f_value` <details><summary>command</summary>`+estimator@ranker=anova_f_value`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Boruta ([github](https://github.com/scikit-learn-contrib/boruta_py)) <details><summary>install</summary>`pip install Boruta`</details> | `boruta` <details><summary>command</summary>`+estimator@ranker=boruta`</details>| ✓ |  |  |  | ✓ | ✓ |
+| Chi-Squared ([sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html)) | `chi2` <details><summary>command</summary>`+estimator@ranker=chi2`</details>| ✓ |  |  | ✓ |  |  |
+| Decision Tree ([sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)) | `decision_tree` <details><summary>command</summary>`+estimator@ranker=decision_tree`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
+| FeatBoost ([github](https://github.com/amjams/FeatBoost)) <details><summary>install</summary>`pip install git+https://github.com/amjams/FeatBoost.git`</details> | `featboost` <details><summary>command</summary>`+estimator@ranker=featboost`</details>| ✓ |  |  | ✓ | ✓ |  |
+| Infinite Selection ([github](https://github.com/giorgioroffo/Infinite-Feature-Selection)) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/infinite-selection.git` ℹ️</details> | `infinite_selection` <details><summary>command</summary>`+estimator@ranker=infinite_selection`</details>| ✓ |  |  | ✓ |  | ✓ |
+| MultiSURF ([github](https://github.com/EpistasisLab/scikit-rebate)) <details><summary>install</summary>`pip install skrebate`</details> | `multisurf` <details><summary>command</summary>`+estimator@ranker=multisurf`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Mutual Info ([github](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html)) | `mutual_info` <details><summary>command</summary>`+estimator@ranker=mutual_info`</details>| ✓ | ✓ |  | ✓ |  |  |
+| ReliefF ([github](https://github.com/EpistasisLab/scikit-rebate)) <details><summary>install</summary>`pip install skrebate`</details> | `relieff` <details><summary>command</summary>`+estimator@ranker=relieff`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Stability Selection ([github](https://github.com/scikit-learn-contrib/stability-selection)) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/stability-selection.git matplotlib` ℹ️</details> | `stability_selection` <details><summary>command</summary>`+estimator@ranker=stability_selection`</details>| ✓ |  |  | ✓ | ✓ |  |
+| TabNet ([github](https://github.com/dreamquark-ai/tabnet)) <details><summary>install</summary>`pip install pytorch-tabnet`</details> | `tabnet` <details><summary>command</summary>`+estimator@ranker=tabnet`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
+| XGBoost ([github](https://xgboost.readthedocs.io/)) <details><summary>install</summary>`pip install xgboost`</details> | `xgb` <details><summary>command</summary>`+estimator@ranker=xgb`</details>| ✓ | ✓ |  | ✓ |  |  |
 
-
-ℹ️  This library was customized to make it compatible with the fseval pipeline.
+ℹ️ This library was customized to make it compatible with the fseval pipeline.
 
 If you would like to install simply all dependencies, download the fseval [requirements.txt](https://github.com/dunnkers/fseval/blob/master/requirements.txt) file and run `pip install -r requirements.txt`.
 
-### About
+</details>
+
+<details>
+<summary>Built-in datasets</summary>
+
+| Name dataset                      | CLI | n | p | Task   | Multi- output | Domain                       | Group                          |
+|-------------------------------------------|-------|-------------|-------------|----------------|------------------------|--------------------------------------|----------------------------------------|
+| Boston house prices      | `boston` <details><summary>command</summary>`+dataset=boston`</details> | 506         | 11          | Regression     | No                     | Finance                              | -                                      |
+| Additive                                  | `chen_additive` <details><summary>command</summary>`+dataset=chen_additive`</details> | 10000       | 10          | Regression     | Yes                    | Synthetic                            | Chen et al. |
+| Orange                                    | `chen_orange` <details><summary>command</summary>`+dataset=chen_orange`</details> | 10000       | 10          | Regression     | Yes                    | Synthetic                            | Chen et al. |
+| XOR                                       | `chen_xor` <details><summary>command</summary>`+dataset=chen_xor`</details> | 10000       | 10          | Regression     | Yes                    | Synthetic                            | Chen et al. |
+| Climate Model Simulation | 540         | `climate_model_simulation` <details><summary>command</summary>`+dataset=climate_model_simulation`</details> | 18          | Classification | No                     | Nature                               | OpenML-CC18 |
+| Cylinder bands                            | `cylinder_bands` <details><summary>command</summary>`+dataset=cylinder_bands`</details> | 5456        | 24          | Classification | No                     | Mechanics                            | OpenML-CC18 |
+| Iris Flowers                              | `iris` <details><summary>command</summary>`+dataset=iris`</details> | 150         | 4           | Classification | No                     | Nature                               | -                                      |
+| Madelon                                   | `madelon` <details><summary>command</summary>`+dataset=madelon`</details> | 2600        | 500         | Classification | No                     | Synthetic                            | Guyon |
+| Multifeat Pixel                           | `mfeat_pixel` <details><summary>command</summary>`+dataset=mfeat_pixel`</details> | 2000        | 240         | Classification | No                     | OCR                                  | OpenML-CC18 |
+| Nomao                                     | `nomao` <details><summary>command</summary>`+dataset=nomao`</details> | 34465       | 89          | Classification | No                     | Geodata                              | OpenML-CC18 |
+| Ozone Levels                              | `ozone_levels` <details><summary>command</summary>`+dataset=ozone_levels`</details> | 2534        | 72          | Classification | No                     | Nature                               | OpenML-CC18 |
+| Phoneme                                   | `phoneme` <details><summary>command</summary>`+dataset=phoneme`</details> | 5404        | 5           | Classification | No                     | Biomedical                           | OpenML-CC18 |
+| Synclf easy                               | `synclf_easy` <details><summary>command</summary>`+dataset=synclf_easy`</details> | 10000       | 20          | Classification | No                     | Synthetic                            | Synclf                                 |
+| Synclf medium                             | `synclf_medium` <details><summary>command</summary>`+dataset=synclf_medium`</details> | 10000       | 30          | Classification | No                     | Synthetic                            | Synclf                                 |
+| Synclf hard                               | `synclf_hard` <details><summary>command</summary>`+dataset=synclf_hard`</details> | 10000       | 50          | Classification | No                     | Synthetic                            | Synclf                                 |
+| Synclf very hard                          | `synclf_very_hard` <details><summary>command</summary>`+dataset=synclf_very_hard`</details> | 10000       | 50          | Classification | No                     | Synthetic                            | Synclf                                 |
+| Synreg easy                               | `synreg_easy` <details><summary>command</summary>`+dataset=synreg_easy`</details> | 10000       | 10          | Regression     | No                     | Synthetic                            | Synreg                                 |
+| Synreg medium                             | `synreg_medium` <details><summary>command</summary>`+dataset=synreg_medium`</details> | 10000       | 10          | Regression     | No                     | Synthetic                            | Synreg                                 |
+| Synreg hard                               | `synreg_hard` <details><summary>command</summary>`+dataset=synreg_hard`</details> | 10000       | 20          | Regression     | No                     | Synthetic                            | Synreg                                 |
+| Synreg hard                               | `synreg_very_hard` <details><summary>command</summary>`+dataset=synreg_very_hard`</details> | 10000       | 20          | Regression     | No                     | Synthetic                            | Synreg                                 |
+| Texture                                   | `texture` <details><summary>command</summary>`+dataset=texture`</details> | 5500        | 40          | Classification | No                     | Pattern Recognition | OpenML-CC18 |
+| Wall Robot Navigation    | `wall_robot_navigation` <details><summary>command</summary>`+dataset=wall_robot_navigation`</details> | 5456        | 24          | Classification | No                     | Mechanics                            | OpenML-CC18 |
+</details>
+
+## About
 Built by [Jeroen Overschie](https://dunnkers.com/) as part of a Masters Thesis.
 
 (Data Science and Computational Complexity, University of Groningen)
