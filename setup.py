@@ -25,9 +25,6 @@ with open("README.md", "r") as fh:
             "humanfriendly>=9.1",
             # callbacks / storage / adapter
             "wandb>=0.10.31",
-            # adapters
-            "openml>=0.12",
-            "l2x-synthetic>=2.0.0",
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
