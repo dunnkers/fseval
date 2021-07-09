@@ -292,5 +292,8 @@ If you would like to install simply all dependencies, download the fseval [requi
 ℹ️ Note you *cannot* mix built-ins and custom rankers/datasets/validators in a **multirun**. This is due to the behavior of the [Hydra](https://github.com/facebookresearch/hydra) library.
 
 ## About
-Built by [Jeroen Overschie](https://dunnkers.com/), at the University of Groningen.
+Built by at the University of Groningen.
 
+---
+
+<p align="center">2021 — <a href="https://dunnkers.com/">Jeroen Overschie</a></p>
