@@ -111,21 +111,18 @@ class WandbCallback(Callback):
         else:
             raise ValueError(f"Incorrect metric type passed: {type(metrics)}")
 
-    def on_summary(self, summary: Dict):
-        wandb.summary.update(summary)
-
-    def on_end(self, exit_code: Optional[int] = None):
-        wandb.finish(exit_code=exit_code)
+    def on_table(self, df, name):
+        table = wandb.Table(dataframe=df)
+        logs = {}
+        logs[name] = table
+        wandb.log(logs)
 
     def upload_table_plot(self, df, **kwargs):
         table = wandb.Table(dataframe=df)
         return wandb.plot_table(data_table=table, **kwargs)
 
-    def upload_table(self, df, name):
-        table = wandb.Table(dataframe=df)
-        logs = {}
-        logs[name] = table
-        wandb.log(logs)
+    def on_summary(self, summary: Dict):
+        wandb.summary.update(summary)
 
     def create_panel_config(
         self,
@@ -213,3 +210,6 @@ class WandbCallback(Callback):
 
         panel_config = self.create_panel_config(viz_id, **panel_config)
         self.add_panel_to_run(panel_name, panel_config)
+
+    def on_end(self, exit_code: Optional[int] = None):
+        wandb.finish(exit_code=exit_code)
