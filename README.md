@@ -52,7 +52,13 @@ fseval --help
 
 
 ### Weights and Biases integration
-Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, enable wandb using `callbacks="[wandb]"`:
+Integration with [wandb](https://wandb.ai) is built-in. First, install the package:
+
+```shell
+pip install wandb
+```
+
+Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, enable wandb using `callbacks="[wandb]"`:
 
 ```shell
 fseval \
