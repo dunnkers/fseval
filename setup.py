@@ -23,6 +23,7 @@ with open("README.md", "r") as fh:
             "pandas>=1.1",
             "scikit-learn>=0.24",
             "humanfriendly>=9.1",
+            "shortuuid>=1.0.0",
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
