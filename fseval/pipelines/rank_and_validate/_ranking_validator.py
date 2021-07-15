@@ -159,8 +159,15 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         - a boolean-valued feature support vector
         - an integer-valued feature ranking vector."""
 
+        # Note, that for every metric, we set the value to `None` by default. This is
+        # to make sure the columns are populated at all when using SQL like exporting
+        # methods.
+
         ### Feature importances
-        if self.ranker.estimates_feature_importances:
+        score["importance/r2_score"] = None
+        score["importance/log_loss"] = None
+
+        if self.X_importances is not None and self.ranker.estimates_feature_importances:
             # r2 score
             y_true = self.ground_truth_feature_importances
             y_pred = self.estimated_feature_importances
@@ -171,14 +178,18 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             score["importance/log_loss"] = log_loss(y_true, y_pred, labels=[0, 1])
 
         ### Feature support
-        if self.ranker.estimates_feature_support:
+        score["support/accuracy"] = None
+
+        if self.X_importances is not None and self.ranker.estimates_feature_support:
             # accuracy
             y_true = self.ground_truth_feature_support
             y_pred = self.estimated_feature_support
             score["support/accuracy"] = accuracy_score(y_true, y_pred)
 
         ### Feature ranking
-        if (
+        score["ranking/r2_score"] = None
+
+        if self.X_importances is not None and (
             self.ranker.estimates_feature_importances
             or self.ranker.estimates_feature_ranking
         ):
@@ -215,8 +226,13 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
         if X_importances is not None:
             assert np.ndim(X_importances) == 1, "instance-based not supported yet."
-            self._score_with_feature_importances(score)
+        self._score_with_feature_importances(score)
 
         # put a in a dataframe so can be easily merged with other pipeline scores
         scores = pd.DataFrame([score])
+        scores["importance/r2_score"] = scores["importance/r2_score"].astype(float)
+        scores["importance/log_loss"] = scores["importance/log_loss"].astype(float)
+        scores["support/accuracy"] = scores["support/accuracy"].astype(float)
+        scores["ranking/r2_score"] = scores["ranking/r2_score"].astype(float)
+
         return scores

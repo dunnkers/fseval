@@ -166,8 +166,10 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     def score(self, X, y, **kwargs):
         scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)
 
-        ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
-        ranking_scores = ranking_scores.drop(columns=["group"])
+        ranking_scores = scores[scores["group"] == "ranking"]
+        ranking_scores = ranking_scores.drop(
+            columns=["group", "score", "n_features_to_select"]
+        )
         ranking_scores = ranking_scores.set_index("bootstrap_state")
 
         support_scores = scores[scores["group"] == "support"].dropna(axis=1)

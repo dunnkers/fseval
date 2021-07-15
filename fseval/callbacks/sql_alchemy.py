@@ -1,4 +1,5 @@
 import copy
+import os
 import sys
 import time
 from collections import UserDict
@@ -7,7 +8,6 @@ from logging import Logger, getLogger
 from typing import Dict, List, Optional, cast
 
 import pandas as pd
-import pangres
 from fseval.types import Callback
 from fseval.utils.dict_utils import dict_flatten, dict_merge
 from omegaconf import DictConfig, OmegaConf
@@ -44,8 +44,14 @@ class SQLAlchemyCallback(Callback):
     def on_begin(self, config: DictConfig):
         prepared_cfg = {
             "dataset": config.dataset.name,
+            "dataset/n": config.dataset.n,
+            "dataset/p": config.dataset.p,
+            "dataset/task": config.dataset.task.name,  # `.name` because Enum
+            "dataset/group": config.dataset.group,
+            "dataset/domain": config.dataset.domain,
             "ranker": config.ranker.name,
             "validator": config.validator.name,
+            "local_dir": os.getcwd(),
         }
 
         # add random id
@@ -60,29 +66,12 @@ class SQLAlchemyCallback(Callback):
         df = df.set_index("id")
         df["date_created"] = pd.Timestamp(time.time(), unit="s")
 
-        # df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
-        pangres.upsert(
-            self.engine,
-            df,
-            "experiments",
-            if_row_exists="update",
-            add_new_columns=True,
-            adapt_dtype_of_empty_db_columns=True,
-        )
+        df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
 
     def on_table(self, df: pd.DataFrame, name: str):
         df["id"] = self.id
-        # df = df.set_index("id")
-        df = df.reset_index(drop=True)
-        # df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
-        pangres.upsert(
-            self.engine,
-            df,
-            name,
-            if_row_exists="update",
-            add_new_columns=True,
-            adapt_dtype_of_empty_db_columns=True,
-        )
+        df.set_index(["id"], append=True)
+        df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
 
     def on_config_update(self, config: Dict):
         ...
