@@ -2,6 +2,7 @@
 defaults:
   - /base_rank_and_validate
   - /resample: shuffle
+  - /metrics/ranking_scores
 
 pipeline: rank-and-validate
 n_jobs: 1
