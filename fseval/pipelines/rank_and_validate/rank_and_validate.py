@@ -67,28 +67,27 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         return X, y
 
     def score(self, X, y, **kwargs):
-        scores = pd.DataFrame()
+        scores = {}
 
         # ranking scores
-        ranking_score = self.ranking_validator.score(
+        ranking_scores = self.ranking_validator.score(
             X, y, feature_importances=kwargs.get("feature_importances")
         )
-        ranking_score["group"] = "ranking"
-        scores = scores.append(ranking_score)
+        ranking_scores["bootstrap_state"] = self.bootstrap_state
+        scores["ranking"] = ranking_scores
 
         # feature support scores - if available
         if self.ranker.estimates_feature_support:
-            support_score = self.support_validator.score(X, y)
-            support_score["group"] = "support"
-            scores = scores.append(support_score)
+            support_scores = self.support_validator.score(X, y)
+            support_scores["bootstrap_state"] = self.bootstrap_state
+            scores["support"] = support_scores
 
         # validation scores
-        validation_score = self.dataset_validator.score(X, y)
-        validation_score["group"] = "validation"
-        scores = scores.append(validation_score)
+        validation_scores = self.dataset_validator.score(X, y)
+        validation_scores["bootstrap_state"] = self.bootstrap_state
+        scores["validation"] = validation_scores
 
-        # attach bootstrap and finish
-        scores["bootstrap_state"] = self.bootstrap_state
+        # finish
         self.logger.info(
             f"scored bootstrap_state={self.bootstrap_state} " + tc.green("✓")
         )
@@ -166,17 +165,12 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     def score(self, X, y, **kwargs):
         scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)
 
-        ranking_scores = scores[scores["group"] == "ranking"]
-        ranking_scores = ranking_scores.drop(
-            columns=["group", "score", "n_features_to_select"]
-        )
+        ranking_scores = scores["ranking"]
         ranking_scores = ranking_scores.set_index("bootstrap_state")
 
-        support_scores = scores[scores["group"] == "support"].dropna(axis=1)
-        support_scores = support_scores.drop(columns=["group"])
+        support_scores = scores["support"] if "support" in scores else pd.DataFrame()
 
-        validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
-        validation_scores = validation_scores.drop(columns=["group"])
+        validation_scores = scores["validation"]
 
         ##### Ranking scores - aggregation
         agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])

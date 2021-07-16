@@ -1,8 +1,9 @@
 import multiprocessing
 from dataclasses import dataclass, field
+from functools import reduce
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import List
+from typing import Dict, List, Union
 
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
@@ -129,7 +130,9 @@ class Experiment(AbstractEstimator):
     def fit_transform(self, X, y):
         ...
 
-    def _score_to_dataframe(self, score):
+    def _score_to_dataframe(
+        self, score: Union[pd.DataFrame, float, int, dict]
+    ) -> Union[pd.DataFrame, Dict]:
         """Converts a score to a pandas `DataFrame`. If already a DataFrame; returns the
         dataframe, if a scalar; returns a dataframe with one column called 'score' and
         one row representing the scalar."""
@@ -137,18 +140,65 @@ class Experiment(AbstractEstimator):
             return score
         elif isinstance(score, float) or isinstance(score, int):
             return pd.DataFrame([{"score": score}])
+        elif isinstance(score, dict):
+            # recursively ensure all bottom-level values in dict are dataframes.
+            for key, value in score.items():
+                score[key] = self._score_to_dataframe(value)
+
+            return score
         else:
             raise ValueError(f"illegal score type received: {type(score)}")
 
+    def _aggregate_dataframe_scores(self, a: pd.DataFrame, b: pd.DataFrame):
+        return a.append(b)
+
+    def _aggregate_dict_scores(self, a: Dict, b: Dict):
+        aggregated = {}
+
+        # merge common keys
+        common_keys = filter(lambda key: key in b, a)
+        common_keys = list(common_keys)
+
+        for key in common_keys:
+            value_a = a.pop(key)
+            value_b = b.pop(key)
+            aggregated[key] = self._aggregate_scores(value_a, value_b)
+
+        # add remaining uncommon keys
+        aggregated = {**aggregated, **a, **b}
+
+        return aggregated
+
+    def _aggregate_scores(
+        self, a: Union[pd.DataFrame, Dict], b: Union[pd.DataFrame, Dict]
+    ):
+        is_dataframe = isinstance(a, pd.DataFrame) and isinstance(b, pd.DataFrame)
+        is_dict = isinstance(a, Dict) and isinstance(b, Dict)
+
+        if is_dataframe:
+            agg_scores = self._aggregate_dataframe_scores(a, b)
+            return agg_scores
+        elif is_dict:
+            agg_scores = self._aggregate_dict_scores(a, b)
+            return agg_scores
+        else:
+            raise ValueError(
+                "In an `Experiment`, all estimators must either return only DataFrames "
+                + "or Dictionaries containing DataFrames. Otherwise, the experiment "
+                + "results cannot be aggregated. Got: "
+                + f"{type(a)} and {type(b)}."
+            )
+
     def score(self, X, y, **kwargs) -> pd.DataFrame:
         """Sequentially scores all estimators in this experiment, and appends the scores
-        to a dataframe. Returns all accumulated scores."""
+        to a dataframe or a dict containing dataframes. Returns all accumulated scores.
+        """
         X, y = self._prepare_data(X, y)
-        scores = pd.DataFrame()
 
-        for estimator in self.estimators:
-            score = estimator.score(X, y, **kwargs)
-            score = self._score_to_dataframe(score)
-            scores = scores.append(score)
+        # score all estimators and ensure dataframes
+        scores = [estimator.score(X, y, **kwargs) for estimator in self.estimators]
+        scores = [self._score_to_dataframe(score) for score in scores]
 
-        return scores
+        # ensure types and aggregate
+        agg_scores = reduce(self._aggregate_scores, scores)
+        return agg_scores
