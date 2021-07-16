@@ -61,7 +61,6 @@ omegaconf==2.1.0rc1
 openml==0.12.1
 packaging==20.9
 pandas==1.2.4
-pangres==2.3.1
 parso==0.8.2
 pathspec==0.8.1
 pathtools==0.1.2
