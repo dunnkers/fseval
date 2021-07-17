@@ -67,28 +67,27 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         return X, y
 
     def score(self, X, y, **kwargs):
-        scores = pd.DataFrame()
+        scores = {}
 
         # ranking scores
-        ranking_score = self.ranking_validator.score(
+        ranking_scores = self.ranking_validator.score(
             X, y, feature_importances=kwargs.get("feature_importances")
         )
-        ranking_score["group"] = "ranking"
-        scores = scores.append(ranking_score)
+        ranking_scores["bootstrap_state"] = self.bootstrap_state
+        scores["ranking"] = ranking_scores
 
         # feature support scores - if available
         if self.ranker.estimates_feature_support:
-            support_score = self.support_validator.score(X, y)
-            support_score["group"] = "support"
-            scores = scores.append(support_score)
+            support_scores = self.support_validator.score(X, y)
+            support_scores["bootstrap_state"] = self.bootstrap_state
+            scores["support"] = support_scores
 
         # validation scores
-        validation_score = self.dataset_validator.score(X, y)
-        validation_score["group"] = "validation"
-        scores = scores.append(validation_score)
+        validation_scores = self.dataset_validator.score(X, y)
+        validation_scores["bootstrap_state"] = self.bootstrap_state
+        scores["validation"] = validation_scores
 
-        # attach bootstrap and finish
-        scores["bootstrap_state"] = self.bootstrap_state
+        # finish
         self.logger.info(
             f"scored bootstrap_state={self.bootstrap_state} " + tc.green("✓")
         )
@@ -166,15 +165,12 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
     def score(self, X, y, **kwargs):
         scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)
 
-        ranking_scores = scores[scores["group"] == "ranking"].dropna(axis=1)
-        ranking_scores = ranking_scores.drop(columns=["group"])
+        ranking_scores = scores["ranking"]
         ranking_scores = ranking_scores.set_index("bootstrap_state")
 
-        support_scores = scores[scores["group"] == "support"].dropna(axis=1)
-        support_scores = support_scores.drop(columns=["group"])
+        support_scores = scores["support"] if "support" in scores else pd.DataFrame()
 
-        validation_scores = scores[scores["group"] == "validation"].dropna(axis=1)
-        validation_scores = validation_scores.drop(columns=["group"])
+        validation_scores = scores["validation"]
 
         ##### Ranking scores - aggregation
         agg_ranking_scores = ranking_scores.agg(["mean", "std", "var", "min", "max"])
@@ -206,13 +202,8 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         summary = dict(**summary, **validation_scores_mean_flat)
 
         ##### Upload tables
-        wandb_callback = getattr(self.callbacks, "wandb", False)
-        if wandb_callback:
-            self.logger.info(f"Uploading tables to wandb...")
-            wandb_callback = cast(WandbCallback, wandb_callback)
-
         ### ranking scores
-        if wandb_callback and self.upload_ranking_scores:
+        if self.upload_ranking_scores:
             self.logger.info(f"Uploading ranking scores...")
 
             ## upload raw rankings
@@ -221,40 +212,44 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
                 importances_table = self._get_ranker_attribute_table(
                     "feature_importances"
                 )
-                wandb_callback.upload_table(importances_table, "feature_importances")
+                self.callbacks.on_table(importances_table, "feature_importances")
 
             # feature support
             if self.ranker.estimates_feature_support:
                 support_table = self._get_ranker_attribute_table("feature_support")
-                wandb_callback.upload_table(support_table, "feature_support")
+                self.callbacks.on_table(support_table, "feature_support")
 
             # feature ranking
             if self.ranker.estimates_feature_ranking:
                 ranking_table = self._get_ranker_attribute_table("feature_ranking")
-                wandb_callback.upload_table(ranking_table, "feature_ranking")
+                self.callbacks.on_table(ranking_table, "feature_ranking")
 
             ## upload ranking scores
-            wandb_callback.upload_table(ranking_scores.reset_index(), "ranking_scores")
+            self.callbacks.on_table(ranking_scores.reset_index(), "ranking_scores")
 
         ### validation scores
-        if wandb_callback and self.upload_validation_scores:
+        if self.upload_validation_scores:
             self.logger.info(f"Uploading validation scores...")
 
             ## upload support scores
             if self.ranker.estimates_feature_support:
-                wandb_callback.upload_table(support_scores, "support_scores")
+                self.callbacks.on_table(support_scores, "support_scores")
 
             ## upload validation scores
-            wandb_callback.upload_table(validation_scores, "validation_scores")
+            self.callbacks.on_table(validation_scores, "validation_scores")
 
             ## upload mean validation scores
             all_agg_val_scores = agg_val_scores.reset_index()
-            wandb_callback.upload_table(all_agg_val_scores, "validation_scores_mean")
+            self.callbacks.on_table(all_agg_val_scores, "validation_scores_mean")
 
-        if wandb_callback:
-            self.logger.info(f"Tables uploaded {tc.green('✓')}")
+        self.logger.info(f"Tables uploaded {tc.green('✓')}")
 
         ##### Upload charts
+        wandb_callback = getattr(self.callbacks, "wandb", False)
+        if wandb_callback:
+            self.logger.info(f"Plotting wandb charts...")
+            wandb_callback = cast(WandbCallback, wandb_callback)
+
         # has ground truth
         rank_and_validate_estimator = self.estimators[0]
         ranking_validator_estimator = rank_and_validate_estimator.ranking_validator

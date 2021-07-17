@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import pandas as pd
 from omegaconf import MISSING, DictConfig
 from sklearn.base import BaseEstimator
 
@@ -71,6 +72,10 @@ class Callback(ABC):
 
     @abstractmethod
     def on_metrics(self, metrics):
+        ...
+
+    @abstractmethod
+    def on_table(self, df: pd.DataFrame, name: str):
         ...
 
     @abstractmethod

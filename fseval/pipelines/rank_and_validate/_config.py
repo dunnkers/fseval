@@ -25,6 +25,7 @@ class RankAndValidatePipeline(Pipeline):
     all_features_to_select: str = MISSING
     upload_ranking_scores: bool = MISSING
     upload_validation_scores: bool = MISSING
+    metrics: dict = MISSING
 
     def _get_config(self):
         return {

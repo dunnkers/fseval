@@ -1,8 +1,8 @@
 from typing import Dict, Optional
 
-from omegaconf import DictConfig
-
+import pandas as pd
 from fseval.types import Callback
+from omegaconf import DictConfig
 
 
 class CallbackCollection(Callback):
@@ -31,6 +31,10 @@ class CallbackCollection(Callback):
     def on_metrics(self, metrics):
         for callback in self._iterator:
             callback.on_metrics(metrics)
+
+    def on_table(self, df: pd.DataFrame, name: str):
+        for callback in self._iterator:
+            callback.on_table(df, name)
 
     def on_summary(self, summary):
         for callback in self._iterator:

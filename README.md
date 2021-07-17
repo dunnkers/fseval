@@ -50,9 +50,33 @@ To see all the configurable options, run:
 fseval --help
 ```
 
+### SQL Alchemy
+Data can be exported to [SQLAlchemy](https://www.sqlalchemy.org/) supported databases. That is: SQLite, Postgresql, MySQL, Oracle and [others](https://docs.sqlalchemy.org/en/14/dialects/). Install the package first.
+
+```shell
+pip install SQLAlchemy
+```
+
+To export data using SQLAlchemy, use:
+
+```shell
+fseval \
+  ... \
+  callbacks="[sql_alchemy]" \
+  +callbacks.wandb.project=fseval-readme \
+  ++callbacks.sql_alchemy.engine.url=<your_dbapi_connection_url>
+```
+
+See the [docs](https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine) on construction a DBAPI connection URL.
 
 ### Weights and Biases integration
-Integration with [wandb](https://wandb.ai) is built-in. Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, enable wandb using `callbacks="[wandb]"`:
+Integration with [wandb](https://wandb.ai) is built-in. First, install the package:
+
+```shell
+pip install wandb
+```
+
+Create an account and login to the [CLI](https://github.com/wandb/client#-simple-integration-with-any-framework) with `wandb login`. Then, enable wandb using `callbacks="[wandb]"`:
 
 ```shell
 fseval \

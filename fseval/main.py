@@ -1,10 +1,15 @@
 from glob import glob
 from logging import getLogger
+from os import getcwd
+from pathlib import Path
 from traceback import print_exc
+from typing import cast
 
 import hydra
+from hydra.core.utils import _save_config
 from hydra.utils import instantiate
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
+from yaml import dump
 
 from fseval.config import BaseConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
@@ -39,21 +44,26 @@ def main(cfg: BaseConfig) -> None:
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
-    del cfg.storage.load_dir  # set these after callbacks were initialized
-    del cfg.storage.save_dir  # set these after callbacks were initialized
+    cfg.storage.load_dir = None  # set these after callbacks were initialized
+    cfg.storage.save_dir = None  # set these after callbacks were initialized
     pipeline.callbacks.on_begin(cfg)
     # set storage load- and save dirs
-    load_dir = pipeline.storage.get_load_dir()
-    save_dir = pipeline.storage.get_save_dir()
+    cfg.storage.load_dir = pipeline.storage.get_load_dir()
+    cfg.storage.save_dir = pipeline.storage.get_save_dir()
     pipeline.callbacks.on_config_update(
         {
             "storage": {
-                "load_dir": load_dir,
-                "save_dir": save_dir,
+                "load_dir": cfg.storage.load_dir,
+                "save_dir": cfg.storage.save_dir,
             }
         }
     )
-    logger.info(f"loading files from: {TerminalColor.blue(load_dir)}")
+    # save modified cfg to disk
+    hydra_output = Path(getcwd()) / ".hydra"
+    config = cast(DictConfig, cfg)
+    _save_config(config, "config.yaml", hydra_output)
+    # log load dir
+    logger.info(f"loading files from: {TerminalColor.blue(cfg.storage.load_dir)}")
     # load dataset and cv split
     logger.info(
         f"using dataset: {TerminalColor.yellow(dataset_loader.name)} "
@@ -84,9 +94,9 @@ def main(cfg: BaseConfig) -> None:
         raise e
 
     n_saved_files = len(glob("./*"))
-    if save_dir:
+    if cfg.storage.save_dir:
         logger.info(
-            f"saved {n_saved_files} files to {TerminalColor.blue(save_dir)} "
+            f"saved {n_saved_files} files to {TerminalColor.blue(cfg.storage.save_dir)} "
             + TerminalColor.green("✓")
         )
     logger.info(
