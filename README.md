@@ -225,18 +225,18 @@ Several rankers, datasets and validators are already built-in.
 
 | Ranker | Source | Command | Classif- ication | Regr- ession | Multi output | Feature importance | Feature support | Feature ranking |
 |-|-|-|-|-|-|-|-|-|
-| ANOVA F-value | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html)) | <details><summary>cli</summary>`+estimator@ranker=anova_f_value`</details>| ✓ | ✓ |  | ✓ |  |  |
-| Boruta | [github](https://github.com/scikit-learn-contrib/boruta_py)) <details><summary>install</summary>`pip install Boruta`</details> | <details><summary>cli</summary>`+estimator@ranker=boruta`</details>| ✓ |  |  |  | ✓ | ✓ |
-| Chi-Squared | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html)) | <details><summary>cli</summary>`+estimator@ranker=chi2`</details>| ✓ |  |  | ✓ |  |  |
-| Decision Tree | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)) | <details><summary>cli</summary>`+estimator@ranker=decision_tree`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
-| FeatBoost | [github](https://github.com/amjams/FeatBoost)) <details><summary>install</summary>`pip install git+https://github.com/amjams/FeatBoost.git`</details> | <details><summary>cli</summary>`+estimator@ranker=featboost`</details>| ✓ |  |  | ✓ | ✓ |  |
-| Infinite Selection | [github](https://github.com/giorgioroffo/Infinite-Feature-Selection)) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/infinite-selection.git` ℹ️</details> | <details><summary>cli</summary>`+estimator@ranker=infinite_selection`</details>| ✓ |  |  | ✓ |  | ✓ |
-| MultiSURF | [github](https://github.com/EpistasisLab/scikit-rebate)) <details><summary>install</summary>`pip install skrebate`</details> | <details><summary>cli</summary>`+estimator@ranker=multisurf`</details>| ✓ | ✓ |  | ✓ |  |  |
-| Mutual Info | [github](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html)) | <details><summary>cli</summary>`+estimator@ranker=mutual_info`</details>| ✓ | ✓ |  | ✓ |  |  |
-| ReliefF | [github](https://github.com/EpistasisLab/scikit-rebate)) <details><summary>install</summary>`pip install skrebate`</details> | <details><summary>cli</summary>`+estimator@ranker=relieff`</details>| ✓ | ✓ |  | ✓ |  |  |
-| Stability Selection | [github](https://github.com/scikit-learn-contrib/stability-selection)) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/stability-selection.git matplotlib` ℹ️</details> | <details><summary>cli</summary>`+estimator@ranker=stability_selection`</details>| ✓ |  |  | ✓ | ✓ |  |
-| TabNet | [github](https://github.com/dreamquark-ai/tabnet)) <details><summary>install</summary>`pip install pytorch-tabnet`</details> | <details><summary>cli</summary>`+estimator@ranker=tabnet`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
-| XGBoost | [github](https://xgboost.readthedocs.io/)) <details><summary>install</summary>`pip install xgboost`</details> | <details><summary>cli</summary>`+estimator@ranker=xgb`</details>| ✓ | ✓ |  | ✓ |  |  |
+| ANOVA F-value | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html) | <details><summary>cli</summary>`+estimator@ranker=anova_f_value`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Boruta | [github](https://github.com/scikit-learn-contrib/boruta_py) <details><summary>install</summary>`pip install Boruta`</details> | <details><summary>cli</summary>`+estimator@ranker=boruta`</details>| ✓ |  |  |  | ✓ | ✓ |
+| Chi-Squared | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html) | <details><summary>cli</summary>`+estimator@ranker=chi2`</details>| ✓ |  |  | ✓ |  |  |
+| Decision Tree | [sklearn](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) | <details><summary>cli</summary>`+estimator@ranker=decision_tree`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
+| FeatBoost | [github](https://github.com/amjams/FeatBoost) <details><summary>install</summary>`pip install git+https://github.com/amjams/FeatBoost.git`</details> | <details><summary>cli</summary>`+estimator@ranker=featboost`</details>| ✓ |  |  | ✓ | ✓ |  |
+| Infinite Selection | [github](https://github.com/giorgioroffo/Infinite-Feature-Selection) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/infinite-selection.git` ℹ️</details> | <details><summary>cli</summary>`+estimator@ranker=infinite_selection`</details>| ✓ |  |  | ✓ |  | ✓ |
+| MultiSURF | [github](https://github.com/EpistasisLab/scikit-rebate) <details><summary>install</summary>`pip install skrebate`</details> | <details><summary>cli</summary>`+estimator@ranker=multisurf`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Mutual Info | [github](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html) | <details><summary>cli</summary>`+estimator@ranker=mutual_info`</details>| ✓ | ✓ |  | ✓ |  |  |
+| ReliefF | [github](https://github.com/EpistasisLab/scikit-rebate) <details><summary>install</summary>`pip install skrebate`</details> | <details><summary>cli</summary>`+estimator@ranker=relieff`</details>| ✓ | ✓ |  | ✓ |  |  |
+| Stability Selection | [github](https://github.com/scikit-learn-contrib/stability-selection) <details><summary>install</summary>`pip install git+https://github.com/dunnkers/stability-selection.git matplotlib` ℹ️</details> | <details><summary>cli</summary>`+estimator@ranker=stability_selection`</details>| ✓ |  |  | ✓ | ✓ |  |
+| TabNet | [github](https://github.com/dreamquark-ai/tabnet) <details><summary>install</summary>`pip install pytorch-tabnet`</details> | <details><summary>cli</summary>`+estimator@ranker=tabnet`</details>| ✓ | ✓ | ✓ | ✓ |  |  |
+| XGBoost | [github](https://xgboost.readthedocs.io/) <details><summary>install</summary>`pip install xgboost`</details> | <details><summary>cli</summary>`+estimator@ranker=xgb`</details>| ✓ | ✓ |  | ✓ |  |  |
 
 ℹ️ This library was customized to make it compatible with the fseval pipeline.
 
