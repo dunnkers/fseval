@@ -1,2 +1,0 @@
-ranking_scores:
-  _target_: fseval.pipelines.rank_and_validate.metrics.ranking_scores.RankingScores

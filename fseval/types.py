@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import pandas as pd
 from omegaconf import MISSING, DictConfig
 from sklearn.base import BaseEstimator
 
 
 class Task(Enum):
+    """Learning task. In the case of datasets this indicates the dataset learning task,
+    and in the case of estimators this indicates the supported estimator learning tasks.
+    """
+
     regression = 1
     classification = 2
 
@@ -49,7 +54,42 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+
+class AbstractMetric:
+    def score_bootstrap(
+        self, scores, **kwargs
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+    def score_pipeline(
+        self, scores, **kwargs
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+    def score_ranking(
+        self,
+        ranker: AbstractEstimator,
+        feature_importances: Optional[np.ndarray] = None,
+        **kwargs,
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+    def score_support(
+        self, X, y, **kwargs
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+    def score_dataset(
+        self, scores, **kwargs
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+        ...
+
+    def score_subset(
+        self, X, y, **kwargs
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
         ...
 
 

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import Dict, Union
 
 import numpy as np
+import pandas as pd
 from fseval.pipeline.estimator import Estimator
 from fseval.types import IncompatibilityError
 from omegaconf import MISSING
@@ -73,7 +75,7 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
     def postfit(self):
         self.validator._save_cache(self._cache_filename, self.storage)
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
         score = super(SubsetValidator, self).score(X, y)
         score["n_features_to_select"] = self.n_features_to_select
         score["fit_time"] = self.validator.fit_time_

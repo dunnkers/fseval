@@ -1,0 +1,2 @@
+importance_r2_score:
+  _target_: fseval.pipelines.rank_and_validate.metrics.importance_r2_score.ImportanceR2Score

@@ -157,7 +157,7 @@ class Experiment(AbstractEstimator):
 
         # merge common keys
         common_keys = filter(lambda key: key in b, a)
-        common_keys = list(common_keys)
+        common_keys = list(common_keys)  # type: ignore
 
         for key in common_keys:
             value_a = a.pop(key)
@@ -189,7 +189,7 @@ class Experiment(AbstractEstimator):
                 + f"{type(a)} and {type(b)}."
             )
 
-    def score(self, X, y, **kwargs) -> pd.DataFrame:
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
         """Sequentially scores all estimators in this experiment, and appends the scores
         to a dataframe or a dict containing dataframes. Returns all accumulated scores.
         """

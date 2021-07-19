@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import cast
+from typing import Dict, Union, cast
 
 import numpy as np
 import pandas as pd

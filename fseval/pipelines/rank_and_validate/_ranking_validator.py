@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Optional
+from typing import Dict, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
-from fseval.types import IncompatibilityError, TerminalColor
+from fseval.types import AbstractMetric, IncompatibilityError, TerminalColor
 from omegaconf import MISSING
 from sklearn.metrics import accuracy_score, log_loss, r2_score
 
@@ -14,6 +14,11 @@ from ._config import RankAndValidatePipeline
 
 @dataclass
 class RankingValidator(Experiment, RankAndValidatePipeline):
+    """Validates a feature ranking. A feature ranking is validated by comparing the
+    estimated feature- ranking, importance or support to the ground truth feature
+    importances. Generally, the ground-truth feature importances are only available
+    when a dataset is synthetically generated."""
+
     bootstrap_state: int = MISSING
 
     logger: Logger = getLogger(__name__)
@@ -120,7 +125,7 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
 
     @property
     def estimated_feature_ranking(self):
-        """Normalized estimated feature ranking. GrabS ranking through either (1)
+        """Normalized estimated feature ranking. Grabs ranking through either (1)
         `ranking_` or (2) `feature_importances_`"""
 
         assert (
@@ -208,7 +213,9 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
                 y_true, y_pred, sample_weight=sample_weight
             )
 
-    def score(self, X, y, **kwargs):
+    def score(
+        self, X, y, feature_importances: Optional[np.ndarray] = None
+    ) -> Union[Dict, pd.DataFrame, int, float, None]:
         """Scores a feature ranker, if a ground-truth on the desired dataset
         feature importances is available. If this is the case, the estimated normalized
         feature importances are compared to the desired ones using two metrics:
@@ -220,19 +227,31 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             "bootstrap_state": self.bootstrap_state,
         }
 
-        # score using ground truth, if available.
-        X_importances: Optional[np.ndarray] = kwargs.get("feature_importances")
-        self.X_importances = X_importances  # store for later use
+        # ensure ground truth feature_importances are 1-dimensional
+        if feature_importances is not None:
+            assert (
+                np.ndim(feature_importances) == 1
+            ), "instance-based not supported yet."
 
-        if X_importances is not None:
-            assert np.ndim(X_importances) == 1, "instance-based not supported yet."
-        self._score_with_feature_importances(score)
+        # metrics
+        for metric_name, metric_class in self.metrics.items():
+            metric_class = cast(AbstractMetric, metric_class)
+            score[metric_name] = metric_class.score_ranking(
+                self.ranker, feature_importances
+            )
 
-        # put a in a dataframe so can be easily merged with other pipeline scores
-        scores = pd.DataFrame([score])
-        scores["importance/r2_score"] = scores["importance/r2_score"].astype(float)
-        scores["importance/log_loss"] = scores["importance/log_loss"].astype(float)
-        scores["support/accuracy"] = scores["support/accuracy"].astype(float)
-        scores["ranking/r2_score"] = scores["ranking/r2_score"].astype(float)
+        return score
 
-        return scores
+        # # score using ground truth, if available.
+        # self.X_importances = X_importances  # store for later use
+
+        # self._score_with_feature_importances(score)
+
+        # # put a in a dataframe so can be easily merged with other pipeline scores
+        # scores = pd.DataFrame([score])
+        # scores["importance/r2_score"] = scores["importance/r2_score"].astype(float)
+        # scores["importance/log_loss"] = scores["importance/log_loss"].astype(float)
+        # scores["support/accuracy"] = scores["support/accuracy"].astype(float)
+        # scores["ranking/r2_score"] = scores["ranking/r2_score"].astype(float)
+
+        # return scores
