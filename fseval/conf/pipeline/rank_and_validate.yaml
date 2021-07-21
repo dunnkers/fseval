@@ -2,7 +2,8 @@
 defaults:
   - /base_rank_and_validate
   - /resample: shuffle
-  - /metrics/importance_r2_score
+  - /metrics/feature_importance/r2_score
+  - /metrics/feature_importance/log_loss
 
 pipeline: rank-and-validate
 n_jobs: 1

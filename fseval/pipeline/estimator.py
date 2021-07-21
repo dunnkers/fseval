@@ -2,8 +2,10 @@ import inspect
 from dataclasses import dataclass
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Union
 
+import numpy as np
+import pandas as pd
 from fseval.types import (
     AbstractEstimator,
     AbstractStorage,
@@ -134,7 +136,7 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         )
         return self.fit(X, y).transform(X, y)
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         self.logger.debug(f"Scoring {Estimator._get_class_repr(self)}...")
         return self.estimator.score(X, y)
 

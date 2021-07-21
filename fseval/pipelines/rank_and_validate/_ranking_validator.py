@@ -213,45 +213,33 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
                 y_true, y_pred, sample_weight=sample_weight
             )
 
-    def score(
-        self, X, y, feature_importances: Optional[np.ndarray] = None
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         """Scores a feature ranker, if a ground-truth on the desired dataset
         feature importances is available. If this is the case, the estimated normalized
         feature importances are compared to the desired ones using two metrics:
         log loss and the R^2 score. Whilst the log loss converts the ground-truth
         desired feature rankings to a binary value, 0/1, the R^2 score always works."""
 
-        score = {
-            "fit_time": self.ranker.fit_time_,
-            "bootstrap_state": self.bootstrap_state,
-        }
-
         # ensure ground truth feature_importances are 1-dimensional
+        feature_importances = kwargs.pop("feature_importances", None)
         if feature_importances is not None:
             assert (
                 np.ndim(feature_importances) == 1
             ), "instance-based not supported yet."
 
-        # metrics
+        # add fitting time and bootstrap to score
+        scores = {
+            "fit_time": self.ranker.fit_time_,
+            "bootstrap_state": self.bootstrap_state,
+        }
+
+        # add custom metrics
         for metric_name, metric_class in self.metrics.items():
-            metric_class = cast(AbstractMetric, metric_class)
-            score[metric_name] = metric_class.score_ranking(
+            scores[metric_name] = metric_class.score_ranking(
                 self.ranker, feature_importances
             )
 
-        return score
+        # create dataframe
+        scores_df = pd.DataFrame([scores])
 
-        # # score using ground truth, if available.
-        # self.X_importances = X_importances  # store for later use
-
-        # self._score_with_feature_importances(score)
-
-        # # put a in a dataframe so can be easily merged with other pipeline scores
-        # scores = pd.DataFrame([score])
-        # scores["importance/r2_score"] = scores["importance/r2_score"].astype(float)
-        # scores["importance/log_loss"] = scores["importance/log_loss"].astype(float)
-        # scores["support/accuracy"] = scores["support/accuracy"].astype(float)
-        # scores["ranking/r2_score"] = scores["ranking/r2_score"].astype(float)
-
-        # return scores
+        return scores_df

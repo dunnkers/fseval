@@ -66,7 +66,7 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
 
         return X, y
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         scores = {}
 
         # ranking scores
@@ -86,6 +86,13 @@ class RankAndValidate(Experiment, RankAndValidatePipeline):
         validation_scores = self.dataset_validator.score(X, y)
         validation_scores["bootstrap_state"] = self.bootstrap_state
         scores["validation"] = validation_scores
+
+        # custom metrics
+        for metric_name, metric_class in self.metrics.items():
+            scores_metric = metric_class.score_pipeline(scores)
+
+            if scores_metric is not None:
+                scores = scores_metric
 
         # finish
         self.logger.info(
@@ -162,8 +169,21 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
         return attribute_table
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)
+        assert isinstance(
+            scores, Dict
+        ), "Scores returned from `rank_and_validate` (the pipeline) must be dict's."
+        scores = cast(Dict, scores)
+
+        # custom metrics
+        for metric_name, metric_class in self.metrics.items():
+            scores_metric = metric_class.score_bootstrap(
+                self.ranker, self.validator, self.callbacks, scores
+            )
+
+            if scores_metric is not None:
+                scores = scores_metric
 
         ranking_scores = scores["ranking"]
         ranking_scores = ranking_scores.set_index("bootstrap_state")
@@ -187,7 +207,7 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
         print(agg_val_scores)
 
         ##### Summary
-        summary = dict()
+        summary = dict()  # type: ignore
         ### Mean ranking score
         ranking_scores_mean = ranking_scores.agg(["mean"])
         ranking_scores_mean = ranking_scores_mean.add_prefix("ranker/")

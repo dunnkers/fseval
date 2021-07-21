@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Union, cast
 
+import numpy as np
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
 from omegaconf import MISSING
@@ -65,6 +66,14 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
     def _get_overrides_text(self, estimator):
         return f"[n_features_to_select={estimator.n_features_to_select}] "
 
-    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         scores = super(DatasetValidator, self).score(X, y, **kwargs)
+
+        # custom metrics
+        for metric_name, metric_class in self.metrics.items():
+            scores_metric = metric_class.score_dataset(scores)
+
+            if scores_metric is not None:
+                scores = scores_metric
+
         return scores

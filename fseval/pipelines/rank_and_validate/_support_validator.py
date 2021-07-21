@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import Dict, Union, cast
 
 import numpy as np
+import pandas as pd
 from fseval.pipeline.estimator import Estimator
 from fseval.types import IncompatibilityError
 from omegaconf import MISSING
@@ -41,8 +43,31 @@ class SupportValidator(SubsetValidator):
 
         return filename
 
-    def score(self, X, y, **kwargs):
-        score = super(SubsetValidator, self).score(X, y)
-        score["subset_size"] = self.subset_size
-        score["fit_time"] = self.validator.fit_time_
-        return score
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
+        # See `SubsetValidator.score()`. This uses the validation estimator's `score()`
+        # function.
+        validator_score = super(SubsetValidator, self).score(X, y)
+        assert np.isscalar(validator_score), (
+            f"'{self.validator.name}' validator score must be a scalar. That is, "
+            + "it must be an int, float, string or boolean. The validator score is "
+            + f"whatever is returned by `{self.validator.score}`."
+        )
+        validator_score = cast(np.generic, validator_score)
+
+        # Put scores in object
+        scores = {}
+        scores["score"] = validator_score  # type: ignore
+        scores["subset_size"] = self.subset_size
+        scores["fit_time"] = self.validator.fit_time_
+
+        # add custom metrics
+        for metric_name, metric_class in self.metrics.items():
+            X, y = self._prepare_data(X, y)
+            scores[metric_name] = metric_class.score_support(
+                self.validator, X, y
+            )  # type: ignore
+
+        # convert to DataFrame
+        scores_df = pd.DataFrame([scores])
+
+        return scores_df

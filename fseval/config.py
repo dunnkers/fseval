@@ -57,32 +57,6 @@ class BaseConfig:
 cs.store(name="base_config", node=BaseConfig)
 
 
-# @dataclass
-# class MetricsConfig:
-#     """Configuration concerning the pipeline metrics. Parameters:
-
-#     - `bootstrap`: Dict[str, Any] - Aggregated metrics for the
-#         bootstrapped pipeline.
-#     - `pipeline`: Dict[str, Any] - Aggregated metrics for the pipeline.
-#     - `ranking`: Dict[str, Any] - Metrics for validating a feature ranking, e.g. using a
-#         ground-truth.
-#     - `support`: Dict[str, Any] - Metrics for validating a feature support vector. e.g.,
-#         this is an array indicating yes/no which features to include in a feature
-#         subset. The array is validated by running the validation estimator on this
-#         feature subset.
-#     - `dataset`: Dict[str, Any] - Aggregated metrics for all feature subsets. e.g. 50
-#         feature subsets for p >= 50.
-#     - `subset`: Dict[str, Any] - Metrics for validation estimator. Validates 1 feature subset.
-#     """
-
-#     bootstrap: Dict[str, Any] = field(default_factory=dict)
-#     pipeline: Dict[str, Any] = field(default_factory=dict)
-#     ranking: Dict[str, Any] = field(default_factory=dict)
-#     support: Dict[str, Any] = field(default_factory=dict)
-#     dataset: Dict[str, Any] = field(default_factory=dict)
-#     subset: Dict[str, Any] = field(default_factory=dict)
-
-
 @dataclass
 class RankAndValidateConfig(BaseConfig):
     _target_: str = "fseval.pipelines.rank_and_validate.BootstrappedRankAndValidate"

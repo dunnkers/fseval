@@ -5,6 +5,7 @@ from logging import Logger, getLogger
 from time import perf_counter
 from typing import Dict, List, Union
 
+import numpy as np
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
@@ -130,25 +131,6 @@ class Experiment(AbstractEstimator):
     def fit_transform(self, X, y):
         ...
 
-    def _score_to_dataframe(
-        self, score: Union[pd.DataFrame, float, int, dict]
-    ) -> Union[pd.DataFrame, Dict]:
-        """Converts a score to a pandas `DataFrame`. If already a DataFrame; returns the
-        dataframe, if a scalar; returns a dataframe with one column called 'score' and
-        one row representing the scalar."""
-        if isinstance(score, pd.DataFrame):
-            return score
-        elif isinstance(score, float) or isinstance(score, int):
-            return pd.DataFrame([{"score": score}])
-        elif isinstance(score, dict):
-            # recursively ensure all bottom-level values in dict are dataframes.
-            for key, value in score.items():
-                score[key] = self._score_to_dataframe(value)
-
-            return score
-        else:
-            raise ValueError(f"illegal score type received: {type(score)}")
-
     def _aggregate_dataframe_scores(self, a: pd.DataFrame, b: pd.DataFrame):
         return a.append(b)
 
@@ -189,16 +171,14 @@ class Experiment(AbstractEstimator):
                 + f"{type(a)} and {type(b)}."
             )
 
-    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         """Sequentially scores all estimators in this experiment, and appends the scores
         to a dataframe or a dict containing dataframes. Returns all accumulated scores.
         """
         X, y = self._prepare_data(X, y)
 
-        # score all estimators and ensure dataframes
+        # score all estimators and aggregate
         scores = [estimator.score(X, y, **kwargs) for estimator in self.estimators]
-        scores = [self._score_to_dataframe(score) for score in scores]
+        scores_agg = reduce(self._aggregate_scores, scores)
 
-        # ensure types and aggregate
-        agg_scores = reduce(self._aggregate_scores, scores)
-        return agg_scores
+        return scores_agg

@@ -54,42 +54,7 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
-    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-
-class AbstractMetric:
-    def score_bootstrap(
-        self, scores, **kwargs
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-    def score_pipeline(
-        self, scores, **kwargs
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-    def score_ranking(
-        self,
-        ranker: AbstractEstimator,
-        feature_importances: Optional[np.ndarray] = None,
-        **kwargs,
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-    def score_support(
-        self, X, y, **kwargs
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-    def score_dataset(
-        self, scores, **kwargs
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
-        ...
-
-    def score_subset(
-        self, X, y, **kwargs
-    ) -> Union[Dict, pd.DataFrame, int, float, None]:
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         ...
 
 
@@ -195,3 +160,49 @@ class TerminalColor:
     @staticmethod
     def grey(text):
         return f"\u001b[37m{text}\u001b[0m"
+
+
+class AbstractMetric:
+    def score_bootstrap(
+        self,
+        ranker: AbstractEstimator,
+        validator: AbstractEstimator,
+        callbacks: Callback,
+        scores: Dict,
+        **kwargs,
+    ) -> Dict:
+        """Aggregated metrics for the bootstrapped pipeline."""
+        ...
+
+    def score_pipeline(self, scores: Dict, **kwargs) -> Dict:
+        """Aggregated metrics for the pipeline."""
+        ...
+
+    def score_ranking(
+        self,
+        ranker: AbstractEstimator,
+        feature_importances: Optional[np.ndarray] = None,
+    ) -> Optional[np.generic]:
+        """Metrics for validating a feature ranking, e.g. using a ground-truth."""
+        ...
+
+    def score_support(
+        self, validator: AbstractEstimator, X, y, **kwargs
+    ) -> Optional[np.generic]:
+        """Metrics for validating a feature support vector. e.g., this is an array
+        indicating yes/no which features to include in a feature subset. The array is
+        validated by running the validation estimator on this feature subset."""
+        ...
+
+    def score_dataset(
+        self, scores: Union[Dict, pd.DataFrame], **kwargs
+    ) -> Union[Dict, pd.DataFrame]:
+        """Aggregated metrics for all feature subsets. e.g. 50 feature subsets for
+        p >= 50."""
+        ...
+
+    def score_subset(
+        self, validator: AbstractEstimator, X, y, **kwargs
+    ) -> Optional[np.generic]:
+        """Metrics for validation estimator. Validates 1 feature subset."""
+        ...
