@@ -97,9 +97,8 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
         scores["score"] = validator_score  # type: ignore
 
         # Add custom metrics
-        # for metric_name, metric_class in self.metrics.items():
-        #     X, y = self._prepare_data(X, y)
-        #     scores[metric_name] = metric_class.score_subset(self.validator, X, y)  # type: ignore
+        for metric_name, metric_class in self.metrics.items():
+            scores[metric_name] = metric_class.score_subset(self.validator, X, y)  # type: ignore
 
         # Convert to DataFrame
         scores_df = pd.DataFrame([scores])

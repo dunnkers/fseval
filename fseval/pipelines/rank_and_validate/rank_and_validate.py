@@ -185,6 +185,8 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
             if scores_metric is not None:
                 scores = scores_metric
 
+        return {}
+
         ranking_scores = scores["ranking"]
         ranking_scores = ranking_scores.set_index("bootstrap_state")
 
