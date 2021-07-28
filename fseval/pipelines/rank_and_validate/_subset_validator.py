@@ -91,16 +91,19 @@ class SubsetValidator(Experiment, RankAndValidatePipeline):
         validator_score = cast(np.generic, validator_score)
 
         # Attach score scalar to scoring object.
-        scores = {}
-        scores["n_features_to_select"] = self.n_features_to_select
-        scores["fit_time"] = self.validator.fit_time_
-        scores["score"] = validator_score  # type: ignore
+        scores_dict = {}
+        scores_dict["n_features_to_select"] = self.n_features_to_select
+        scores_dict["fit_time"] = self.validator.fit_time_
+        scores_dict["score"] = validator_score  # type: ignore
+
+        # Convert to DataFrame
+        scores = pd.DataFrame([scores_dict])
 
         # Add custom metrics
         for metric_name, metric_class in self.metrics.items():
-            scores[metric_name] = metric_class.score_subset(self.validator, X, y)  # type: ignore
+            scores_metric = metric_class.score_subset(scores, self.validator, X, y, self.callbacks)  # type: ignore
 
-        # Convert to DataFrame
-        scores_df = pd.DataFrame([scores])
+            if scores_metric is not None:
+                scores = scores_metric
 
-        return scores_df
+        return scores

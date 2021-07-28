@@ -71,7 +71,7 @@ class DatasetValidator(Experiment, RankAndValidatePipeline):
 
         # custom metrics
         for metric_name, metric_class in self.metrics.items():
-            scores_metric = metric_class.score_dataset(scores)
+            scores_metric = metric_class.score_dataset(scores, self.callbacks)
 
             if scores_metric is not None:
                 scores = scores_metric

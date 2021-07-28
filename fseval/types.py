@@ -174,7 +174,7 @@ class AbstractMetric:
         """Aggregated metrics for the bootstrapped pipeline."""
         ...
 
-    def score_pipeline(self, scores: Dict, **kwargs) -> Dict:
+    def score_pipeline(self, scores: Dict, callbacks: Callback, **kwargs) -> Dict:
         """Aggregated metrics for the pipeline."""
         ...
 
@@ -182,28 +182,42 @@ class AbstractMetric:
         self,
         scores: Union[Dict, pd.DataFrame],
         ranker: AbstractEstimator,
+        bootstrap_state: int,
+        callbacks: Callback,
         feature_importances: Optional[np.ndarray] = None,
     ) -> Union[Dict, pd.DataFrame]:
         """Metrics for validating a feature ranking, e.g. using a ground-truth."""
         ...
 
     def score_support(
-        self, validator: AbstractEstimator, X, y, **kwargs
-    ) -> Optional[np.generic]:
+        self,
+        scores: Union[Dict, pd.DataFrame],
+        validator: AbstractEstimator,
+        X,
+        y,
+        callbacks: Callback,
+        **kwargs,
+    ) -> Union[Dict, pd.DataFrame]:
         """Metrics for validating a feature support vector. e.g., this is an array
         indicating yes/no which features to include in a feature subset. The array is
         validated by running the validation estimator on this feature subset."""
         ...
 
     def score_dataset(
-        self, scores: Union[Dict, pd.DataFrame], **kwargs
+        self, scores: Union[Dict, pd.DataFrame], callbacks: Callback, **kwargs
     ) -> Union[Dict, pd.DataFrame]:
         """Aggregated metrics for all feature subsets. e.g. 50 feature subsets for
         p >= 50."""
         ...
 
     def score_subset(
-        self, validator: AbstractEstimator, X, y, **kwargs
-    ) -> Optional[np.generic]:
+        self,
+        scores: Union[Dict, pd.DataFrame],
+        validator: AbstractEstimator,
+        X,
+        y,
+        callbacks: Callback,
+        **kwargs,
+    ) -> Union[Dict, pd.DataFrame]:
         """Metrics for validation estimator. Validates 1 feature subset."""
         ...

@@ -239,7 +239,11 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
         # add custom metrics
         for metric_name, metric_class in self.metrics.items():
             scores_metric = metric_class.score_ranking(
-                scores, self.ranker, feature_importances
+                scores,
+                self.ranker,
+                self.bootstrap_state,
+                self.callbacks,
+                feature_importances,
             )
 
             if scores_metric is not None:

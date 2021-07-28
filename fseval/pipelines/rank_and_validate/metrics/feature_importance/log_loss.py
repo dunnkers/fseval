@@ -3,7 +3,7 @@ from typing import Dict, Optional, Union, cast
 import numpy as np
 import pandas as pd
 from fseval.pipeline.estimator import Estimator
-from fseval.types import AbstractEstimator, AbstractMetric
+from fseval.types import AbstractEstimator, AbstractMetric, Callback
 from sklearn.metrics import log_loss
 
 from ._normalize import normalize_feature_importances
@@ -17,6 +17,8 @@ class ImportanceLogLoss(AbstractMetric):
         self,
         scores: Union[Dict, pd.DataFrame],
         ranker: AbstractEstimator,
+        bootstrap_state: int,
+        callbacks: Callback,
         feature_importances: Optional[np.ndarray] = None,
     ) -> Union[Dict, pd.DataFrame]:
         ranker = cast(Estimator, ranker)
