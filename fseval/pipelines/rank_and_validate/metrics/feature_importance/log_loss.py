@@ -15,17 +15,21 @@ class ImportanceLogLoss(AbstractMetric):
 
     def score_ranking(
         self,
+        scores: Union[Dict, pd.DataFrame],
         ranker: AbstractEstimator,
         feature_importances: Optional[np.ndarray] = None,
-    ) -> Optional[np.generic]:
+    ) -> Union[Dict, pd.DataFrame]:
         ranker = cast(Estimator, ranker)
+
+        scores["importance/log_loss"] = None
 
         if feature_importances is not None:
             y_true = np.asarray(feature_importances) > 0
             y_true = y_true.astype(int)
             y_pred = normalize_feature_importances(ranker.feature_importances_)
             score = log_loss(y_true, y_pred, labels=[0, 1])
+            scores["importance/log_loss"] = score
 
-            return score
-        else:
-            return None
+        scores["importance/log_loss"] = scores["importance/log_loss"].astype(float)
+
+        return scores

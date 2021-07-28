@@ -180,9 +180,10 @@ class AbstractMetric:
 
     def score_ranking(
         self,
+        scores: Union[Dict, pd.DataFrame],
         ranker: AbstractEstimator,
         feature_importances: Optional[np.ndarray] = None,
-    ) -> Optional[np.generic]:
+    ) -> Union[Dict, pd.DataFrame]:
         """Metrics for validating a feature ranking, e.g. using a ground-truth."""
         ...
 

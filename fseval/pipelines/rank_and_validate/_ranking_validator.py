@@ -228,18 +228,21 @@ class RankingValidator(Experiment, RankAndValidatePipeline):
             ), "instance-based not supported yet."
 
         # add fitting time and bootstrap to score
-        scores = {
+        scores_dict = {
             "fit_time": self.ranker.fit_time_,
             "bootstrap_state": self.bootstrap_state,
         }
 
+        # create dataframe
+        scores = pd.DataFrame([scores_dict])
+
         # add custom metrics
         for metric_name, metric_class in self.metrics.items():
-            scores[metric_name] = metric_class.score_ranking(
-                self.ranker, feature_importances
+            scores_metric = metric_class.score_ranking(
+                scores, self.ranker, feature_importances
             )
 
-        # create dataframe
-        scores_df = pd.DataFrame([scores])
+            if scores_metric is not None:
+                scores = scores_metric
 
-        return scores_df
+        return scores

@@ -17,16 +17,20 @@ class ImportanceR2Score(AbstractMetric):
 
     def score_ranking(
         self,
+        scores: Union[Dict, pd.DataFrame],
         ranker: AbstractEstimator,
         feature_importances: Optional[np.ndarray] = None,
-    ) -> Optional[np.generic]:
+    ) -> Union[Dict, pd.DataFrame]:
         ranker = cast(Estimator, ranker)
+
+        scores["importance/r2_score"] = None
 
         if feature_importances is not None:
             y_true = normalize_feature_importances(feature_importances)
             y_pred = normalize_feature_importances(ranker.feature_importances_)
             score = r2_score(y_true, y_pred)
+            scores["importance/r2_score"] = score
 
-            return score
-        else:
-            return None
+        scores["importance/r2_score"] = scores["importance/r2_score"].astype(float)
+
+        return scores
