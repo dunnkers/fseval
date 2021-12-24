@@ -27,4 +27,15 @@ with open("README.md", "r") as fh:
         ],
         setup_requires=["black==21.4b2", "pytest-runner==5.3.0"],
         tests_require=["pytest==6.2.3"],
+        classifiers=[
+            "License :: OSI Approved :: MIT License",
+            "Development Status :: 4 - Beta",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Operating System :: POSIX :: Linux",
+            "Operating System :: MacOS",
+            "Operating System :: Microsoft :: Windows",
+        ],
     )

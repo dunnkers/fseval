@@ -4,7 +4,7 @@
 
 # fseval
 
-[![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/)
+[![build status](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml/badge.svg)](https://github.com/dunnkers/fseval/actions/workflows/python-app.yml) [![pypi badge](https://img.shields.io/pypi/v/fseval.svg?maxAge=3600)](https://pypi.org/project/fseval/) [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Downloads](https://pepy.tech/badge/fseval/month)](https://pepy.tech/project/fseval)
 
 A Feature Ranker benchmarking library. Useful for Feature Selection and Interpretable AI methods. Allows plotting feature importance scores on an online dashboard. Neatly integrates [Hydra](https://hydra.cc/) with [wandb](https://wandb.ai).
 
