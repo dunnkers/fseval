@@ -7,6 +7,7 @@ hydra:
     name: ${pipeline}
 
 defaults:
+  - _self_
   - base_config
   - pipeline/rank_and_validate
   - cv: kfold
