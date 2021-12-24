@@ -17,7 +17,7 @@ with open("README.md", "r") as fh:
         url="https://github.com/dunnkers/fseval",
         include_package_data=True,
         install_requires=[
-            "hydra-core==1.1.0",
+            "hydra-core>=1.1.0",
             "hydra-colorlog==1.1.0",
             "numpy>=1.19",
             "pandas>=1.1",
