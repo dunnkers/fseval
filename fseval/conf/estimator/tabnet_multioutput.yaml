@@ -1,8 +1,0 @@
-name: TabNet
-classifier:
-  estimator:
-    _target_: pytorch_tabnet.multitask.TabNetMultiTaskClassifier
-  multioutput: true
-  multioutput_only: true
-  estimates_feature_importances: true
-  estimates_target: false
