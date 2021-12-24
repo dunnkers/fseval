@@ -67,8 +67,6 @@ class RankAndValidateConfig(BaseConfig):
     n_jobs: Optional[int] = MISSING
     all_features_to_select: str = MISSING
     metrics: Dict[str, Any] = field(default_factory=dict)
-    upload_ranking_scores: bool = MISSING
-    upload_validation_scores: bool = MISSING
 
 
 cs.store(name="base_rank_and_validate", node=RankAndValidateConfig)

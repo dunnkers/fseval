@@ -144,8 +144,6 @@ def cfg(dataset, cv, resample, classifier, ranker, validator):
         n_bootstraps=2,
         n_jobs=None,
         all_features_to_select="range(1, min(50, p) + 1)",
-        upload_ranking_scores=True,
-        upload_validation_scores=True,
     )
 
     cfg = OmegaConf.create(config.__dict__)
@@ -153,7 +151,7 @@ def cfg(dataset, cv, resample, classifier, ranker, validator):
 
 
 def test_without_ranker_gt(cfg):
-    """Test without dataset ground-truth."""
+    """Test execution without dataset ground-truth."""
 
     # load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
@@ -168,17 +166,12 @@ def test_without_ranker_gt(cfg):
         dataset.X, dataset.y
     )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(
-        X_test, y_test, feature_importances=dataset.feature_importances
-    )
-
-    assert score["validator/fit_time/mean"] > 0
-    assert score["validator/score/mean"] >= 0.0
+    pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
 
 
 def test_with_ranker_gt(cfg):
-    """Test with dataset ground-truth: a feature importances vector attached; i.e. the
-    relevance per feature, known apriori."""
+    """Test execution with dataset ground-truth: a feature importances vector attached;
+    i.e. the relevance per feature, known apriori."""
     cfg.dataset.feature_importances = {"X[:, :]": "1.0"}  # uniform
 
     # load dataset
@@ -194,19 +187,7 @@ def test_with_ranker_gt(cfg):
         dataset.X, dataset.y
     )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(
-        X_test, y_test, feature_importances=dataset.feature_importances
-    )
-
-    assert score["validator/fit_time/mean"] > 0
-    assert score["ranker/fit_time/mean"] > 0
-
-    assert score["ranker/importance/r2_score/mean"] <= 1.0
-    assert score["ranker/importance/log_loss/mean"] >= 0
-    assert score["ranker/support/accuracy/mean"] >= 0.0
-    assert score["ranker/support/accuracy/mean"] <= 1.0
-    assert score["ranker/ranking/r2_score/mean"] <= 1.0
-    assert score["validator/score/mean"] >= 0.0
+    pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
 
 
 def test_with_ranker_gt_no_importances_substitution(cfg):
@@ -229,12 +210,7 @@ def test_with_ranker_gt_no_importances_substitution(cfg):
         dataset.X, dataset.y
     )
     pipeline.fit(X_train, y_train)
-    score = pipeline.score(
-        X_test, y_test, feature_importances=dataset.feature_importances
-    )
-
-    assert score["ranker/ranking/r2_score/mean"] <= 1.0
-    assert score["validator/score/mean"] >= 0.0
+    pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
 
 
 def test_validator_incompatibility_check(cfg):
