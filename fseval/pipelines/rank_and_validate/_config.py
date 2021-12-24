@@ -1,9 +1,10 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
 
 from fseval.pipeline.estimator import Estimator
 from fseval.pipeline.resample import Resample
+from fseval.types import AbstractMetric
 from omegaconf import MISSING
 
 from .._pipeline import Pipeline
@@ -25,7 +26,7 @@ class RankAndValidatePipeline(Pipeline):
     all_features_to_select: str = MISSING
     upload_ranking_scores: bool = MISSING
     upload_validation_scores: bool = MISSING
-    metrics: dict = MISSING
+    metrics: Dict[str, AbstractMetric] = MISSING
 
     def _get_config(self):
         return {

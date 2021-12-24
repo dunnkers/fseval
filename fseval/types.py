@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import pandas as pd
 from omegaconf import MISSING, DictConfig
 from sklearn.base import BaseEstimator
 
 
 class Task(Enum):
+    """Learning task. In the case of datasets this indicates the dataset learning task,
+    and in the case of estimators this indicates the supported estimator learning tasks.
+    """
+
     regression = 1
     classification = 2
 
@@ -49,7 +54,7 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         ...
 
 
@@ -155,3 +160,64 @@ class TerminalColor:
     @staticmethod
     def grey(text):
         return f"\u001b[37m{text}\u001b[0m"
+
+
+class AbstractMetric:
+    def score_bootstrap(
+        self,
+        ranker: AbstractEstimator,
+        validator: AbstractEstimator,
+        callbacks: Callback,
+        scores: Dict,
+        **kwargs,
+    ) -> Dict:
+        """Aggregated metrics for the bootstrapped pipeline."""
+        ...
+
+    def score_pipeline(self, scores: Dict, callbacks: Callback, **kwargs) -> Dict:
+        """Aggregated metrics for the pipeline."""
+        ...
+
+    def score_ranking(
+        self,
+        scores: Union[Dict, pd.DataFrame],
+        ranker: AbstractEstimator,
+        bootstrap_state: int,
+        callbacks: Callback,
+        feature_importances: Optional[np.ndarray] = None,
+    ) -> Union[Dict, pd.DataFrame]:
+        """Metrics for validating a feature ranking, e.g. using a ground-truth."""
+        ...
+
+    def score_support(
+        self,
+        scores: Union[Dict, pd.DataFrame],
+        validator: AbstractEstimator,
+        X,
+        y,
+        callbacks: Callback,
+        **kwargs,
+    ) -> Union[Dict, pd.DataFrame]:
+        """Metrics for validating a feature support vector. e.g., this is an array
+        indicating yes/no which features to include in a feature subset. The array is
+        validated by running the validation estimator on this feature subset."""
+        ...
+
+    def score_dataset(
+        self, scores: Union[Dict, pd.DataFrame], callbacks: Callback, **kwargs
+    ) -> Union[Dict, pd.DataFrame]:
+        """Aggregated metrics for all feature subsets. e.g. 50 feature subsets for
+        p >= 50."""
+        ...
+
+    def score_subset(
+        self,
+        scores: Union[Dict, pd.DataFrame],
+        validator: AbstractEstimator,
+        X,
+        y,
+        callbacks: Callback,
+        **kwargs,
+    ) -> Union[Dict, pd.DataFrame]:
+        """Metrics for validation estimator. Validates 1 feature subset."""
+        ...

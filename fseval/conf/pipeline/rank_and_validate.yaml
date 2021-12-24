@@ -2,11 +2,12 @@
 defaults:
   - /base_rank_and_validate
   - /resample: shuffle
-  - /metrics/ranking_scores
+  - /metrics/feature_importance/r2_score
+  - /metrics/feature_importance/log_loss
+  - /metrics/feature_importance/upload_table
+  - /metrics/upload_validation_scores
 
 pipeline: rank-and-validate
 n_jobs: 1
 n_bootstraps: 1
 all_features_to_select: range(1, min(50, p) + 1)
-upload_ranking_scores: true
-upload_validation_scores: true
