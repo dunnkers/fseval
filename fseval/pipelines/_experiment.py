@@ -156,8 +156,8 @@ class Experiment(AbstractEstimator):
         aggregated = {}
 
         # merge common keys
-        common_keys = filter(lambda key: key in b, a)
-        common_keys = list(common_keys)
+        common_keys_filter = filter(lambda key: key in b, a)
+        common_keys = list(common_keys_filter)
 
         for key in common_keys:
             value_a = a.pop(key)
