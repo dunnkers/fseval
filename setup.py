@@ -25,12 +25,11 @@ with open("README.md", "r") as fh:
             "humanfriendly>=9",
             "shortuuid>=1.0",
         ],
-        setup_requires=["black>=21", "pytest-runner>=5"],
+        setup_requires=["black==21.12b0", "pytest-runner>=5"],
         tests_require=["pytest>=6", "pytest-cov>=3"],
         classifiers=[
             "License :: OSI Approved :: MIT License",
             "Development Status :: 4 - Beta",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
