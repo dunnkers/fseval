@@ -2,17 +2,16 @@ from typing import List, Tuple
 
 import numpy as np
 import pytest
-from fseval.config import PipelineConfig
-from fseval.pipeline.cv import CrossValidatorConfig
-from fseval.pipeline.dataset import Dataset, DatasetConfig
-from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
-from fseval.pipeline.resample import ResampleConfig
-from fseval.types import (
-    AbstractAdapter,
-    AbstractEstimator,
-    IncompatibilityError,
-    Task,
+from fseval.config import (
+    CrossValidatorConfig,
+    DatasetConfig,
+    EstimatorConfig,
+    PipelineConfig,
+    ResampleConfig,
+    TaskedEstimatorConfig,
 )
+from fseval.pipeline.dataset import Dataset
+from fseval.types import AbstractAdapter, AbstractEstimator, IncompatibilityError, Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 

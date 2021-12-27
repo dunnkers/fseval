@@ -2,7 +2,8 @@ from typing import Optional
 
 import numpy as np
 import pytest
-from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimatorConfig
+from fseval.config import EstimatorConfig, TaskedEstimatorConfig
+from fseval.pipeline.estimator import Estimator
 from fseval.types import Task
 from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
 from hydra.utils import instantiate
