@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fseval.config import BaseConfig
+from fseval.config import PipelineConfig
 from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
@@ -32,7 +32,7 @@ def _get_config_loader() -> ConfigLoader:
 
 def get_config(
     config_name: Optional[str] = "my_config", overrides: List[str] = []
-) -> BaseConfig:
+) -> PipelineConfig:
     """Gets the fseval configuration as composed by Hydra. Local .yaml configuration
     and defaults are automatically merged."""
     _ensure_hydra_initialized()

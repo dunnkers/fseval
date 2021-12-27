@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RankAndValidatePipeline(Pipeline):
-    """Instantiated version of `RankAndValidateConfig`: the actual pipeline
+    """Instantiated version of `PipelineConfig`: the actual pipeline
     implementation."""
 
     pipeline: str = MISSING

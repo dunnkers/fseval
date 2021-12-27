@@ -2,23 +2,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Generator, List, Tuple
 
+from fseval.config import CrossValidatorConfig
 from omegaconf import MISSING
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class CrossValidatorConfig:
-    """
-    Parameters of both BaseCrossValidator and BaseShuffleSplit.
-    """
-
-    _target_: str = "fseval.pipeline.cv.CrossValidator"
-    name: str = MISSING
-    """ splitter. must be BaseCrossValidator or BaseShuffleSplit; should at least 
-        implement a `split()` function. """
-    splitter: Any = None
-    fold: int = 0
 
 
 @dataclass

@@ -4,55 +4,10 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
+from fseval.config import DatasetConfig
+from fseval.types import Task, TerminalColor
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
-
-from fseval.types import Task, TerminalColor
-
-
-@dataclass
-class DatasetConfig:
-    """
-    Args:
-        name: human-readable name of dataset.
-
-        group: an optional group attribute, such to group datasets in the analytics
-        stage.
-
-        task: either Task.classification or Task.regression.
-
-        domain: dataset domain, e.g. medicine, finance, etc.
-
-        adapter: dataset adapter. must be of fseval.adapters.Adapter type, i.e. must
-        implement a get_data() -> (X, y) method.
-
-        adapter_callable: adapter class callable. the function to be called on the
-        instantiated class to fetch the data (X, y). is ignored when the target itself
-        is a function callable.
-
-        feature_importances: weightings indicating relevant features or instances.
-        should be a dict with each key and value like the following pattern:
-            X[<numpy selector>] = <float>
-        Example:
-            X[:, 0:3] = 1.0
-        which sets the 0-3 features as maximally relevant and all others
-        minimally relevant.
-    """
-
-    _target_: str = "fseval.pipeline.dataset.DatasetLoader"
-    _recursive_: bool = False  # prevent adapter from getting initialized
-    name: str = MISSING
-    task: Task = MISSING
-    adapter: Any = MISSING
-    adapter_callable: str = "get_data"
-    feature_importances: Optional[Dict[str, float]] = None
-    # optional tags
-    group: Optional[str] = None
-    domain: Optional[str] = None
-    # runtime properties: set once dataset is loaded
-    n: Optional[int] = None
-    p: Optional[int] = None
-    multioutput: Optional[bool] = None
 
 
 @dataclass

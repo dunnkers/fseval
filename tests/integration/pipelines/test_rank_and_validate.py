@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import numpy as np
 import pytest
-from fseval.config import RankAndValidateConfig
+from fseval.config import PipelineConfig
 from fseval.pipeline.cv import CrossValidatorConfig
 from fseval.pipeline.dataset import Dataset, DatasetConfig
 from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
@@ -131,7 +131,7 @@ def cv():
 
 @pytest.fixture
 def cfg(dataset, cv, resample, classifier, ranker, validator):
-    config = RankAndValidateConfig(
+    config = PipelineConfig(
         pipeline="testing",
         dataset=dataset,
         cv=cv,

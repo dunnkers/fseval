@@ -46,7 +46,7 @@ class SupportValidator(SubsetValidator):
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         # See `SubsetValidator.score()`. This uses the validation estimator's `score()`
         # function.
-        validator_score = super(SubsetValidator, self).score(X, y)
+        validator_score = super(SupportValidator, self).score(X, y)
         assert np.isscalar(validator_score), (
             f"'{self.validator.name}' validator score must be a scalar. That is, "
             + "it must be an int, float, string or boolean. The validator score is "

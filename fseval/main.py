@@ -11,12 +11,12 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from yaml import dump
 
-from fseval.config import BaseConfig
+from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
-def run_pipeline(cfg: BaseConfig) -> None:
+def run_pipeline(cfg: PipelineConfig) -> None:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
 
@@ -104,4 +104,3 @@ def run_pipeline(cfg: BaseConfig) -> None:
     )
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
-

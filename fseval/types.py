@@ -59,8 +59,6 @@ class AbstractEstimator(ABC, BaseEstimator):
 
 
 class AbstractAdapter(ABC, BaseEstimator):
-    _target_: str = MISSING
-
     @abstractmethod
     def get_data(self) -> Tuple[List, List]:
         ...
