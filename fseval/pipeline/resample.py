@@ -1,9 +1,7 @@
 import logging
-from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Optional
 
 from fseval.config import ResampleConfig
-from omegaconf import MISSING
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import resample
 

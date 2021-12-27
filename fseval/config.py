@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from hydra.core.config_store import ConfigStore
 from omegaconf import II, MISSING
 
 from fseval.types import CacheUsage, Task

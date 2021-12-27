@@ -7,18 +7,14 @@ from fseval.pipeline.cv import CrossValidatorConfig
 from fseval.pipeline.dataset import Dataset, DatasetConfig
 from fseval.pipeline.estimator import EstimatorConfig, TaskedEstimatorConfig
 from fseval.pipeline.resample import ResampleConfig
-from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import (
     AbstractAdapter,
     AbstractEstimator,
-    AbstractStorage,
-    Callback,
     IncompatibilityError,
     Task,
 )
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
-from sklearn.model_selection import ShuffleSplit
 
 
 class MockRanker(AbstractEstimator):

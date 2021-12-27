@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from omegaconf import MISSING, DictConfig
+from omegaconf import DictConfig
 from sklearn.base import BaseEstimator
 
 

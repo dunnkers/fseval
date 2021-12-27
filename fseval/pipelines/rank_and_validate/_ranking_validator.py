@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Dict, Optional, Union, cast
+from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
-from fseval.types import AbstractMetric, IncompatibilityError, TerminalColor
+from fseval.types import IncompatibilityError, TerminalColor
 from omegaconf import MISSING
 from sklearn.metrics import accuracy_score, log_loss, r2_score
 

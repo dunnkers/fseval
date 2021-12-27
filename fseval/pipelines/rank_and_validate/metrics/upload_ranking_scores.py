@@ -1,7 +1,5 @@
-from typing import Dict, Optional, Union, cast
+from typing import Dict, cast
 
-import numpy as np
-import pandas as pd
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, AbstractMetric, Callback
 

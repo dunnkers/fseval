@@ -5,11 +5,9 @@ from pathlib import Path
 from traceback import print_exc
 from typing import cast
 
-import hydra
 from hydra.core.utils import _save_config
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
-from yaml import dump
+from omegaconf import DictConfig
 
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader

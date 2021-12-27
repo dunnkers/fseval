@@ -1,13 +1,13 @@
 import re
 from dataclasses import dataclass
 from logging import Logger, getLogger
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from fseval.config import DatasetConfig
-from fseval.types import Task, TerminalColor
+from fseval.types import TerminalColor
 from hydra.utils import instantiate
-from omegaconf import MISSING, OmegaConf
+from omegaconf import OmegaConf
 
 
 @dataclass

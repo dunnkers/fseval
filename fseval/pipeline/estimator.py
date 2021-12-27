@@ -15,7 +15,7 @@ from fseval.types import (
     Task,
 )
 from hydra.utils import instantiate
-from omegaconf import II, MISSING, OmegaConf
+from omegaconf import MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
 
 

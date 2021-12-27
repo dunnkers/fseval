@@ -1,7 +1,6 @@
 import copy
 import sys
 import time
-from collections import UserDict
 from logging import Logger, getLogger
 from typing import Dict, List, Optional, cast
 
@@ -10,7 +9,6 @@ from fseval.utils.dict_utils import dict_flatten, dict_merge
 from omegaconf import DictConfig, OmegaConf
 
 import wandb
-from wandb.viz import CustomChart, custom_chart_panel_config
 
 
 class QueryField(dict):
