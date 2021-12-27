@@ -16,8 +16,7 @@ from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
-@hydra.main(config_path="conf", config_name="my_config")
-def main(cfg: BaseConfig) -> None:
+def run_pipeline(cfg: BaseConfig) -> None:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
 
@@ -106,6 +105,3 @@ def main(cfg: BaseConfig) -> None:
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
 
-
-if __name__ == "__main__":
-    main()
