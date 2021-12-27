@@ -13,9 +13,6 @@ class UploadRankingScores(AbstractMetric):
         scores: Dict,
         **kwargs,
     ) -> Dict:
-        ranker = cast(Estimator, ranker)
-        validator = cast(Estimator, validator)
-
         ranking_scores = scores["ranking"]
 
         ## upload ranking scores
