@@ -1,0 +1,8 @@
+name: Nomao
+group: OpenML-CC18
+task: classification
+domain: geodata
+adapter:
+  _target_: fseval.adapters.openml.OpenML
+  dataset_id: 1486
+  target_column: Class

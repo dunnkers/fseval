@@ -1,0 +1,11 @@
+name: Boruta
+classifier:
+  estimator:
+    _target_: tests.integration.implementations.estimators.boruta.Boruta
+    estimator:
+      _target_: sklearn.ensemble.RandomForestClassifier
+    n_estimators: auto
+  multioutput: false
+estimates_feature_importances: false
+estimates_feature_support: true
+estimates_feature_ranking: true

@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from hydra.core.config_store import ConfigStore
 from omegaconf import II, MISSING
 
 from fseval.types import CacheUsage, Task
+
+cs = ConfigStore.instance()
 
 
 @dataclass
@@ -154,3 +157,6 @@ class PipelineConfig:
     n_jobs: Optional[int] = 1
     all_features_to_select: str = "range(1, min(50, p) + 1)"
     metrics: Dict[str, Any] = field(default_factory=dict)
+
+
+cs.store("base_pipeline_config", PipelineConfig)

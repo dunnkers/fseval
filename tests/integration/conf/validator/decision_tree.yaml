@@ -1,0 +1,10 @@
+name: Decision Tree
+classifier:
+  estimator:
+    _target_: sklearn.tree.DecisionTreeClassifier
+regressor:
+  estimator:
+    _target_: sklearn.tree.DecisionTreeRegressor
+multioutput: true
+estimates_feature_importances: true
+estimates_target: true

@@ -1,0 +1,8 @@
+name: Phoneme
+group: OpenML-CC18
+task: classification
+domain: biomedical
+adapter:
+  _target_: fseval.adapters.openml.OpenML
+  dataset_id: 1489
+  target_column: Class

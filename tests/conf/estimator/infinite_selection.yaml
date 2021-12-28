@@ -1,6 +1,0 @@
-name: Infinite Selection
-classifier:
-  estimator:
-    _target_: fseval.estimators.infinite_selection.InfiniteSelectionEstimator
-estimates_feature_importances: true
-estimates_feature_ranking: true

@@ -1,0 +1,8 @@
+name: Ozone Levels
+group: OpenML-CC18
+task: classification
+domain: nature
+adapter:
+  _target_: fseval.adapters.openml.OpenML
+  dataset_id: 1487
+  target_column: Class

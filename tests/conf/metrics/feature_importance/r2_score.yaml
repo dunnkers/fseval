@@ -1,5 +1,0 @@
-# @package metrics
-importance/r2_score:
-  _target_: fseval.pipelines.rank_and_validate.metrics.feature_importance.r2_score.ImportanceR2Score
-upload_ranking_scores:
-  _target_: fseval.pipelines.rank_and_validate.metrics.upload_ranking_scores.UploadRankingScores

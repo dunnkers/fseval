@@ -1,0 +1,7 @@
+defaults:
+  - _self_
+  - base_pipeline_config
+
+hydra:
+  searchpath:
+    - pkg://fseval.conf
