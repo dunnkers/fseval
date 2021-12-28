@@ -1,6 +1,5 @@
-from typing import Dict, cast
+from typing import Dict
 
-from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, AbstractMetric, Callback
 
 

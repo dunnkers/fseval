@@ -1,12 +1,9 @@
-from typing import Optional
-
 import numpy as np
 import pytest
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.utils.hydra_utils import get_group_pipeline_configs
 from hydra.utils import instantiate
-from omegaconf import DictConfig
 
 from ._group_test_utils import ShouldTestGroupItem
 
@@ -19,7 +16,7 @@ def pytest_generate_tests(metafunc):
         should_test=metafunc.cls.should_test,
     )
     metafunc.parametrize(
-        ["cfg"],
+        "cfg",
         argvalues,
         ids=pytest_ids,
         scope="class",

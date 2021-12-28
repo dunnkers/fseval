@@ -4,7 +4,6 @@ from fseval.config import (
     DatasetConfig,
     EstimatorConfig,
     PipelineConfig,
-    StorageConfig,
     TaskedEstimatorConfig,
 )
 from fseval.main import run_pipeline

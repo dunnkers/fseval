@@ -1,7 +1,6 @@
 import pytest
 from fseval.config import PipelineConfig
 from fseval.utils.hydra_utils import get_config
-from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig
 
 

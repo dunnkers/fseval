@@ -1,43 +1,44 @@
-from typing import List, Optional
+import itertools
 
 import numpy as np
 import pytest
-from fseval.config import EstimatorConfig, PipelineConfig, TaskedEstimatorConfig
+from fseval.config import PipelineConfig
 from fseval.pipeline.estimator import Estimator
-from fseval.types import Task
-from fseval.utils.hydra_utils import (
-    get_config,
-    get_group_options,
-    get_group_pipeline_configs,
-)
+from fseval.utils.hydra_utils import get_group_pipeline_configs
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
 from sklearn.base import clone
 
 from ._group_test_utils import ShouldTestGroupItem
 
 
 def pytest_generate_tests(metafunc):
+    ## Add all rankers
     ranker_argvalues, ranker_pytest_ids = get_group_pipeline_configs(
         config_module="tests.integration.conf",
         config_name="simple_defaults",
         group_name="ranker",
         should_test=metafunc.cls.should_test,
     )
+    ranker_argvalues = list(zip(ranker_argvalues, itertools.repeat("ranker")))
+
+    ## Add all validators
     validator_argvalues, validator_pytest_ids = get_group_pipeline_configs(
         config_module="tests.integration.conf",
         config_name="simple_defaults",
         group_name="validator",
         should_test=metafunc.cls.should_test,
     )
+    validator_argvalues = list(zip(validator_argvalues, itertools.repeat("validator")))
 
+    ## Merge rankers and validators
     pytest_ids = ranker_pytest_ids + validator_pytest_ids
     pytest_ids, unique_ids = np.unique(pytest_ids, return_index=True)
     argvalues = ranker_argvalues + validator_argvalues
     argvalues = [argvalues[i] for i in unique_ids]
 
+    ## Parametrize using pytest metafunc
     metafunc.parametrize(
-        ["cfg"],
+        ["cfg", "group_name"],
         argvalues,
         ids=pytest_ids,
         scope="class",
@@ -48,7 +49,7 @@ class TestEstimator(ShouldTestGroupItem):
     __test__ = False
 
     @pytest.fixture
-    def estimator(self, cfg: PipelineConfig) -> Estimator:
+    def estimator(self, cfg: PipelineConfig, group_name: str) -> Estimator:
         """Retrieve the relevant config and instantiate pipeline."""
 
         # set dataset properties to some random number. instantiating the pipeline
@@ -59,7 +60,7 @@ class TestEstimator(ShouldTestGroupItem):
         pipeline = instantiate(cfg)
 
         # instantiate estimator
-        estimator = pipeline.ranker
+        estimator = getattr(pipeline, group_name)
         assert isinstance(estimator, Estimator)
 
         return estimator
