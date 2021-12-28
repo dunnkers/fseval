@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from fseval.config import PipelineConfig
 from fseval.pipeline.estimator import Estimator
+from fseval.types import Task
 from fseval.utils.hydra_utils import get_group_pipeline_configs
 from hydra.utils import instantiate
 from sklearn.base import clone
@@ -112,6 +113,8 @@ class TestClassifiers(TestEstimator):
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
         classifier = getattr(cfg, group_name).classifier
+        cfg.dataset.task = Task.classification
+
         return classifier is not None and not classifier.multioutput_only
 
     @pytest.fixture
@@ -126,6 +129,7 @@ class TestMultioutputClassifiers(TestClassifiers):
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
         estimator_cfg = getattr(cfg, group_name)
         classifier = estimator_cfg.classifier
+        cfg.dataset.task = Task.classification
 
         return classifier is not None and (
             classifier.multioutput or estimator_cfg.multioutput
@@ -142,6 +146,8 @@ class TestRegressors(TestEstimator):
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
         regressor = getattr(cfg, group_name).regressor
+        cfg.dataset.task = Task.regression
+
         return regressor is not None and not regressor.multioutput_only
 
     @pytest.fixture
@@ -156,6 +162,7 @@ class TestMultioutputRegressors(TestRegressors):
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
         estimator_cfg = getattr(cfg, group_name)
         regressor = estimator_cfg.regressor
+        cfg.dataset.task = Task.regression
 
         return regressor is not None and (
             regressor.multioutput or estimator_cfg.multioutput

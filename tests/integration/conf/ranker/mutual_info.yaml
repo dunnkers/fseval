@@ -5,4 +5,5 @@ classifier:
 regressor:
   estimator:
     _target_: tests.integration.implementations.estimators.mutual_info.MutualInfoRegressor
+multioutput: false
 estimates_feature_importances: true
