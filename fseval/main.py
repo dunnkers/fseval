@@ -14,7 +14,9 @@ from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
-def run_pipeline(cfg: PipelineConfig) -> None:
+def run_pipeline(
+    cfg: PipelineConfig, raise_incompatibility_errors: bool = False
+) -> None:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
 
@@ -33,11 +35,23 @@ def run_pipeline(cfg: PipelineConfig) -> None:
     except IncompatibilityError as e:
         (msg,) = e.args
         logger.error(msg)
+
+        # graceful exit message
+        exit_strategy: str = (
+            "terminating..."
+            if raise_incompatibility_errors
+            else "exiting gracefully..."
+        )
         logger.info(
             "encountered an expected pipeline incompatibility with the current config, "
-            + "exiting gracefully..."
+            + exit_strategy
         )
-        return
+
+        # decide between graceful exit or termination
+        if raise_incompatibility_errors:
+            raise e
+        else:
+            return
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")

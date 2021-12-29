@@ -46,7 +46,7 @@ class DatasetLoader(DatasetConfig):
             return adapter
         elif callable(self.adapter):
             return self.adapter()
-        elif isinstance(self.adapter, object):
+        elif isinstance(self.adapter, dict):
             adapter = self.adapter
             return adapter
         else:

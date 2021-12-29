@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 from fseval.types import IncompatibilityError, TerminalColor
 from omegaconf import MISSING
-from sklearn.metrics import accuracy_score, log_loss, r2_score
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline

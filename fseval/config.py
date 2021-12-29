@@ -142,11 +142,7 @@ class PipelineConfig:
     pipeline: str = "rank-and-validate"
     dataset: DatasetConfig = MISSING
     cv: CrossValidatorConfig = MISSING
-    storage: StorageConfig = field(
-        default_factory=lambda: StorageConfig(
-            _target_="fseval.storage.mock.MockStorage"
-        )
-    )
+    storage: StorageConfig = MISSING
     resample: ResampleConfig = MISSING
     ranker: TaskedEstimatorConfig = MISSING
     validator: TaskedEstimatorConfig = MISSING

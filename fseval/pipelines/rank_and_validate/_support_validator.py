@@ -33,6 +33,8 @@ class SupportValidator(SubsetValidator):
 
     @property
     def _cache_filename(self):
+        """This function overrides `_cache_filename` in `SubsetValidator`."""
+
         override = f"bootstrap_state={self.bootstrap_state}"
         filename = f"support[{override}].pickle"
 

@@ -1,15 +1,24 @@
+import tempfile
+from typing import cast
+
+import pytest
 from fseval.config import EstimatorConfig, TaskedEstimatorConfig
-from fseval.types import Task
+from fseval.pipeline.estimator import Estimator
+from fseval.storage.local import LocalStorage
+from fseval.types import CacheUsage, Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
 
-def test_estimator_initiation():
+@pytest.fixture
+def estimator_cfg():
+    # estimator
     estimator_config = EstimatorConfig(
         estimator={"_target_": "sklearn.tree.DecisionTreeClassifier"}
     )
     estimator_cfg = OmegaConf.create(estimator_config.__dict__)
 
+    # tasked
     tasked_estimator_config = TaskedEstimatorConfig(
         name="some_estimator",
         classifier=estimator_cfg,
@@ -18,14 +27,53 @@ def test_estimator_initiation():
     )
     tasked_estimator_cfg = OmegaConf.create(tasked_estimator_config.__dict__)
 
-    estimator = instantiate(tasked_estimator_cfg)
+    return tasked_estimator_cfg
 
+
+def test_estimator_initiation(estimator_cfg: TaskedEstimatorConfig):
+    estimator = instantiate(estimator_cfg)
+
+    # verify attributes
     assert hasattr(estimator, "estimator")
     assert estimator.name == "some_estimator"
     assert estimator.logger is not None
 
+    # verify feature_importances_
     estimator.fit([[1, 2]], [0])
     assert hasattr(estimator, "feature_importances_")
 
+    # verify scoring
     score = estimator.score([[1, 2]], [0])
     assert score >= 0
+
+
+def test_estimator_cache(estimator_cfg: TaskedEstimatorConfig):
+    estimator_cfg.load_cache = CacheUsage.must
+    estimator: Estimator = instantiate(estimator_cfg)
+
+    # initiate storage
+    tmpdir: str = tempfile.mkdtemp()
+    storage: LocalStorage = LocalStorage(load_dir=tmpdir, save_dir=tmpdir)
+    filename: str = "fit_estimator.pickle"
+
+    # fit and store to cache
+    X, y = [[1, 2]], [0]
+    estimator.fit(X, y)
+    estimator._save_cache(filename, storage)
+
+    # retrieve from cache
+    new_estimator: Estimator = instantiate(estimator_cfg)
+    new_estimator._load_cache(filename, storage)
+
+    # verify whether fitted. raises `sklearn.exceptions.NotFittedError`` if not
+    # loading from cache was unsuccessful.
+    score = new_estimator.score(X, y)
+    score = cast(float, score)
+    assert score >= 0
+
+    # should not refit
+    assert new_estimator._is_fitted
+    old_fit_time = new_estimator.fit_time_
+    new_estimator.fit(X, y)
+    new_fit_time = new_estimator.fit_time_
+    assert old_fit_time == new_fit_time

@@ -16,7 +16,6 @@ from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from fseval.utils.hydra_utils import get_config
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
-from omegaconf import OmegaConf
 from sklearn.base import BaseEstimator
 
 cs = ConfigStore.instance()

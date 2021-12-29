@@ -1,7 +1,7 @@
 name: Boruta
 classifier:
   estimator:
-    _target_: tests.integration.implementations.estimators.boruta.Boruta
+    _target_: boruta.boruta_py import BorutaPy
     estimator:
       _target_: sklearn.ensemble.RandomForestClassifier
     n_estimators: auto

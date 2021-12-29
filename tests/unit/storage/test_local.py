@@ -2,10 +2,8 @@ import os
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import pytest
 from fseval.storage.local import LocalStorage
-from sklearn.model_selection import ShuffleSplit
 
 
 @pytest.fixture
@@ -54,6 +52,6 @@ def test_non_existant_save(storage):
 
 
 def test_non_existant_load(storage):
-    """Loading should fail softly, however."""
+    """Loading should fail softly when file not found."""
     storage.load_dir = "non_existant_filepath"
     storage.restore_pickle("some_file.pickle")
