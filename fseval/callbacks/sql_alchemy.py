@@ -8,17 +8,24 @@ from omegaconf import DictConfig, OmegaConf
 from shortuuid import ShortUUID
 from sqlalchemy import create_engine
 
+SHORT_UUID_ALPHABET = list("0123456789abcdefghijklmnopqrstuvwxyz")
+
 
 def generate_id():
     """Generate a random experiment ID."""
-    characters = list("0123456789abcdefghijklmnopqrstuvwxyz")
-    run_gen = ShortUUID(alphabet=characters)
+    run_gen = ShortUUID(alphabet=SHORT_UUID_ALPHABET)
     return run_gen.random(8)
 
 
 class SQLAlchemyCallback(Callback):
+    """SQLAlchemy support for fseval. Uploads general information on the experiment to
+    a `experiments` table and provides a hook for uploading custom tables. Use the
+    `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
+    """
+
     def __init__(self, **kwargs):
         super(SQLAlchemyCallback, self).__init__()
+
         # make sure any nested objects are casted from DictConfig's to regular dict's.
         kwargs = OmegaConf.create(kwargs)
         kwargs = OmegaConf.to_container(kwargs)
@@ -49,7 +56,7 @@ class SQLAlchemyCallback(Callback):
         }
 
         # add random id
-        self.id = generate_id()
+        self.id: str = generate_id()
         prepared_cfg["id"] = self.id
 
         # create SQL engine
@@ -63,6 +70,11 @@ class SQLAlchemyCallback(Callback):
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
 
     def on_table(self, df: pd.DataFrame, name: str):
+        assert hasattr(self, "id") and type(self.id) == str, (
+            "No database shortuuid. SQL Alchemy callback was not properly invoked at "
+            + "the start of the pipeline. Make sure `on_begin` is always called."
+        )
+
         df["id"] = self.id
         df.set_index(["id"], append=True)
         df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
