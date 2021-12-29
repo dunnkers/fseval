@@ -75,7 +75,7 @@ validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
 cs.store(name="decision_tree", node=validator, group="validator")
 
 resample: ResampleConfig = ResampleConfig(name="shuffle")
-cs.store(name="shuffle", node=resample, group="resample")
+cs.store(name="default_resampling", node=resample, group="resample")
 
 dataset: DatasetConfig = DatasetConfig(
     name="some_dataset",
@@ -95,7 +95,7 @@ cv: CrossValidatorConfig = CrossValidatorConfig(
         random_state=0,
     ),
 )
-cs.store(name="train_test_split", node=cv, group="cv")
+cs.store(name="simple_shuffle_split", node=cv, group="cv")
 
 config = PipelineConfig(
     pipeline="testing",
@@ -113,10 +113,10 @@ def cfg() -> PipelineConfig:
         config_name="my_test_config",
         overrides=[
             "dataset=some_dataset",
-            "cv=train_test_split",
+            "cv=simple_shuffle_split",
             "validator=decision_tree",
             "ranker=decision_tree",
-            "resample=shuffle",
+            "resample=default_resampling",
         ],
     )
 

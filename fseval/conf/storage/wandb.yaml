@@ -1,4 +1,4 @@
-_target_: fseval.storage.WandbStorage
+_target_: fseval.storage.wandb.WandbStorage
 entity: ???
 project: ???
 run_id: ???
