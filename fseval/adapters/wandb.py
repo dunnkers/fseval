@@ -14,7 +14,7 @@ class WandbDataset:
 
 
 @dataclass
-class Wandb(AbstractAdapter):
+class Wandb(AbstractAdapter, WandbDataset):
     def get_data(self) -> Tuple[List, List]:
         api = wandb.Api()
         artifact = api.artifact(self.artifact_id)

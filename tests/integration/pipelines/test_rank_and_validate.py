@@ -12,16 +12,17 @@ from fseval.config import (
     TaskedEstimatorConfig,
 )
 from fseval.pipeline.dataset import Dataset, DatasetLoader
-from fseval.types import AbstractAdapter, AbstractEstimator, IncompatibilityError, Task
+from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from fseval.utils.hydra_utils import get_config
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
+from sklearn.base import BaseEstimator
 
 cs = ConfigStore.instance()
 
 
-class MockRanker(AbstractEstimator):
+class MockRanker(BaseEstimator):
     def __init__(self, random_state=None):
         self.random_state = random_state
 
@@ -31,27 +32,12 @@ class MockRanker(AbstractEstimator):
     def fit(self, X, y):
         n, p = np.asarray(X).shape
         self.n_features = p
-
-    def transform(self, X, y):
-        ...
-
-    def fit_transform(self, X, y):
-        ...
+        self.feature_importances_ = self._get_random_state().rand(self.n_features)
+        self.support_ = self._get_random_state().rand(self.n_features)
+        self.ranking_ = self._get_random_state().rand(self.n_features)
 
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         return self._get_random_state().rand()
-
-    @property
-    def feature_importances_(self):
-        return self._get_random_state().rand(self.n_features)
-
-    @property
-    def support_(self):
-        return self._get_random_state().rand(self.n_features)
-
-    @property
-    def ranking_(self):
-        return self._get_random_state().rand(self.n_features)
 
 
 class MockAdapter(AbstractAdapter):
@@ -61,15 +47,17 @@ class MockAdapter(AbstractAdapter):
         return X, y
 
 
-estimator = dict(
-    _target_="tests.integration.pipelines.test_rank_and_validate.MockRanker",
-    random_state=0,
+mock_classifier: EstimatorConfig = EstimatorConfig(
+    estimator={
+        "_target_": "tests.integration.pipelines.test_rank_and_validate.MockRanker",
+        "random_state": 0,
+    }
 )
-classifier: EstimatorConfig = EstimatorConfig(estimator=estimator)
+
 ranker: TaskedEstimatorConfig = TaskedEstimatorConfig(
     name="Decision Tree",
     task=Task.classification,
-    classifier=classifier,
+    classifier=mock_classifier,
     is_multioutput_dataset=False,
     estimates_feature_importances=True,
     estimates_feature_support=True,
@@ -80,7 +68,7 @@ cs.store(name="decision_tree", node=ranker, group="ranker")
 validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
     name="Decision Tree",
     task=Task.classification,
-    classifier=classifier,
+    classifier=mock_classifier,
     is_multioutput_dataset=False,
     estimates_target=True,
 )
