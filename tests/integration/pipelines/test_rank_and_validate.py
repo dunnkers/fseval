@@ -22,7 +22,7 @@ from sklearn.base import BaseEstimator
 cs = ConfigStore.instance()
 
 
-class MockRanker(BaseEstimator):
+class RandomEstimator(BaseEstimator):
     def __init__(self, random_state=None):
         self.random_state = random_state
 
@@ -47,32 +47,32 @@ class MockAdapter(AbstractAdapter):
         return X, y
 
 
-mock_classifier: EstimatorConfig = EstimatorConfig(
+random_estimator: EstimatorConfig = EstimatorConfig(
     estimator={
-        "_target_": "tests.integration.pipelines.test_rank_and_validate.MockRanker",
+        "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
         "random_state": 0,
     }
 )
 
 ranker: TaskedEstimatorConfig = TaskedEstimatorConfig(
-    name="Decision Tree",
+    name="Random Ranker",
     task=Task.classification,
-    classifier=mock_classifier,
+    classifier=random_estimator,
     is_multioutput_dataset=False,
     estimates_feature_importances=True,
     estimates_feature_support=True,
     estimates_feature_ranking=True,
 )
-cs.store(name="decision_tree", node=ranker, group="ranker")
+cs.store(name="random_ranker", node=ranker, group="ranker")
 
 validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
-    name="Decision Tree",
+    name="Random Validator",
     task=Task.classification,
-    classifier=mock_classifier,
+    classifier=random_estimator,
     is_multioutput_dataset=False,
     estimates_target=True,
 )
-cs.store(name="decision_tree", node=validator, group="validator")
+cs.store(name="random_validator", node=validator, group="validator")
 
 resample: ResampleConfig = ResampleConfig(name="shuffle")
 cs.store(name="default_resampling", node=resample, group="resample")
@@ -114,8 +114,8 @@ def cfg() -> PipelineConfig:
         overrides=[
             "dataset=some_dataset",
             "cv=simple_shuffle_split",
-            "validator=decision_tree",
-            "ranker=decision_tree",
+            "validator=random_validator",
+            "ranker=random_ranker",
             "resample=default_resampling",
         ],
     )

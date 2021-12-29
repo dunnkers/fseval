@@ -35,6 +35,8 @@ jobs:
       run: |
         black fseval tests --check
     - name: Test with pytest
+      env:
+        WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
       run: |
         pytest tests --cov=./ --cov-report=xml
     - name: Codecov
