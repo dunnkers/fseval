@@ -8,7 +8,7 @@ from omegaconf import DictConfig
 def cfg() -> PipelineConfig:
     config = get_config(
         config_module="tests.integration.conf",
-        config_name="simple_config",
+        config_name="empty_config",
         overrides=[
             "dataset=iris",
             "ranker=chi2",
