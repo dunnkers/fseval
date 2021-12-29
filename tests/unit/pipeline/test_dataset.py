@@ -68,9 +68,9 @@ def test_get_adapter_omegadict(ds_loader):
 
 def test_get_adapter_wrong_value(ds_loader):
     """Setting the adapter to a float should definitely fail."""
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         ds_loader.adapter = 1.0
-        ds_loader._get_adapter()
+        ds_loader._get_adapter_data()
 
 
 def test_get_adapter_dict_value(ds_loader):

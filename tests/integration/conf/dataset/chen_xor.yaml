@@ -7,4 +7,5 @@ adapter:
   n_samples: 10000
   random_state: 0
 feature_importances:
-  X[:, 0:1]: 1.0
+  # targets are a combination of feature 1 and 2
+  X[:, 0:2]: 1.0 

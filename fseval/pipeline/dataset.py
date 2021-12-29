@@ -46,14 +46,12 @@ class DatasetLoader(DatasetConfig):
             return adapter
         elif callable(self.adapter):
             return self.adapter()
-        elif isinstance(self.adapter, dict):
-            adapter = self.adapter
-            return adapter
         else:
-            raise ValueError(f"Incorrect adapter type: got {type(self.adapter)}.")
+            return self.adapter
 
     def _get_adapter_data(self) -> Tuple:
         adapter = self._get_adapter()
+
         if isinstance(adapter, tuple):
             data = adapter
             msg = f"adapter callable `{self._target_}`"
@@ -61,6 +59,7 @@ class DatasetLoader(DatasetConfig):
                 len(data) == 2
             ), f"{msg} must return tuple of length 2 (got {len(data)})."
             X, y = data
+
             return X, y
         else:
             funcname = self.adapter_callable
@@ -72,11 +71,12 @@ class DatasetLoader(DatasetConfig):
 
             data = get_data_func()
             assert isinstance(data, tuple), f"{msg} did not return a tuple (X, y)."
-
             assert (
                 len(data) == 2
             ), f"{msg} must return tuple of length 2 (got {len(data)})."
+
             X, y = data
+
             return X, y
 
     def get_feature_importances(
@@ -84,6 +84,7 @@ class DatasetLoader(DatasetConfig):
     ) -> Optional[np.ndarray]:
         if self.feature_importances is None:
             return None
+
         assert OmegaConf.is_dict(self.feature_importances) or isinstance(
             self.feature_importances, dict
         ), """dataset `feature_importances` ground truth must be a dict."""

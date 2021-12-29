@@ -6,5 +6,5 @@ adapter:
   _target_: fseval.adapters.wandb.Wandb
   artifact_id: dunnkers/synthetic-datasets/switch:v0
 feature_importances:
-  X[0:4999, 0:3]: 1.0
-  X[5000:9999, 4:7]: 1.0
+  X[:5000, 0:4]: 1.0
+  X[5000:, 4:8]: 1.0
