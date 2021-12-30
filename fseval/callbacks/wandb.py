@@ -4,6 +4,7 @@ import time
 from logging import Logger, getLogger
 from typing import Dict, Optional, cast
 
+import pandas as pd
 from fseval.types import Callback
 from fseval.utils.dict_utils import dict_flatten, dict_merge
 from omegaconf import DictConfig, OmegaConf
@@ -64,7 +65,7 @@ class WandbCallback(Callback):
         prepared_cfg = self._prepare_cfg(config)
         wandb.config.update(prepared_cfg, allow_val_change=True)
 
-    def on_metrics(self, metrics):
+    def on_metrics(self, metrics: Dict):
         if not self.log_metrics:
             return
         elif isinstance(metrics, Dict):
@@ -75,7 +76,7 @@ class WandbCallback(Callback):
         else:
             raise ValueError(f"Incorrect metric type passed: {type(metrics)}")
 
-    def on_table(self, df, name):
+    def on_table(self, df: pd.DataFrame, name: str):
         table = wandb.Table(dataframe=df)
         logs = {}
         logs[name] = table
