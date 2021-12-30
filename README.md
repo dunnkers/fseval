@@ -8,103 +8,6 @@
 
 A Feature Ranker benchmarking pipeline. Useful for Feature Selection and Interpretable AI methods.
 
-
-## Install
-
-```shell
-pip install fseval
-```
-
-## Usage
-```python
-import hydra
-from fseval.adapters.openml import OpenMLDataset
-from fseval.config import (
-    DatasetConfig,
-    EstimatorConfig,
-    PipelineConfig,
-    TaskedEstimatorConfig,
-)
-from fseval.main import run_pipeline
-from fseval.types import Task
-from hydra.core.config_store import ConfigStore
-from sklearn.base import BaseEstimator
-from sklearn.feature_selection import f_classif
-
-cs = ConfigStore.instance()
-
-### 📈  Define Feature Ranker
-class ANOVAFValueClassifier(BaseEstimator):
-    def fit(self, X, y):
-        scores, _ = f_classif(X, y)
-        self.feature_importances_ = scores
-
-
-anova_ranker = TaskedEstimatorConfig(
-    name="Anova F-Value",
-    classifier=EstimatorConfig(
-        estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"}
-    ),
-    estimates_feature_importances=True,
-)
-
-cs.store(group="ranker", name="anova_f_value", node=anova_ranker)
-
-### 🧾  Define validator
-knn_estimator = TaskedEstimatorConfig(
-    name="k-NN",
-    classifier=EstimatorConfig(
-        estimator={"_target_": "sklearn.neighbors.KNeighborsClassifier"}
-    ),
-    estimates_target=True,
-)
-
-cs.store(group="validator", name="knn", node=knn_estimator)
-
-
-### 💾  Define datasets
-cs.store(
-    group="dataset",
-    name="iris",
-    node=DatasetConfig(
-        name="iris",
-        task=Task.classification,
-        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
-    ),
-)
-
-cs.store(
-    group="dataset",
-    name="ozone",
-    node=DatasetConfig(
-        name="Ozone Levels",
-        task=Task.classification,
-        adapter=OpenMLDataset(dataset_id=1487, target_column="Class"),
-    ),
-)
-
-
-### ⚙️  Define pipeline config
-cs.store(name="my_config", node=PipelineConfig())
-
-
-### 🚀  Run fseval
-@hydra.main(config_path=None, config_name="my_config")
-def main(cfg: PipelineConfig) -> None:
-    run_pipeline(cfg)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-Any [sklearn](https://scikit-learn.org/) style estimator can be used as a Feature Ranker. Estimator must estimate at least one of:
-
-1. **Feature importance**, using `feature_importances_`.
-2. **Feature subset**, using `feature_support_`.
-3. **Feature ranking**, using `feature_ranking_`.
-
-Main functionality:
 - 📊 **Online dashboard**. Experiments can be uploaded to [wandb](https://wandb.ai) for seamless experiment tracking and visualization. Feature importance and subset validation plots are built-in. 
 - 🔄 **Scikit-Learn integration**. Integrates nicely with [sklearn](https://scikit-learn.org/). Any estimator that implements `fit` is supported.
 - 🗄 **Dataset adapters**. Datasets can be loaded dynamically using an _adapter_. [OpenML](https://www.openml.org/search?type=data) support is built-in.
@@ -113,6 +16,23 @@ Main functionality:
 - ⚜️ **Subset validation**. Allows you to validate the quality of a feature ranking, by running a _validation_ estimator on some of the `k` best feature subsets.
 - ⚖️ **Bootstrapping**. Allows you to approximate the _stability_ of an algorithm by running multiple experiments on bootstrap resampled datasets.
 - ⚙️ **Reproducible configs**. Uses [Hydra](https://hydra.cc/) as a config parser, to allow configuring every part of the experiment. The config can be uploaded to wandb, so the experiment can be replayed later.
+
+Any [sklearn](https://scikit-learn.org/) style estimator can be used as a Feature Ranker. Estimator must estimate at least one of:
+
+1. **Feature importance**, using `feature_importances_`.
+2. **Feature subset**, using `feature_support_`.
+3. **Feature ranking**, using `feature_ranking_`.
+
+## Install
+
+```shell
+pip install fseval
+```
+
+## Documentation
+
+See the [documentation](https://fseval.github.io/) page.
+
 
 ## About
 Built by at the University of Groningen.

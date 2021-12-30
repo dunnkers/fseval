@@ -5,8 +5,8 @@ from fseval.callbacks.wandb import WandbCallback
 from fseval.utils.dict_utils import dict_merge
 from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
-from pytest import Cache, FixtureRequest
-from wandb.apis.public import Api, Artifact, Run
+from pytest import FixtureRequest
+from wandb.apis.public import Api, Run
 from wandb.errors import CommError
 
 ENTITY: str = "fseval"

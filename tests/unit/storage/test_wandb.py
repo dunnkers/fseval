@@ -1,4 +1,3 @@
-import tempfile
 from pathlib import Path
 from typing import Callable
 
@@ -7,8 +6,8 @@ import pytest
 import wandb
 from fseval.storage.wandb import WandbStorage
 from fseval.utils.uuid_utils import generate_shortuuid
-from pytest import Cache, FixtureRequest
-from wandb.apis.public import Api, File, Run
+from pytest import FixtureRequest
+from wandb.apis.public import Api, Run
 
 ENTITY: str = "fseval"
 PROJECT: str = "test_wandb.py"
