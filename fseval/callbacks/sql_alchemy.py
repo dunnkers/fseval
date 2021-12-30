@@ -1,20 +1,11 @@
 import os
 import time
-from typing import Dict, Optional
 
 import pandas as pd
 from fseval.types import Callback
+from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
-from shortuuid import ShortUUID
 from sqlalchemy import create_engine
-
-SHORT_UUID_ALPHABET = list("0123456789abcdefghijklmnopqrstuvwxyz")
-
-
-def generate_id():
-    """Generate a random experiment ID."""
-    run_gen = ShortUUID(alphabet=SHORT_UUID_ALPHABET)
-    return run_gen.random(8)
 
 
 class SQLAlchemyCallback(Callback):
@@ -56,7 +47,7 @@ class SQLAlchemyCallback(Callback):
         }
 
         # add random id
-        self.id: str = generate_id()
+        self.id: str = generate_shortuuid()
         prepared_cfg["id"] = self.id
 
         # create SQL engine
@@ -78,15 +69,3 @@ class SQLAlchemyCallback(Callback):
         df["id"] = self.id
         df.set_index(["id"], append=True)
         df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
-
-    def on_config_update(self, config: Dict):
-        ...
-
-    def on_metrics(self, metrics):
-        ...
-
-    def on_summary(self, summary: Dict):
-        ...
-
-    def on_end(self, exit_code: Optional[int] = None):
-        ...

@@ -65,27 +65,21 @@ class AbstractAdapter(ABC, BaseEstimator):
 
 
 class Callback(ABC):
-    @abstractmethod
     def on_begin(self, config: DictConfig):
         ...
 
-    @abstractmethod
     def on_config_update(self, config: Dict):
         ...
 
-    @abstractmethod
     def on_metrics(self, metrics):
         ...
 
-    @abstractmethod
     def on_table(self, df: pd.DataFrame, name: str):
         ...
 
-    @abstractmethod
     def on_summary(self, summary: Dict):
         ...
 
-    @abstractmethod
     def on_end(self, exit_code: Optional[int] = None):
         ...
 

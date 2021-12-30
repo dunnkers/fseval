@@ -101,10 +101,8 @@ class TestEstimator(ShouldTestGroupItem):
         if estimator.estimates_target:
             score = estimator.score(X, y)
 
-            if isinstance(score, float):
-                assert score > 0.0
-            else:
-                assert score is not None
+            assert isinstance(score, float)
+            assert score > 0.0
 
 
 class TestClassifiers(TestEstimator):

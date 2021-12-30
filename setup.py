@@ -27,7 +27,7 @@ with open("README.md", "r") as fh:
             "shortuuid>=1.0",
         ],
         setup_requires=["black==21.12b0", "pytest-runner>=5"],
-        tests_require=["pytest>=6", "pytest-cov>=3"],
+        tests_require=["pytest>=6", "pytest-cov>=3", "pytest-dependency"],
         classifiers=[
             "License :: OSI Approved :: MIT License",
             "Development Status :: 4 - Beta",

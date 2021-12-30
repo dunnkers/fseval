@@ -21,7 +21,7 @@ def dict_flatten(d, parent_key="", sep="_"):
 # Recursive dictionary merge
 # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
 # https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
-def dict_merge(dct, merge_dct):
+def dict_merge(dct: dict, merge_dct: dict):
     """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
     to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
