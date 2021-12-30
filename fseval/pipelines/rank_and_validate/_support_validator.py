@@ -3,13 +3,8 @@ from typing import Dict, Union, cast
 
 import numpy as np
 import pandas as pd
-from fseval.pipeline.estimator import Estimator
-from fseval.types import IncompatibilityError
 from omegaconf import MISSING
-from sklearn.feature_selection import SelectFromModel
 
-from .._experiment import Experiment
-from ._config import RankAndValidatePipeline
 from ._subset_validator import SubsetValidator
 
 
@@ -38,6 +33,8 @@ class SupportValidator(SubsetValidator):
 
     @property
     def _cache_filename(self):
+        """This function overrides `_cache_filename` in `SubsetValidator`."""
+
         override = f"bootstrap_state={self.bootstrap_state}"
         filename = f"support[{override}].pickle"
 
@@ -46,7 +43,9 @@ class SupportValidator(SubsetValidator):
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         # See `SubsetValidator.score()`. This uses the validation estimator's `score()`
         # function.
-        validator_score = super(SubsetValidator, self).score(X, y)
+        validator_score = super(SubsetValidator, self).score(
+            X, y
+        )  # lgtm[py/super-not-enclosing-class]
         assert np.isscalar(validator_score), (
             f"'{self.validator.name}' validator score must be a scalar. That is, "
             + "it must be an int, float, string or boolean. The validator score is "

@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from omegaconf import MISSING, DictConfig
+from omegaconf import DictConfig
 from sklearn.base import BaseEstimator
 
 
@@ -46,48 +46,38 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
+        ...
+
     def transform(self, X, y):
         ...
 
-    @abstractmethod
     def fit_transform(self, X, y):
-        ...
-
-    @abstractmethod
-    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         ...
 
 
 class AbstractAdapter(ABC, BaseEstimator):
-    _target_: str = MISSING
-
     @abstractmethod
     def get_data(self) -> Tuple[List, List]:
         ...
 
 
 class Callback(ABC):
-    @abstractmethod
     def on_begin(self, config: DictConfig):
         ...
 
-    @abstractmethod
     def on_config_update(self, config: Dict):
         ...
 
-    @abstractmethod
     def on_metrics(self, metrics):
         ...
 
-    @abstractmethod
     def on_table(self, df: pd.DataFrame, name: str):
         ...
 
-    @abstractmethod
     def on_summary(self, summary: Dict):
         ...
 
-    @abstractmethod
     def on_end(self, exit_code: Optional[int] = None):
         ...
 

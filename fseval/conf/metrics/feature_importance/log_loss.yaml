@@ -1,5 +1,0 @@
-# @package metrics
-importance/log_loss:
-  _target_: fseval.pipelines.rank_and_validate.metrics.feature_importance.log_loss.ImportanceLogLoss
-upload_ranking_scores:
-  _target_: fseval.pipelines.rank_and_validate.metrics.upload_ranking_scores.UploadRankingScores

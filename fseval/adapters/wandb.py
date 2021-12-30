@@ -1,16 +1,20 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-import wandb
+from fseval.types import AbstractAdapter
 from omegaconf import MISSING
 
-from fseval.types import AbstractAdapter
+import wandb
 
 
 @dataclass
-class Wandb(AbstractAdapter):
+class WandbDataset:
+    _target_: str = "fseval.adapters.wandb.Wandb"
     artifact_id: str = MISSING
 
+
+@dataclass
+class Wandb(AbstractAdapter, WandbDataset):
     def get_data(self) -> Tuple[List, List]:
         api = wandb.Api()
         artifact = api.artifact(self.artifact_id)

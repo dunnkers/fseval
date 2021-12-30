@@ -1,30 +1,22 @@
-import copy
 import os
-import sys
 import time
-from collections import UserDict
-from enum import Enum
-from logging import Logger, getLogger
-from typing import Dict, List, Optional, cast
 
 import pandas as pd
 from fseval.types import Callback
-from fseval.utils.dict_utils import dict_flatten, dict_merge
+from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
-from shortuuid import ShortUUID
-from sqlalchemy import Column, Integer, MetaData, String, Table, create_engine, text
-
-
-def generate_id():
-    """Generate a random experiment ID."""
-    characters = list("0123456789abcdefghijklmnopqrstuvwxyz")
-    run_gen = ShortUUID(alphabet=characters)
-    return run_gen.random(8)
+from sqlalchemy import create_engine
 
 
 class SQLAlchemyCallback(Callback):
+    """SQLAlchemy support for fseval. Uploads general information on the experiment to
+    a `experiments` table and provides a hook for uploading custom tables. Use the
+    `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
+    """
+
     def __init__(self, **kwargs):
         super(SQLAlchemyCallback, self).__init__()
+
         # make sure any nested objects are casted from DictConfig's to regular dict's.
         kwargs = OmegaConf.create(kwargs)
         kwargs = OmegaConf.to_container(kwargs)
@@ -55,7 +47,7 @@ class SQLAlchemyCallback(Callback):
         }
 
         # add random id
-        self.id = generate_id()
+        self.id: str = generate_shortuuid()
         prepared_cfg["id"] = self.id
 
         # create SQL engine
@@ -69,18 +61,11 @@ class SQLAlchemyCallback(Callback):
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
 
     def on_table(self, df: pd.DataFrame, name: str):
+        assert hasattr(self, "id") and type(self.id) == str, (
+            "No database shortuuid. SQL Alchemy callback was not properly invoked at "
+            + "the start of the pipeline. Make sure `on_begin` is always called."
+        )
+
         df["id"] = self.id
         df.set_index(["id"], append=True)
         df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
-
-    def on_config_update(self, config: Dict):
-        ...
-
-    def on_metrics(self, metrics):
-        ...
-
-    def on_summary(self, summary: Dict):
-        ...
-
-    def on_end(self, exit_code: Optional[int] = None):
-        ...

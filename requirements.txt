@@ -21,3 +21,4 @@ scipy>=1.5
 skfeature-chappers>=1.0
 skrebate>=0.62
 xgboost>=1
+pytest-dependency

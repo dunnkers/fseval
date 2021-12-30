@@ -1,8 +1,5 @@
-from typing import Dict, Optional, Union, cast
+from typing import Dict
 
-import numpy as np
-import pandas as pd
-from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, AbstractMetric, Callback
 
 
@@ -15,9 +12,6 @@ class UploadValidationScores(AbstractMetric):
         scores: Dict,
         **kwargs,
     ) -> Dict:
-        ranker = cast(Estimator, ranker)
-        validator = cast(Estimator, validator)
-
         validation_scores = scores["validation"]
 
         ## upload validation scores

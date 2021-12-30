@@ -125,12 +125,6 @@ class Experiment(AbstractEstimator):
             ):
                 estimator.postfit()
 
-    def transform(self, X, y):
-        ...
-
-    def fit_transform(self, X, y):
-        ...
-
     def _aggregate_dataframe_scores(self, a: pd.DataFrame, b: pd.DataFrame):
         return a.append(b)
 

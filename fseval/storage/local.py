@@ -54,15 +54,12 @@ class LocalStorage(AbstractStorage):
         with open(filepath, mode=mode) as file_handle:
             file = reader(file_handle)
 
-        if file:
             self.logger.debug(
                 f"successfully restored {TerminalColor.blue(filename)} from "
                 + TerminalColor.yellow("local disk")
                 + TerminalColor.green(" ✓")
             )
             return file
-        else:
-            return None
 
     def restore_pickle(self, filename: str) -> Any:
         return self.restore(filename, load, mode="rb")

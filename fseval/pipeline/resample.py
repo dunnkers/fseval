@@ -1,22 +1,11 @@
 import logging
-from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Optional
 
-from omegaconf import MISSING
+from fseval.config import ResampleConfig
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import resample
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class ResampleConfig:
-    _target_: str = "fseval.pipeline.resample.Resample"
-    name: str = MISSING
-    replace: bool = False
-    sample_size: Any = None  # float [0.0 to 1.0] or int [1 to n_samples]
-    random_state: Optional[int] = None
-    stratify: Optional[List] = None
 
 
 class Resample(ResampleConfig, BaseEstimator, TransformerMixin):

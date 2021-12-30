@@ -5,19 +5,18 @@ from pathlib import Path
 from traceback import print_exc
 from typing import cast
 
-import hydra
 from hydra.core.utils import _save_config
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
-from yaml import dump
+from omegaconf import DictConfig
 
-from fseval.config import BaseConfig
+from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
-@hydra.main(config_path="conf", config_name="my_config")
-def main(cfg: BaseConfig) -> None:
+def run_pipeline(
+    cfg: PipelineConfig, raise_incompatibility_errors: bool = False
+) -> None:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
 
@@ -36,11 +35,23 @@ def main(cfg: BaseConfig) -> None:
     except IncompatibilityError as e:
         (msg,) = e.args
         logger.error(msg)
+
+        # graceful exit message
+        exit_strategy: str = (
+            "terminating..."
+            if raise_incompatibility_errors
+            else "exiting gracefully..."
+        )
         logger.info(
             "encountered an expected pipeline incompatibility with the current config, "
-            + "exiting gracefully..."
+            + exit_strategy
         )
-        return
+
+        # decide between graceful exit or termination
+        if raise_incompatibility_errors:
+            raise e
+        else:
+            return
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
@@ -105,7 +116,3 @@ def main(cfg: BaseConfig) -> None:
     )
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
-
-
-if __name__ == "__main__":
-    main()

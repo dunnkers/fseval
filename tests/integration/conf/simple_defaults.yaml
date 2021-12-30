@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override dataset: iris
+  - override ranker: chi2
+  - override validator: decision_tree
+
+hydra:
+  searchpath:
+    - pkg://fseval.conf

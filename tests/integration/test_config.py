@@ -1,17 +1,19 @@
 import pytest
-from fseval.config import BaseConfig
-from fseval.utils.hydra_utils import get_config, get_single_config
+from fseval.config import PipelineConfig
+from fseval.utils.hydra_utils import get_config
 from omegaconf import DictConfig
 
 
 @pytest.fixture
-def cfg() -> BaseConfig:
+def cfg() -> PipelineConfig:
     config = get_config(
+        config_module="tests.integration.conf",
+        config_name="empty_config",
         overrides=[
-            "+dataset=iris",
-            "+estimator@ranker=chi2",
-            "+estimator@validator=decision_tree",
-        ]
+            "dataset=iris",
+            "ranker=chi2",
+            "validator=decision_tree",
+        ],
     )
 
     return config

@@ -1,55 +1,76 @@
-from typing import Optional
+import itertools
 
 import numpy as np
 import pytest
-from fseval.pipeline.estimator import Estimator, EstimatorConfig, TaskedEstimatorConfig
+from fseval.config import PipelineConfig
+from fseval.pipeline.estimator import Estimator
 from fseval.types import Task
-from fseval.utils.hydra_utils import TestGroupItem, generate_group_tests
+from fseval.utils.hydra_utils import get_group_pipeline_configs
 from hydra.utils import instantiate
-from omegaconf import DictConfig, OmegaConf
 from sklearn.base import clone
+
+from ._group_test_utils import ShouldTestGroupItem
 
 
 def pytest_generate_tests(metafunc):
-    generate_group_tests("estimator", metafunc)
+    ## Add all rankers
+    ranker_argvalues, ranker_pytest_ids = get_group_pipeline_configs(
+        config_module="tests.integration.conf",
+        config_name="simple_defaults",
+        group_name="ranker",
+        should_test=metafunc.cls.should_test,
+    )
+    ranker_argvalues = list(zip(ranker_argvalues, itertools.repeat("ranker")))
+
+    ## Add all validators
+    validator_argvalues, validator_pytest_ids = get_group_pipeline_configs(
+        config_module="tests.integration.conf",
+        config_name="simple_defaults",
+        group_name="validator",
+        should_test=metafunc.cls.should_test,
+    )
+    validator_argvalues = list(zip(validator_argvalues, itertools.repeat("validator")))
+
+    ## Merge rankers and validators
+    pytest_ids = ranker_pytest_ids + validator_pytest_ids
+    pytest_ids, unique_ids = np.unique(pytest_ids, return_index=True)
+    argvalues = ranker_argvalues + validator_argvalues
+    argvalues = [argvalues[i] for i in unique_ids]
+
+    ## Parametrize using pytest metafunc
+    metafunc.parametrize(
+        ["cfg", "group_name"],
+        argvalues,
+        ids=pytest_ids,
+        scope="class",
+    )
 
 
-class TestEstimator(TestGroupItem):
+class TestEstimator(ShouldTestGroupItem):
     __test__ = False
 
-    @staticmethod
-    def _tasked_cfg(cfg, task: Task, is_multioutput_dataset: bool = False):
-        tasked_config = TaskedEstimatorConfig(
-            task=task, is_multioutput_dataset=is_multioutput_dataset
-        )
-        tasked_cfg = OmegaConf.create(tasked_config.__dict__)
-        tasked_cfg.merge_with(cfg)
-
-        if tasked_cfg.classifier:
-            estimator_config = EstimatorConfig()
-            estimator_cfg = OmegaConf.create(estimator_config.__dict__)
-            estimator_cfg.merge_with(tasked_cfg.classifier)
-            tasked_cfg.classifier = estimator_cfg
-
-        if tasked_cfg.regressor:
-            estimator_config = EstimatorConfig()
-            estimator_cfg = OmegaConf.create(estimator_config.__dict__)
-            estimator_cfg.merge_with(tasked_cfg.regressor)
-            tasked_cfg.regressor = estimator_cfg
-
-        return tasked_cfg
-
     @pytest.fixture
-    def estimator(self, cfg) -> Estimator:
-        instance = instantiate(cfg)
-        assert isinstance(instance, Estimator)
-        return instance
+    def estimator(self, cfg: PipelineConfig, group_name: str) -> Estimator:
+        """Retrieve the relevant config and instantiate pipeline."""
+
+        # set dataset properties to some random number. instantiating the pipeline
+        # requires these numbers to be set. emulates having loaded the dataset.
+        cfg.dataset.n = 999
+        cfg.dataset.p = 999
+        cfg.dataset.multioutput = False
+        pipeline = instantiate(cfg)
+
+        # instantiate estimator
+        estimator = getattr(pipeline, group_name)
+        assert isinstance(estimator, Estimator)
+
+        return estimator
 
     @pytest.fixture
     def X(self) -> np.ndarray:
         return np.array([[1, 2, 5], [-3, -4, 8], [5, 6, 1], [7, 8, 1], [1, 4, 5]])
 
-    def test_clone(self, estimator):
+    def test_clone(self, estimator: Estimator):
         estimator_cloned = clone(estimator)
         assert isinstance(estimator_cloned, type(estimator))
 
@@ -80,23 +101,19 @@ class TestEstimator(TestGroupItem):
         if estimator.estimates_target:
             score = estimator.score(X, y)
 
-            if isinstance(score, float):
-                assert score > 0.0
-            else:
-                assert score is not None
+            assert isinstance(score, float)
+            assert score > 0.0
 
 
 class TestClassifiers(TestEstimator):
     __test__ = True
 
     @staticmethod
-    def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(cfg, Task.classification)
+    def should_test(cfg: PipelineConfig, group_name: str) -> bool:
+        classifier = getattr(cfg, group_name).classifier
+        cfg.dataset.task = Task.classification
 
-        if tasked_cfg.classifier and not tasked_cfg.classifier.multioutput_only:
-            return tasked_cfg
-        else:
-            return None
+        return classifier is not None and not classifier.multioutput_only
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -107,17 +124,14 @@ class TestMultioutputClassifiers(TestClassifiers):
     __test__ = True
 
     @staticmethod
-    def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(
-            cfg, Task.classification, is_multioutput_dataset=True
-        )
+    def should_test(cfg: PipelineConfig, group_name: str) -> bool:
+        estimator_cfg = getattr(cfg, group_name)
+        classifier = estimator_cfg.classifier
+        cfg.dataset.task = Task.classification
 
-        if tasked_cfg.classifier and (
-            tasked_cfg.classifier.multioutput or tasked_cfg.multioutput
-        ):
-            return tasked_cfg
-        else:
-            return None
+        return classifier is not None and (
+            classifier.multioutput or estimator_cfg.multioutput
+        )
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -128,13 +142,11 @@ class TestRegressors(TestEstimator):
     __test__ = True
 
     @staticmethod
-    def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(cfg, Task.regression)
+    def should_test(cfg: PipelineConfig, group_name: str) -> bool:
+        regressor = getattr(cfg, group_name).regressor
+        cfg.dataset.task = Task.regression
 
-        if tasked_cfg.regressor and not tasked_cfg.regressor.multioutput_only:
-            return tasked_cfg
-        else:
-            return None
+        return regressor is not None and not regressor.multioutput_only
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -145,17 +157,14 @@ class TestMultioutputRegressors(TestRegressors):
     __test__ = True
 
     @staticmethod
-    def get_cfg(cfg: DictConfig) -> Optional[DictConfig]:
-        tasked_cfg = TestEstimator._tasked_cfg(
-            cfg, Task.regression, is_multioutput_dataset=True
-        )
+    def should_test(cfg: PipelineConfig, group_name: str) -> bool:
+        estimator_cfg = getattr(cfg, group_name)
+        regressor = estimator_cfg.regressor
+        cfg.dataset.task = Task.regression
 
-        if tasked_cfg.regressor and (
-            tasked_cfg.regressor.multioutput or tasked_cfg.multioutput
-        ):
-            return tasked_cfg
-        else:
-            return None
+        return regressor is not None and (
+            regressor.multioutput or estimator_cfg.multioutput
+        )
 
     @pytest.fixture
     def y(self) -> np.ndarray:

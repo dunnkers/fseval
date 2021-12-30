@@ -1,4 +1,1 @@
-defaults:
-  - base_local_storage
-
-_target_: fseval.storage.LocalStorage
+_target_: fseval.storage.local.LocalStorage

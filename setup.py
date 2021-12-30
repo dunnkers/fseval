@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, find_packages, setup
 
 with open("README.md", "r") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
         version="2.1.2",
-        packages=find_packages(include=["fseval", "fseval.*"]),
+        packages=find_namespace_packages(include=["hydra_plugins.*"])
+        + find_packages(include=["fseval", "fseval.*"]),
         entry_points={"console_scripts": ["fseval = fseval.main:main"]},
         description="Benchmarking framework for Feature Selection algorithms 🚀",
         long_description=LONG_DESC,
@@ -26,7 +27,7 @@ with open("README.md", "r") as fh:
             "shortuuid>=1.0",
         ],
         setup_requires=["black==21.12b0", "pytest-runner>=5"],
-        tests_require=["pytest>=6", "pytest-cov>=3"],
+        tests_require=["pytest>=6", "pytest-cov>=3", "pytest-dependency"],
         classifiers=[
             "License :: OSI Approved :: MIT License",
             "Development Status :: 4 - Beta",

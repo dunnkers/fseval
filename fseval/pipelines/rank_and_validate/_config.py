@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RankAndValidatePipeline(Pipeline):
-    """Instantiated version of `RankAndValidateConfig`: the actual pipeline
+    """Instantiated version of `PipelineConfig`: the actual pipeline
     implementation."""
 
     pipeline: str = MISSING
@@ -24,8 +24,6 @@ class RankAndValidatePipeline(Pipeline):
     n_bootstraps: int = MISSING
     n_jobs: Optional[int] = MISSING
     all_features_to_select: str = MISSING
-    upload_ranking_scores: bool = MISSING
-    upload_validation_scores: bool = MISSING
     metrics: Dict[str, AbstractMetric] = MISSING
 
     def _get_config(self):

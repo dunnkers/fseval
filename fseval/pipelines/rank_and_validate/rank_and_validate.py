@@ -4,9 +4,7 @@ from typing import Dict, Union, cast
 
 import numpy as np
 import pandas as pd
-from fseval.callbacks import WandbCallback
 from fseval.types import TerminalColor as tc
-from fseval.utils.dict_utils import dict_flatten
 from omegaconf import MISSING
 from sklearn.base import clone
 
@@ -128,46 +126,6 @@ class BootstrappedRankAndValidate(Experiment, RankAndValidatePipeline):
 
     def _get_overrides_text(self, estimator):
         return f"[bootstrap_state={estimator.bootstrap_state}] "
-
-    def _get_ranker_attribute_table(self, attribute: str):
-        # ensure dataset loaded
-        p = self.dataset.p
-        assert p is not None, "dataset must be loaded"
-
-        # construct attribute table
-        attribute_table = pd.DataFrame()
-
-        def get_attribute_row(attribute_value: np.ndarray, group: str):
-            attribute_data = {
-                "feature_index": np.arange(1, p + 1),  # type: ignore
-            }
-            attribute_data[attribute] = attribute_value
-            attribute_data["group"] = group
-            attribute_row = pd.DataFrame(attribute_data)
-
-            return attribute_row
-
-        # attach estimated attributes
-        has_ground_truth = False
-        for rank_and_validate in self.estimators:
-            # get attributes from rank and validate estimator
-            ranking_validator = rank_and_validate.ranking_validator
-            bootstrap_state = ranking_validator.bootstrap_state
-            has_ground_truth = ranking_validator.X_importances is not None
-
-            # attach estimated
-            estimated = getattr(ranking_validator, f"estimated_{attribute}")
-            estimated_row = get_attribute_row(estimated, "estimated")
-            estimated_row["bootstrap_state"] = bootstrap_state
-            attribute_table = attribute_table.append(estimated_row)
-
-        # attach ground truth, if available
-        if has_ground_truth:
-            ground_truth = getattr(ranking_validator, f"ground_truth_{attribute}")
-            ground_truth_row = get_attribute_row(ground_truth, "ground_truth")
-            attribute_table = attribute_table.append(ground_truth_row)
-
-        return attribute_table
 
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         scores = super(BootstrappedRankAndValidate, self).score(X, y, **kwargs)

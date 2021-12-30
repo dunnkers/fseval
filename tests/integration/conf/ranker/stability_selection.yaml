@@ -1,0 +1,10 @@
+name: Stability Selection
+classifier:
+  estimator:
+    _target_: tests.integration.implementations.estimators.stability_selection.StabilitySelection
+    base_estimator:
+      _target_: sklearn.linear_model.LogisticRegression
+      penalty: l2
+    bootstrap_func: stratified
+estimates_feature_importances: true
+estimates_feature_support: true

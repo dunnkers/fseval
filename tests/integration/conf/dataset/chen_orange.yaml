@@ -1,0 +1,11 @@
+name: Orange (Chen et al.)
+group: Chen et al
+task: regression
+domain: synthetic
+adapter:
+  _target_: l2x_synthetic.OrangeGenerator
+  n_samples: 10000
+  random_state: 0
+feature_importances:
+  # first 4 features are meaningful
+  X[:, :4]: 1.0

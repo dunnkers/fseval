@@ -1,0 +1,11 @@
+name: XOR (Chen et al.)
+group: Chen et al
+task: regression
+domain: synthetic
+adapter:
+  _target_: l2x_synthetic.XORGenerator
+  n_samples: 10000
+  random_state: 0
+feature_importances:
+  # targets are a combination of feature 1 and 2
+  X[:, 0:2]: 1.0 

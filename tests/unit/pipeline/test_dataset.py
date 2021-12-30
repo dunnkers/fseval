@@ -3,9 +3,9 @@ from typing import Any
 
 import numpy as np
 import pytest
-
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, Task
+from omegaconf import OmegaConf
 
 
 @dataclass
@@ -32,6 +32,7 @@ def test_loading(ds_loader):
     assert ds.y.ndim == 1
     assert ds.n == 2
     assert ds.p == 2
+    assert isinstance(ds._log_details, str)
 
 
 def test_feature_importances(ds_loader):
@@ -55,6 +56,27 @@ def test_callable_adapter_assertion(ds_loader):
     with pytest.raises(AssertionError):
         ds_loader.adapter = lambda: "<incorrect format>"
         ds_loader._get_adapter_data()
+
+
+def test_get_adapter_omegadict(ds_loader):
+    ds_loader.adapter = OmegaConf.create(
+        {"_target_": "tests.unit.pipeline.test_dataset.SomeAdapter"}
+    )
+    adapter: AbstractAdapter = ds_loader._get_adapter()
+    assert isinstance(adapter, SomeAdapter)
+
+
+def test_get_adapter_wrong_value(ds_loader):
+    """Setting the adapter to a float should definitely fail."""
+    with pytest.raises(AssertionError):
+        ds_loader.adapter = 1.0
+        ds_loader._get_adapter_data()
+
+
+def test_get_adapter_dict_value(ds_loader):
+    ds_loader.adapter = {}
+    adapter = ds_loader._get_adapter()
+    assert adapter == {}
 
 
 def test_callable_adapter(ds_loader):

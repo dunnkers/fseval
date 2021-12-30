@@ -28,11 +28,15 @@ class WandbStorage(LocalStorage):
 
         project: Optional[str] - recover from a specific project.
 
-        run_id: Optional[str] - recover from a specific run id."""
+        run_id: Optional[str] - recover from a specific run id.
+
+        save_policy: str - policy for `wandb.save`. Can be 'live', 'now' or 'end'.
+        Determines at which point of the run the file is uploaded."""
 
     entity: Optional[str] = None
     project: Optional[str] = None
     run_id: Optional[str] = None
+    save_policy: Optional[str] = "live"
 
     logger: Logger = getLogger(__name__)
 
@@ -81,7 +85,10 @@ class WandbStorage(LocalStorage):
 
             return load_dir
         except Exception:
-            ...
+            self.logger.warn(
+                "Could not retrieve `save_dir` from configured wandb"
+                + " run path. Resorting to run path of current wandb run."
+            )
 
         # (3) use current directory.
         load_dir = wandb.run.dir  # type: ignore
@@ -123,7 +130,7 @@ class WandbStorage(LocalStorage):
         super(WandbStorage, self).save(filename, writer, mode)
 
         # save to wandb
-        wandb.save(filename, base_path="/")  # type: ignore
+        wandb.save(filename, base_path="/", policy=self.save_policy)  # type: ignore
         self.logger.info(
             f"uploaded {TerminalColor.blue(filename)} to "
             + TerminalColor.yellow("wandb servers")
@@ -148,12 +155,12 @@ class WandbStorage(LocalStorage):
 
         # (1) attempt local restoration if available
         file = super(WandbStorage, self).restore(filename, reader, mode)
-        if file:
+        if file is not None:
             return file
 
         # (2) otherwise, restore by downloading from wandb
         file = self._restore_from_wandb(filename)
-        if file:
+        if file is not None:
             self.logger.info(
                 f"downloaded {TerminalColor.blue(filename)} from "
                 + TerminalColor.yellow("wandb servers")

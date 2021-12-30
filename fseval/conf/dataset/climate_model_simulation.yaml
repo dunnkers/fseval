@@ -1,8 +1,0 @@
-name: Climate Model Simulation
-group: OpenML-CC18
-task: classification
-domain: nature
-adapter:
-  _target_: fseval.adapters.OpenML
-  dataset_id: 40994
-  target_column: outcome

@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 import pandas as pd
+from fseval.config import EstimatorConfig
 from fseval.types import (
     AbstractEstimator,
     AbstractStorage,
@@ -14,46 +15,8 @@ from fseval.types import (
     Task,
 )
 from hydra.utils import instantiate
-from omegaconf import II, MISSING, OmegaConf
+from omegaconf import MISSING, OmegaConf
 from sklearn.preprocessing import minmax_scale
-
-
-@dataclass
-class EstimatorConfig:
-    estimator: Any = None  # must have _target_ of type BaseEstimator.
-    load_cache: Optional[CacheUsage] = None
-    save_cache: Optional[CacheUsage] = None
-    # tags
-    multioutput: Optional[bool] = None
-    multioutput_only: Optional[bool] = None
-    requires_positive_X: Optional[bool] = None
-    estimates_feature_importances: Optional[bool] = None
-    estimates_feature_support: Optional[bool] = None
-    estimates_feature_ranking: Optional[bool] = None
-    estimates_target: Optional[bool] = None
-
-
-@dataclass
-class TaskedEstimatorConfig(EstimatorConfig):
-    _target_: str = "fseval.pipeline.estimator.instantiate_estimator"
-    _recursive_: bool = False  # don't instantiate classifier/regressor
-    _target_class_: str = "fseval.pipeline.estimator.Estimator"
-    name: str = MISSING
-    classifier: Optional[EstimatorConfig] = None
-    regressor: Optional[EstimatorConfig] = None
-    load_cache: CacheUsage = CacheUsage.allow
-    save_cache: CacheUsage = CacheUsage.allow
-    # tags
-    multioutput: bool = False
-    multioutput_only: bool = False
-    requires_positive_X: bool = False
-    estimates_feature_importances: bool = False
-    estimates_feature_support: bool = False
-    estimates_feature_ranking: bool = False
-    estimates_target: bool = False
-    # runtime properties
-    task: Task = II("dataset.task")
-    is_multioutput_dataset: bool = II("dataset.multioutput")
 
 
 @dataclass
