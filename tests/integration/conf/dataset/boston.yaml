@@ -4,5 +4,6 @@ adapter:
   _target_: fseval.adapters.openml.OpenML
   dataset_id: 531
   target_column: MEDV
+  drop_qualitative: true
 # tags
 domain: finance

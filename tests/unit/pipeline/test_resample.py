@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from fseval.pipeline.resample import Resample
 
 
@@ -11,6 +10,9 @@ def X():
 
 def test_resample_shuffling(X):
     resampler = Resample(random_state=0)
+    assert resampler == resampler.fit()
+
+    # shuffle and make sure order is not the same
     X_shuffled = resampler.transform(X)
     assert not (np.array(X) == np.array(X_shuffled)).all()
     assert len(X_shuffled) == 10

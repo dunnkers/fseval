@@ -14,6 +14,7 @@ class OpenMLDataset:
     _target_: str = "fseval.adapters.openml.OpenML"
     dataset_id: int = MISSING
     target_column: str = MISSING
+    drop_qualitative: bool = False
 
 
 @dataclass
@@ -23,8 +24,9 @@ class OpenML(AbstractAdapter, OpenMLDataset):
         X, y, cat, _ = dataset.get_data(target=self.target_column)
 
         # drop qualitative columns
-        to_drop = X.columns[np.array(cat)]
-        X = X.drop(columns=to_drop).values
+        if self.drop_qualitative:
+            to_drop = X.columns[np.array(cat)]
+            X = X.drop(columns=to_drop).values
 
         # quantitatively encode target
         y, _ = pd.factorize(y)

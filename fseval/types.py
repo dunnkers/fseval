@@ -46,15 +46,13 @@ class AbstractEstimator(ABC, BaseEstimator):
         ...
 
     @abstractmethod
+    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
+        ...
+
     def transform(self, X, y):
         ...
 
-    @abstractmethod
     def fit_transform(self, X, y):
-        ...
-
-    @abstractmethod
-    def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         ...
 
 

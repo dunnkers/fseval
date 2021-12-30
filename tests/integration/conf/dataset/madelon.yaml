@@ -5,3 +5,4 @@ adapter:
   _target_: fseval.adapters.openml.OpenML
   dataset_id: 1485
   target_column: Class
+  drop_qualitative: true
