@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'fseval',
-  tagline: 'Feature Selection benchmarking pipeline.',
+  tagline: 'Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀',
   url: 'https://fseval.github.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -45,7 +45,7 @@ const config = {
       navbar: {
         title: 'fseval',
         logo: {
-          alt: 'My Site Logo',
+          alt: 'fseval Logo',
           src: 'img/logo.svg',
         },
         items: [

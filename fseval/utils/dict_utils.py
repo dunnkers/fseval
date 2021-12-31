@@ -1,4 +1,4 @@
-import collections
+from collections.abc import Mapping, MutableMapping
 
 
 # Recursive dictionary flatten
@@ -10,7 +10,7 @@ def dict_flatten(d, parent_key="", sep="_"):
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
 
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, MutableMapping):
             items.extend(dict_flatten(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
@@ -33,11 +33,7 @@ def dict_merge(dct: dict, merge_dct: dict):
         :return: None
     """
     for k, v in merge_dct.items():
-        if (
-            k in dct
-            and isinstance(dct[k], dict)
-            and isinstance(merge_dct[k], collections.Mapping)
-        ):
+        if k in dct and isinstance(dct[k], dict) and isinstance(merge_dct[k], Mapping):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]

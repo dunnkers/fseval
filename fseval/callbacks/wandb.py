@@ -26,7 +26,7 @@ class WandbCallback(Callback):
 
         if not self.log_metrics:
             logger: Logger = getLogger(__name__)
-            logger.warn(
+            logger.warning(
                 "logging metrics was disabled by user: "
                 + "logging only summary and tables to wandb."
             )

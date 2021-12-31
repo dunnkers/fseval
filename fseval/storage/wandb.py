@@ -85,7 +85,7 @@ class WandbStorage(LocalStorage):
 
             return load_dir
         except Exception:
-            self.logger.warn(
+            self.logger.warning(
                 "Could not retrieve `save_dir` from configured wandb"
                 + " run path. Resorting to run path of current wandb run."
             )

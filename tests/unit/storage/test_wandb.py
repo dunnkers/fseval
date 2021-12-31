@@ -26,7 +26,7 @@ def test_save(request: FixtureRequest):
 
     # save some object
     df: pd.DataFrame = pd.DataFrame([{"acc": 0.8}])
-    wandb_storage: WandbStorage = WandbStorage()
+    wandb_storage: WandbStorage = WandbStorage(save_policy="now")
     wandb_storage.save(filename=filename, writer=df.to_csv)
 
     # finish run

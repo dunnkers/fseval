@@ -2,9 +2,11 @@ name: XGBoost
 classifier:
   estimator:
     _target_: xgboost.XGBClassifier
+    use_label_encoder: False
 regressor:
   estimator:
     _target_: xgboost.XGBRegressor
+    use_label_encoder: False
 multioutput: false
 estimates_feature_importances: true
 estimates_target: true
