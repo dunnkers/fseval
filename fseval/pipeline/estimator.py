@@ -7,22 +7,14 @@ from typing import Any, Dict, Optional, Union
 import numpy as np
 import pandas as pd
 from fseval.config import EstimatorConfig
-from fseval.types import (
-    AbstractEstimator,
-    AbstractStorage,
-    CacheUsage,
-    IncompatibilityError,
-    Task,
-)
+from fseval.types import (AbstractEstimator, AbstractStorage, CacheUsage,
+                          IncompatibilityError, Task)
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
-from sklearn.preprocessing import minmax_scale
 
 
 @dataclass
 class Estimator(AbstractEstimator, EstimatorConfig):
-    # make sure `estimator` is always the first property: we pass it as a positional
-    # argument in `instantiate_estimator`.
     name: str = MISSING
     task: Task = MISSING
 
@@ -72,13 +64,6 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         if self._is_fitted:
             self.logger.debug("using estimator from cache, skipping fit step.")
             return self
-
-        # rescale if necessary
-        if self.requires_positive_X:
-            X = minmax_scale(X)
-            self.logger.info(
-                "rescaled X: this estimator strictly requires positive features."
-            )
 
         # fit
         self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")

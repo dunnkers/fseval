@@ -1,0 +1,6 @@
+name: Mutual Info
+estimator:
+  _target_: tests.integration.implementations.estimators.mutual_info.MutualInfoClassifier
+_estimator_type: classifier
+multioutput: false
+estimates_feature_importances: true

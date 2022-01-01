@@ -1,6 +1,6 @@
 name: Infinite Selection
-classifier:
-  estimator:
-    _target_: tests.integration.implementations.estimators.infinite_selection.InfiniteSelectionEstimator
+estimator:
+  _target_: tests.integration.implementations.estimators.infinite_selection.InfiniteSelectionEstimator
+_estimator_type: classifier
 estimates_feature_importances: true
 estimates_feature_ranking: true

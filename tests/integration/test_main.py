@@ -16,7 +16,7 @@ def cfg() -> PipelineConfig:
         overrides=[
             "dataset=iris",
             "ranker=chi2",
-            "validator=decision_tree",
+            "validator=knn",
             "storage=mock",
         ],
     )
@@ -41,7 +41,7 @@ def incompatible_cfg() -> PipelineConfig:
         overrides=[
             "dataset=boston",
             "ranker=chi2",
-            "validator=decision_tree",
+            "validator=knn",
             "storage=mock",
         ],
     )

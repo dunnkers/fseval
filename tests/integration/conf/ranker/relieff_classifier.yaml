@@ -1,0 +1,5 @@
+name: ReliefF
+estimator:
+  _target_: skrebate.ReliefF
+_estimator_type: classifier
+estimates_feature_importances: true

@@ -1,0 +1,6 @@
+name: ReliefF
+estimator:
+  _target_: skrebate.ReliefF
+_estimator_type: regressor
+multioutput: false
+estimates_feature_importances: true
