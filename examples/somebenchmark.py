@@ -18,9 +18,7 @@ class ANOVAFValueClassifier(BaseEstimator):
 
 anova_ranker = EstimatorConfig(
     name="Anova F-Value",
-    estimator=EstimatorConfig(
-        estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"}
-    ),
+    estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"},
     _estimator_type="classifier",
     estimates_feature_importances=True,
 )
@@ -30,9 +28,7 @@ cs.store(group="ranker", name="anova_f_value", node=anova_ranker)
 ### 🧾  Define validator
 knn_estimator = EstimatorConfig(
     name="k-NN",
-    estimator=EstimatorConfig(
-        estimator={"_target_": "sklearn.neighbors.KNeighborsClassifier"}
-    ),
+    estimator={"_target_": "sklearn.neighbors.KNeighborsClassifier"},
     _estimator_type="classifier",
     estimates_target=True,
 )
