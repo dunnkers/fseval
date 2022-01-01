@@ -76,7 +76,7 @@ class EstimatorConfig:
     load_cache: Optional[CacheUsage] = CacheUsage.allow
     save_cache: Optional[CacheUsage] = CacheUsage.allow
     # tags
-    _estimator_type: str = MISSING # 'classifier', 'regressor' or 'clusterer'
+    _estimator_type: str = MISSING  # 'classifier', 'regressor' or 'clusterer'
     multioutput: bool = False
     multioutput_only: bool = False
     requires_positive_X: bool = False

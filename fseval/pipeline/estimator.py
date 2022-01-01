@@ -7,8 +7,13 @@ from typing import Any, Dict, Optional, Union
 import numpy as np
 import pandas as pd
 from fseval.config import EstimatorConfig
-from fseval.types import (AbstractEstimator, AbstractStorage, CacheUsage,
-                          IncompatibilityError, Task)
+from fseval.types import (
+    AbstractEstimator,
+    AbstractStorage,
+    CacheUsage,
+    IncompatibilityError,
+    Task,
+)
 from hydra.utils import instantiate
 from omegaconf import MISSING, OmegaConf
 
