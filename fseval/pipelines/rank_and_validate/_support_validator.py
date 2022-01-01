@@ -44,7 +44,7 @@ class SupportValidator(SubsetValidator):
         # See `SubsetValidator.score()`. This uses the validation estimator's `score()`
         # function.
         # fmt: off
-        validator_score = super(SubsetValidator, self).score(X, y)  # lgtm[py/super-not-enclosing-class]
+        validator_score = super(SubsetValidator, self).score(X, y)  # lgtm [py/super-not-enclosing-class]
         # fmt: on
         assert np.isscalar(validator_score), (
             f"'{self.validator.name}' validator score must be a scalar. That is, "
