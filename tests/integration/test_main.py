@@ -33,6 +33,18 @@ def test_run_pipeline(cfg: PipelineConfig):
     run_pipeline(cfg)
 
 
+def test_run_pipeline_n_jobs(cfg: PipelineConfig):
+    """Run pipeline on multiple cores."""
+    cfg.n_jobs = -1
+
+    # execute from temporary dir
+    tmpdir = tempfile.mkdtemp()
+    os.chdir(tmpdir)
+
+    # run pipeline
+    run_pipeline(cfg)
+
+
 @pytest.fixture
 def incompatible_cfg() -> PipelineConfig:
     config = get_config(

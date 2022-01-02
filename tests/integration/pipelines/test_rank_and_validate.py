@@ -45,12 +45,10 @@ class MockAdapter(AbstractAdapter):
         return X, y
 
 
-random_estimator: EstimatorConfig = EstimatorConfig(
-    estimator={
-        "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
-        "random_state": 0,
-    }
-)
+random_estimator = {
+    "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
+    "random_state": 0,
+}
 
 ranker: EstimatorConfig = EstimatorConfig(
     name="Random Ranker",

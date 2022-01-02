@@ -5,7 +5,7 @@ import pytest
 from fseval.config import EstimatorConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.storage.local import LocalStorage
-from fseval.types import CacheUsage, Task
+from fseval.types import CacheUsage, IncompatibilityError, Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
@@ -15,8 +15,8 @@ def estimator_cfg():
     estimator_config = EstimatorConfig(
         name="some_estimator",
         estimator={"_target_": "sklearn.tree.DecisionTreeClassifier"},
-        task=Task.classification,
         _estimator_type="classifier",
+        task=Task.classification,
         is_multioutput_dataset=False,
     )
     estimator_cfg = OmegaConf.create(estimator_config.__dict__)
@@ -74,5 +74,24 @@ def test_estimator_cache(estimator_cfg: EstimatorConfig):
 
 
 def test_incompatibility(estimator_cfg: EstimatorConfig):
-    estimator: Estimator = instantiate(estimator_cfg)
-    assert False
+    # classification estimator, but regression task
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.regression
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)
+
+    # multioutput, but estimator does not support it (`multioutput=False`)
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.classification
+    estimator_cfg.multioutput = False
+    estimator_cfg.is_multioutput_dataset = True
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)
+
+    # multioutput only, but
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.classification
+    estimator_cfg.multioutput_only = True
+    estimator_cfg.is_multioutput_dataset = False
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)

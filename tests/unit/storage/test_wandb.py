@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -47,11 +48,29 @@ def test_load(request: FixtureRequest):
     run_id: str = cache.get("run_id", None)
     filename: str = cache.get("filename", None)
 
-    # start wandb and try to restore file from previous run
+    # start wandb and initialize storage
     wandb.init(entity=ENTITY, project=PROJECT)
     wandb_storage: WandbStorage = WandbStorage(run_id=run_id)
     reader: Callable = lambda file_handle: pd.read_csv(file_handle, index_col=0)
-    df: pd.DataFrame = wandb_storage.restore(filename, reader)
+
+    # try to restore file from previous run. take 3 tries: the file may need some time
+    # to upload to the server.
+    df: pd.DataFrame = None
+    tries: int = 0
+    while df == None and tries < 3:
+        df = wandb_storage.restore(filename, reader)
+        if df is not None:
+            break
+
+        # failure
+        time.sleep(5)
+        tries += 1
+        print(
+            "file restoration failed, making new try in 5 seconds ... "
+            + f"(try {tries}/3)"
+        )
+
+    # assert file was correctly restored
     assert df is not None
     assert len(df.columns) == 1
     assert "acc" in df.columns
