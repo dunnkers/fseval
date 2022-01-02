@@ -113,6 +113,8 @@ class TestClassifiers(TestEstimator):
         estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
         _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.classification
+        cfg.ranker._estimator_type = "classifier"  # emulate as if compatible
+        cfg.validator._estimator_type = "classifier"  # emulate as if compatible
 
         return _estimator_type == "classifier" and not estimator_cfg.multioutput_only
 
@@ -129,6 +131,8 @@ class TestMultioutputClassifiers(TestClassifiers):
         estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
         _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.classification
+        cfg.ranker._estimator_type = "classifier"  # emulate as if compatible
+        cfg.validator._estimator_type = "classifier"  # emulate as if compatible
 
         return _estimator_type == "classifier" and estimator_cfg.multioutput
 
@@ -145,6 +149,8 @@ class TestRegressors(TestEstimator):
         estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
         _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.regression
+        cfg.ranker._estimator_type = "regressor"  # emulate as if compatible
+        cfg.validator._estimator_type = "regressor"  # emulate as if compatible
 
         return _estimator_type == "regressor" and not estimator_cfg.multioutput_only
 
@@ -161,6 +167,8 @@ class TestMultioutputRegressors(TestRegressors):
         estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
         _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.regression
+        cfg.ranker._estimator_type = "regressor"  # emulate as if compatible
+        cfg.validator._estimator_type = "regressor"  # emulate as if compatible
 
         return _estimator_type == "regressor" and estimator_cfg.multioutput
 
