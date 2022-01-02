@@ -1,6 +1,6 @@
 name: Chi-Squared
-classifier:
-  estimator:
-    _target_: tests.integration.implementations.estimators.chi2.Chi2Classifier
-  requires_positive_X: true
-  estimates_feature_importances: true
+estimator:
+  _target_: tests.integration.implementations.estimators.chi2.Chi2Classifier
+_estimator_type: classifier
+requires_positive_X: true
+estimates_feature_importances: true

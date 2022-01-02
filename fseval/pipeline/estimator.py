@@ -2,7 +2,7 @@ import inspect
 from dataclasses import dataclass
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
@@ -14,20 +14,45 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
-from hydra.utils import instantiate
-from omegaconf import MISSING, OmegaConf
-from sklearn.preprocessing import minmax_scale
+from omegaconf import MISSING
 
 
 @dataclass
 class Estimator(AbstractEstimator, EstimatorConfig):
-    # make sure `estimator` is always the first property: we pass it as a positional
-    # argument in `instantiate_estimator`.
     name: str = MISSING
     task: Task = MISSING
 
     logger: Logger = getLogger(__name__)
     _is_fitted: bool = False
+
+    def __post_init__(self):
+        """Perform compatibility checks after initialization. Check whether this
+        estimator is compatible with this dataset. Otherwise, raise an error. This error
+        can be caught so the pipeline can be exited gracefully."""
+
+        # dataset support: classification/regression
+        clf_support: bool = (
+            self._estimator_type == "classifier" and self.task == Task.classification
+        )
+        reg_support: bool = (
+            self._estimator_type == "regressor" and self.task == Task.regression
+        )
+        if not (clf_support or reg_support):
+            raise IncompatibilityError(
+                f"{self.name} has no estimator defined for {self.task.name} datasets."
+            )
+
+        # multioutput support
+        if self.is_multioutput_dataset and not self.multioutput:
+            raise IncompatibilityError(
+                f"dataset is multivariate but {self.name} has no multioutput support."
+            )
+
+        # only multioutput: does not support binary targets
+        if self.multioutput_only and not self.is_multioutput_dataset:
+            raise IncompatibilityError(
+                f"{self.name} only works on multioutput datasets."
+            )
 
     @classmethod
     def _get_estimator_repr(cls, estimator):
@@ -72,13 +97,6 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         if self._is_fitted:
             self.logger.debug("using estimator from cache, skipping fit step.")
             return self
-
-        # rescale if necessary
-        if self.requires_positive_X:
-            X = minmax_scale(X)
-            self.logger.info(
-                "rescaled X: this estimator strictly requires positive features."
-            )
 
         # fit
         self.logger.debug(f"Fitting {Estimator._get_class_repr(self)}...")
@@ -133,49 +151,3 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         """Store the recorded fitting time. Stored in an attribute on the estimator
         itself, so the fitting time is cached inside the estimator object."""
         setattr(self.estimator, "_fseval_internal_fit_time_", fit_time_)
-
-
-def instantiate_estimator(
-    _target_class_: str = MISSING,
-    name: str = MISSING,
-    task: Task = MISSING,
-    is_multioutput_dataset: bool = MISSING,
-    estimator: Any = None,
-    classifier: Optional[EstimatorConfig] = None,
-    regressor: Optional[EstimatorConfig] = None,
-    **top_level_tags,
-):
-    estimator_configs = dict(classification=classifier, regression=regressor)
-    estimator_config = estimator_configs[task.name] or estimator
-
-    # dataset support: classification/regression
-    if estimator_config is None:
-        raise IncompatibilityError(
-            f"{name} has no estimator defined for {task.name} datasets."
-        )
-
-    # pop `estimator` out - all that's left should be tags.
-    estimator_config = OmegaConf.to_container(estimator_config)  # type: ignore
-    estimator = estimator_config.pop("estimator")  # type: ignore
-
-    # tags. map any tag override from task-estimator to the top-level estimator
-    estimator_tags = {k: v for k, v in estimator_config.items() if v is not None}  # type: ignore
-    tags = {**top_level_tags, **estimator_tags}  # type: ignore
-
-    # multioutput support
-    if is_multioutput_dataset and not tags["multioutput"]:
-        raise IncompatibilityError(
-            f"dataset is multivariate but {name} has no multioutput support."
-        )
-
-    # only multioutput: does not support binary targets
-    if tags["multioutput_only"] and not is_multioutput_dataset:
-        raise IncompatibilityError(f"{name} only works on multioutput datasets.")
-
-    # instantiate estimator and its wrapping estimator
-    estimator = instantiate(estimator)
-    instance = instantiate(
-        {"_target_": _target_class_, **tags}, estimator, name=name, task=task
-    )
-
-    return instance

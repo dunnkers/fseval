@@ -70,30 +70,13 @@ class DatasetConfig:
 
 @dataclass
 class EstimatorConfig:
-    estimator: Any = None  # must have _target_ of type BaseEstimator.
-    load_cache: Optional[CacheUsage] = None
-    save_cache: Optional[CacheUsage] = None
-    # tags
-    multioutput: Optional[bool] = None
-    multioutput_only: Optional[bool] = None
-    requires_positive_X: Optional[bool] = None
-    estimates_feature_importances: Optional[bool] = None
-    estimates_feature_support: Optional[bool] = None
-    estimates_feature_ranking: Optional[bool] = None
-    estimates_target: Optional[bool] = None
-
-
-@dataclass
-class TaskedEstimatorConfig(EstimatorConfig):
-    _target_: str = "fseval.pipeline.estimator.instantiate_estimator"
-    _recursive_: bool = False  # don't instantiate classifier/regressor
-    _target_class_: str = "fseval.pipeline.estimator.Estimator"
+    _target_: str = "fseval.pipeline.estimator.Estimator"
     name: str = MISSING
-    classifier: Optional[EstimatorConfig] = None
-    regressor: Optional[EstimatorConfig] = None
-    load_cache: CacheUsage = CacheUsage.allow
-    save_cache: CacheUsage = CacheUsage.allow
+    estimator: Any = None  # must have _target_ of type BaseEstimator.
+    load_cache: Optional[CacheUsage] = CacheUsage.allow
+    save_cache: Optional[CacheUsage] = CacheUsage.allow
     # tags
+    _estimator_type: str = MISSING  # 'classifier', 'regressor' or 'clusterer'
     multioutput: bool = False
     multioutput_only: bool = False
     requires_positive_X: bool = False
@@ -144,8 +127,8 @@ class PipelineConfig:
     cv: CrossValidatorConfig = MISSING
     storage: StorageConfig = MISSING
     resample: ResampleConfig = MISSING
-    ranker: TaskedEstimatorConfig = MISSING
-    validator: TaskedEstimatorConfig = MISSING
+    ranker: EstimatorConfig = MISSING
+    validator: EstimatorConfig = MISSING
     callbacks: Dict[str, Any] = field(
         default_factory=lambda: {
             "_target_": "fseval.pipelines._callback_collection.CallbackCollection"

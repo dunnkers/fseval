@@ -1,0 +1,6 @@
+name: Mutual Info
+estimator:
+  _target_: tests.integration.implementations.estimators.mutual_info.MutualInfoRegressor
+_estimator_type: regressor
+multioutput: false
+estimates_feature_importances: true

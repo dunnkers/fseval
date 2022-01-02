@@ -9,7 +9,6 @@ from fseval.config import (
     EstimatorConfig,
     PipelineConfig,
     ResampleConfig,
-    TaskedEstimatorConfig,
 )
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, IncompatibilityError, Task
@@ -46,17 +45,16 @@ class MockAdapter(AbstractAdapter):
         return X, y
 
 
-random_estimator: EstimatorConfig = EstimatorConfig(
-    estimator={
-        "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
-        "random_state": 0,
-    }
-)
+random_estimator = {
+    "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
+    "random_state": 0,
+}
 
-ranker: TaskedEstimatorConfig = TaskedEstimatorConfig(
+ranker: EstimatorConfig = EstimatorConfig(
     name="Random Ranker",
     task=Task.classification,
-    classifier=random_estimator,
+    estimator=random_estimator,
+    _estimator_type="classifier",
     is_multioutput_dataset=False,
     estimates_feature_importances=True,
     estimates_feature_support=True,
@@ -64,10 +62,11 @@ ranker: TaskedEstimatorConfig = TaskedEstimatorConfig(
 )
 cs.store(name="random_ranker", node=ranker, group="ranker")
 
-validator: TaskedEstimatorConfig = TaskedEstimatorConfig(
+validator: EstimatorConfig = EstimatorConfig(
     name="Random Validator",
     task=Task.classification,
-    classifier=random_estimator,
+    estimator=random_estimator,
+    _estimator_type="classifier",
     is_multioutput_dataset=False,
     estimates_target=True,
 )

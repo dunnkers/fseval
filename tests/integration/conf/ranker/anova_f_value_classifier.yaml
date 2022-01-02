@@ -1,0 +1,5 @@
+name: ANOVA F-value
+estimator:
+  _target_: tests.integration.implementations.estimators.anova_f_value.ANOVAFValueClassifier
+_estimator_type: classifier
+estimates_feature_importances: true

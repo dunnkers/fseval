@@ -1,0 +1,8 @@
+name: XGBoost
+estimator:
+  _target_: xgboost.XGBClassifier
+  use_label_encoder: False
+_estimator_type: classifier
+multioutput: false
+estimates_feature_importances: true
+estimates_target: true

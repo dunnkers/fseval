@@ -2,35 +2,29 @@ import tempfile
 from typing import cast
 
 import pytest
-from fseval.config import EstimatorConfig, TaskedEstimatorConfig
+from fseval.config import EstimatorConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.storage.local import LocalStorage
-from fseval.types import CacheUsage, Task
+from fseval.types import CacheUsage, IncompatibilityError, Task
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
 
 @pytest.fixture
 def estimator_cfg():
-    # estimator
     estimator_config = EstimatorConfig(
-        estimator={"_target_": "sklearn.tree.DecisionTreeClassifier"}
-    )
-    estimator_cfg = OmegaConf.create(estimator_config.__dict__)
-
-    # tasked
-    tasked_estimator_config = TaskedEstimatorConfig(
         name="some_estimator",
-        classifier=estimator_cfg,
+        estimator={"_target_": "sklearn.tree.DecisionTreeClassifier"},
+        _estimator_type="classifier",
         task=Task.classification,
         is_multioutput_dataset=False,
     )
-    tasked_estimator_cfg = OmegaConf.create(tasked_estimator_config.__dict__)
+    estimator_cfg = OmegaConf.create(estimator_config.__dict__)
 
-    return tasked_estimator_cfg
+    return estimator_cfg
 
 
-def test_estimator_initiation(estimator_cfg: TaskedEstimatorConfig):
+def test_estimator_initiation(estimator_cfg: EstimatorConfig):
     estimator = instantiate(estimator_cfg)
 
     # verify attributes
@@ -47,7 +41,7 @@ def test_estimator_initiation(estimator_cfg: TaskedEstimatorConfig):
     assert score >= 0
 
 
-def test_estimator_cache(estimator_cfg: TaskedEstimatorConfig):
+def test_estimator_cache(estimator_cfg: EstimatorConfig):
     estimator_cfg.load_cache = CacheUsage.must
     estimator: Estimator = instantiate(estimator_cfg)
 
@@ -77,3 +71,27 @@ def test_estimator_cache(estimator_cfg: TaskedEstimatorConfig):
     new_estimator.fit(X, y)
     new_fit_time = new_estimator.fit_time_
     assert old_fit_time == new_fit_time
+
+
+def test_incompatibility(estimator_cfg: EstimatorConfig):
+    # classification estimator, but regression task
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.regression
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)
+
+    # multioutput, but estimator does not support it (`multioutput=False`)
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.classification
+    estimator_cfg.multioutput = False
+    estimator_cfg.is_multioutput_dataset = True
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)
+
+    # multioutput only, but
+    estimator_cfg._estimator_type = "classifier"
+    estimator_cfg.task = Task.classification
+    estimator_cfg.multioutput_only = True
+    estimator_cfg.is_multioutput_dataset = False
+    with pytest.raises(IncompatibilityError):
+        instantiate(estimator_cfg)

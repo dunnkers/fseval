@@ -1,11 +1,6 @@
 import hydra
 from fseval.adapters.openml import OpenMLDataset
-from fseval.config import (
-    DatasetConfig,
-    EstimatorConfig,
-    PipelineConfig,
-    TaskedEstimatorConfig,
-)
+from fseval.config import DatasetConfig, EstimatorConfig, PipelineConfig
 from fseval.main import run_pipeline
 from fseval.types import Task
 from hydra.core.config_store import ConfigStore
@@ -21,22 +16,20 @@ class ANOVAFValueClassifier(BaseEstimator):
         self.feature_importances_ = scores
 
 
-anova_ranker = TaskedEstimatorConfig(
+anova_ranker = EstimatorConfig(
     name="Anova F-Value",
-    classifier=EstimatorConfig(
-        estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"}
-    ),
+    estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"},
+    _estimator_type="classifier",
     estimates_feature_importances=True,
 )
 
 cs.store(group="ranker", name="anova_f_value", node=anova_ranker)
 
 ### 🧾  Define validator
-knn_estimator = TaskedEstimatorConfig(
+knn_estimator = EstimatorConfig(
     name="k-NN",
-    classifier=EstimatorConfig(
-        estimator={"_target_": "sklearn.neighbors.KNeighborsClassifier"}
-    ),
+    estimator={"_target_": "sklearn.neighbors.KNeighborsClassifier"},
+    _estimator_type="classifier",
     estimates_target=True,
 )
 

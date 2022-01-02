@@ -12,7 +12,7 @@ def cfg() -> PipelineConfig:
         overrides=[
             "dataset=iris",
             "ranker=chi2",
-            "validator=decision_tree",
+            "validator=knn",
         ],
     )
 

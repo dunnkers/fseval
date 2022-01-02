@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 import pytest
-from fseval.config import PipelineConfig
+from fseval.config import EstimatorConfig, PipelineConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.types import Task
 from fseval.utils.hydra_utils import get_group_pipeline_configs
@@ -110,10 +110,13 @@ class TestClassifiers(TestEstimator):
 
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
-        classifier = getattr(cfg, group_name).classifier
+        estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
+        _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.classification
+        cfg.ranker._estimator_type = "classifier"  # emulate as if compatible
+        cfg.validator._estimator_type = "classifier"  # emulate as if compatible
 
-        return classifier is not None and not classifier.multioutput_only
+        return _estimator_type == "classifier" and not estimator_cfg.multioutput_only
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -125,13 +128,13 @@ class TestMultioutputClassifiers(TestClassifiers):
 
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
-        estimator_cfg = getattr(cfg, group_name)
-        classifier = estimator_cfg.classifier
+        estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
+        _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.classification
+        cfg.ranker._estimator_type = "classifier"  # emulate as if compatible
+        cfg.validator._estimator_type = "classifier"  # emulate as if compatible
 
-        return classifier is not None and (
-            classifier.multioutput or estimator_cfg.multioutput
-        )
+        return _estimator_type == "classifier" and estimator_cfg.multioutput
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -143,10 +146,13 @@ class TestRegressors(TestEstimator):
 
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
-        regressor = getattr(cfg, group_name).regressor
+        estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
+        _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.regression
+        cfg.ranker._estimator_type = "regressor"  # emulate as if compatible
+        cfg.validator._estimator_type = "regressor"  # emulate as if compatible
 
-        return regressor is not None and not regressor.multioutput_only
+        return _estimator_type == "regressor" and not estimator_cfg.multioutput_only
 
     @pytest.fixture
     def y(self) -> np.ndarray:
@@ -158,13 +164,13 @@ class TestMultioutputRegressors(TestRegressors):
 
     @staticmethod
     def should_test(cfg: PipelineConfig, group_name: str) -> bool:
-        estimator_cfg = getattr(cfg, group_name)
-        regressor = estimator_cfg.regressor
+        estimator_cfg: EstimatorConfig = getattr(cfg, group_name)
+        _estimator_type = estimator_cfg._estimator_type
         cfg.dataset.task = Task.regression
+        cfg.ranker._estimator_type = "regressor"  # emulate as if compatible
+        cfg.validator._estimator_type = "regressor"  # emulate as if compatible
 
-        return regressor is not None and (
-            regressor.multioutput or estimator_cfg.multioutput
-        )
+        return _estimator_type == "regressor" and estimator_cfg.multioutput
 
     @pytest.fixture
     def y(self) -> np.ndarray:

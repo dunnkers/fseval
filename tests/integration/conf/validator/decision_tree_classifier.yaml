@@ -1,0 +1,7 @@
+name: Decision Tree
+estimator:
+  _target_: sklearn.tree.DecisionTreeClassifier
+_estimator_type: classifier
+multioutput: true
+estimates_feature_importances: true
+estimates_target: true
