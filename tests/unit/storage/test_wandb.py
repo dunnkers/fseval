@@ -30,6 +30,9 @@ def test_save(request: FixtureRequest):
     wandb_storage: WandbStorage = WandbStorage(save_policy="now")
     wandb_storage.save(filename=filename, writer=df.to_csv)
 
+    # give wandb some time to upload this file
+    time.sleep(5)
+
     # finish run
     wandb.finish()
 
