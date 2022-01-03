@@ -16,7 +16,7 @@ splitter:
   random_state: 0
 ```
 
-So, to use 10-fold CV, set `cv.splitter.n_splits=10`.
+For example: to use 10-fold CV, set `cv.splitter.n_splits=10`.
 
 ## Train/test split
 
@@ -65,3 +65,5 @@ name: Leave One Out
 splitter:
     _target_: sklearn.model_selection.LeaveOneOut
 ```
+
+Which can then be used by setting `cv=loocv` in the commandline.
