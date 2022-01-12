@@ -1,5 +1,6 @@
 import os
 import time
+from logging import Logger, getLogger
 
 import pandas as pd
 from fseval.types import TerminalColor
