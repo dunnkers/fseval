@@ -5,25 +5,42 @@ from fseval.main import run_pipeline
 from fseval.types import Task
 from hydra.core.config_store import ConfigStore
 from sklearn.base import BaseEstimator
-from sklearn.feature_selection import f_classif
+from sklearn.feature_selection import f_classif, mutual_info_classif
 
 cs = ConfigStore.instance()
 
-### 📈  Define Feature Ranker
+### 📈  Define a Feature Ranker, Anova F Value
 class ANOVAFValueClassifier(BaseEstimator):
     def fit(self, X, y):
         scores, _ = f_classif(X, y)
         self.feature_importances_ = scores
 
 
-anova_ranker = EstimatorConfig(
+anova_ranker_clf = EstimatorConfig(
     name="Anova F-Value",
-    estimator={"_target_": "somebenchmark.ANOVAFValueClassifier"},
+    estimator={"_target_": "benchmark.ANOVAFValueClassifier"},
     _estimator_type="classifier",
     estimates_feature_importances=True,
 )
+cs.store(group="ranker", name="anova_ranker_clf", node=anova_ranker_clf)
 
-cs.store(group="ranker", name="anova_f_value", node=anova_ranker)
+### 📈  Define a Feature Ranker, MutualInfo
+class MutualInfoClassifier(BaseEstimator):
+    def fit(self, X, y):
+        scores = mutual_info_classif(X, y)
+        self.feature_importances_ = scores
+
+
+mutual_info_clf = EstimatorConfig(
+    name="Mutual Info",
+    estimator={
+        "_target_": "benchmark.MutualInfoClassifier",
+    },
+    _estimator_type="classifier",
+    multioutput=False,
+    estimates_feature_importances=True,
+)
+cs.store(group="ranker", name="mutual_info_clf", node=mutual_info_clf)
 
 ### 🧾  Define validator
 knn_estimator = EstimatorConfig(

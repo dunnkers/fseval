@@ -1,0 +1,3 @@
+defaults:
+  - _self_
+  - base_pipeline_config
