@@ -35,10 +35,9 @@ class CSVCallback(BaseExportCallback):
             os.makedirs(self.dir)  # ensure directories exist
 
         # print save path
+        dir_abs_str = TerminalColor.blue(self.dir.absolute())
         self.logger: Logger = getLogger(__name__)
-        self.logger.info(
-            "CSV callback enabled. Writing .csv files to: " + f"`{self.dir.absolute()}`"
-        )
+        self.logger.info(f"CSV callback enabled. Writing .csv files to: {dir_abs_str}")
 
     def should_insert_header(self, filepath: Path) -> bool:
         if filepath.exists():
@@ -57,9 +56,9 @@ class CSVCallback(BaseExportCallback):
         df.to_csv(filepath, mode=self.mode, header=header)
 
         # log
-        abs_filepath = TerminalColor.blue(filepath.absolute())
+        filepath_abs_str = TerminalColor.blue(filepath.absolute())
         self.logger.info(
-            f"Written experiment config to: {abs_filepath} {TerminalColor.green('✓')}"
+            f"Written experiment config to: {filepath_abs_str} {TerminalColor.green('✓')}"
         )
 
     def on_table(self, df: pd.DataFrame, name: str):
@@ -74,7 +73,7 @@ class CSVCallback(BaseExportCallback):
         df.to_csv(filepath, mode=self.mode, header=header)
 
         # log table upload
-        abs_filepath = TerminalColor.blue(filepath.absolute())
+        filepath_abs_str = TerminalColor.blue(filepath.absolute())
         self.logger.info(
-            f"Written `{name}` table to: {abs_filepath} {TerminalColor.green('✓')}"
+            f"Written `{name}` table to: {filepath_abs_str} {TerminalColor.green('✓')}"
         )

@@ -137,7 +137,19 @@ class PipelineConfig:
     n_bootstraps: int = 1
     n_jobs: Optional[int] = 1
     all_features_to_select: str = "range(1, min(50, p) + 1)"
-    metrics: Dict[str, Any] = field(default_factory=dict)
+    metrics: Dict[str, Any] = field(
+        default_factory=lambda: {
+            "feature_importance": {
+                "_target_": "fseval.pipelines.rank_and_validate.metrics.feature_importance.upload_table.UploadFeatureImportances"
+            },
+            "ranking_scores": {
+                "_target_": "fseval.pipelines.rank_and_validate.metrics.upload_ranking_scores.UploadRankingScores"
+            },
+            "validation_scores": {
+                "_target_": "fseval.pipelines.rank_and_validate.metrics.upload_validation_scores.UploadValidationScores"
+            },
+        }
+    )
 
 
 cs.store("base_pipeline_config", PipelineConfig)
