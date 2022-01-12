@@ -56,6 +56,7 @@ def test_on_begin(to_sql: SQLCallback, config: DictConfig):
     df: pd.DataFrame = pd.read_sql("experiments", con=to_sql.engine, index_col="id")
 
     # assert columns
+    assert "id" == df.index.name
     assert "dataset" in df.columns
     assert "dataset/n" in df.columns
     assert "dataset/p" in df.columns
@@ -80,6 +81,7 @@ def test_on_table(to_sql: SQLCallback, config: DictConfig):
     df: pd.DataFrame = pd.read_sql("some_table", con=to_sql.engine, index_col="id")
 
     # assert table columns and record types
+    assert "id" == df.index.name
     assert "some_metric" in df.columns
     assert np.isscalar(df["some_metric"][0])
     assert len(df) == 1

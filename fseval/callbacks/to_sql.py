@@ -2,16 +2,22 @@ import os
 import time
 
 import pandas as pd
-from fseval.types import Callback
 from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
 from sqlalchemy import create_engine
 
+from ._base_export_callback import BaseExportCallback
 
-class SQLCallback(Callback):
+
+class SQLCallback(BaseExportCallback):
     """SQL support for fseval. Uploads general information on the experiment to
     a `experiments` table and provides a hook for uploading custom tables. Use the
     `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
+
+    Support for SQL exports is achieved through using Pandas `df.to_sql` function. This
+    function, in its turn, then uses SQLAlchemy to export to SQL. Therefore, to use this
+    callback, it is required you configure the `engine.url` parameter, used to connect
+    with the database.
     """
 
     def __init__(self, **kwargs):
@@ -36,38 +42,19 @@ class SQLCallback(Callback):
         )
 
     def on_begin(self, config: DictConfig):
-        prepared_cfg = {
-            "dataset": config.dataset.name,
-            "dataset/n": config.dataset.n,
-            "dataset/p": config.dataset.p,
-            "dataset/task": config.dataset.task.name,  # `.name` because Enum
-            "dataset/group": config.dataset.group,
-            "dataset/domain": config.dataset.domain,
-            "ranker": config.ranker.name,
-            "validator": config.validator.name,
-            "local_dir": os.getcwd(),
-        }
-
-        # add random id
-        self.id: str = generate_shortuuid()
-        prepared_cfg["id"] = self.id
+        df = self.get_experiment_config(config)
 
         # create SQL engine
         self.engine = create_engine(**self.engine_kwargs)
 
-        # upload experiment config to database
-        df = pd.DataFrame([prepared_cfg])
-        df = df.set_index("id")
-        df["date_created"] = pd.Timestamp(time.time(), unit="s")
-
+        # upload experiment config to SQL database
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
 
     def on_table(self, df: pd.DataFrame, name: str):
-        assert hasattr(self, "id") and type(self.id) == str, (
-            "No database shortuuid. SQL callback was not properly invoked at "
-            + "the start of the pipeline. Make sure `on_begin` is always called."
-        )
+        # make sure experiment `id` is added to this table. this allows a user to JOIN
+        # the results back into each other, after being distributed over several
+        # database tables.
+        df = self.add_experiment_id(df)
 
-        df["id"] = self.id
-        df.set_index(["id"], append=True)
+        # upload table to SQL database
         df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
