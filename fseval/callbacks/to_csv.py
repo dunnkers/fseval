@@ -1,8 +1,10 @@
 import os
 import time
+from logging import Logger, getLogger
 from pathlib import Path
 
 import pandas as pd
+from fseval.types import TerminalColor
 from omegaconf import DictConfig, OmegaConf
 
 from ._base_export_callback import BaseExportCallback
@@ -19,7 +21,7 @@ class CSVCallback(BaseExportCallback):
 
         # extract config
         self.dir = kwargs.get("dir")
-        # self.if_table_exists = kwargs.get("if_table_exists", "append")
+        self.mode = kwargs.get("mode", "a")
 
         # assert dir param was given
         assert self.dir, (
@@ -29,12 +31,36 @@ class CSVCallback(BaseExportCallback):
 
         # upgrade dir to Path type
         self.dir = Path(self.dir)
+        if not self.dir.exists():
+            os.makedirs(self.dir)  # ensure directories exist
+
+        # print save path
+        self.logger: Logger = getLogger(__name__)
+        self.logger.info(
+            "CSV callback enabled. Writing .csv files to: " + f"`{self.dir.absolute()}`"
+        )
+
+    def should_insert_header(self, filepath: Path) -> bool:
+        if filepath.exists():
+            # when the target `.csv` file already exists, omit header.
+            return False
+        else:
+            # otherwise, add a header to the csv file.
+            return True
 
     def on_begin(self, config: DictConfig):
         df = self.get_experiment_config(config)
 
         # write experiment config to `experiments.csv`
-        df.to_csv(self.dir / "experiments.csv")
+        filepath = self.dir / "experiments.csv"
+        header = self.should_insert_header(filepath)
+        df.to_csv(filepath, mode=self.mode, header=header)
+
+        # log
+        abs_filepath = TerminalColor.blue(filepath.absolute())
+        self.logger.info(
+            f"Written experiment config to: {abs_filepath} {TerminalColor.green('✓')}"
+        )
 
     def on_table(self, df: pd.DataFrame, name: str):
         # make sure experiment `id` is added to this table. this allows a user to JOIN
@@ -42,5 +68,13 @@ class CSVCallback(BaseExportCallback):
         # database tables.
         df = self.add_experiment_id(df)
 
-        # upload table to CSV database
-        df.to_csv(self.dir / f"{name}.csv")
+        # upload table to CSV file, named after the table name
+        filepath = self.dir / f"{name}.csv"
+        header = self.should_insert_header(filepath)
+        df.to_csv(filepath, mode=self.mode, header=header)
+
+        # log table upload
+        abs_filepath = TerminalColor.blue(filepath.absolute())
+        self.logger.info(
+            f"Written `{name}` table to: {abs_filepath} {TerminalColor.green('✓')}"
+        )

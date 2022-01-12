@@ -73,7 +73,9 @@ def test_on_table(config: DictConfig):
     """Tests whether the callback successfully stores data in csv files when calling the
     `on_table` callback."""
 
-    tmpdir = Path(tempfile.mkdtemp())
+    # create temporary dir, with one nesting level. this ensures the callback is able
+    # to create subdirectories by itself.
+    tmpdir = Path(tempfile.mkdtemp()) / "some_sub_dir"
     to_csv = CSVCallback(dir=tmpdir)
 
     # store dataframe in table
@@ -87,7 +89,8 @@ def test_on_table(config: DictConfig):
     to_csv.on_table(df_to_store, name)
 
     # retrieve using Pandas
-    df: pd.DataFrame = pd.read_csv(tmpdir / "some_table.csv", index_col="id")
+    filepath: Path = tmpdir / "some_table.csv"
+    df: pd.DataFrame = pd.read_csv(filepath, index_col="id")
 
     # assert table columns and record types
     assert "id" == df.index.name

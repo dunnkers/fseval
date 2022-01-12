@@ -2,6 +2,7 @@ import os
 import time
 
 import pandas as pd
+from fseval.types import TerminalColor
 from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
 from sqlalchemy import create_engine
@@ -41,6 +42,10 @@ class SQLCallback(BaseExportCallback):
             + "This is required to set up SQLAlchemy."
         )
 
+        # log - tell user callback is enabled
+        self.logger: Logger = getLogger(__name__)
+        self.logger.info("SQL callback enabled.")
+
     def on_begin(self, config: DictConfig):
         df = self.get_experiment_config(config)
 
@@ -49,6 +54,10 @@ class SQLCallback(BaseExportCallback):
 
         # upload experiment config to SQL database
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
+        self.logger.info(
+            f"Written experiment config to {TerminalColor.blue('experiments')} SQL table "
+            + f"{TerminalColor.green('✓')}"
+        )
 
     def on_table(self, df: pd.DataFrame, name: str):
         # make sure experiment `id` is added to this table. this allows a user to JOIN
@@ -58,3 +67,7 @@ class SQLCallback(BaseExportCallback):
 
         # upload table to SQL database
         df.to_sql(name, con=self.engine, if_exists=self.if_table_exists)
+        self.logger.info(
+            f"Uploaded results to {TerminalColor.blue(name)} SQL table "
+            + f"{TerminalColor.green('✓')}"
+        )
