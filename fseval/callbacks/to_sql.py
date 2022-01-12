@@ -8,14 +8,14 @@ from omegaconf import DictConfig, OmegaConf
 from sqlalchemy import create_engine
 
 
-class SQLAlchemyCallback(Callback):
-    """SQLAlchemy support for fseval. Uploads general information on the experiment to
+class SQLCallback(Callback):
+    """SQL support for fseval. Uploads general information on the experiment to
     a `experiments` table and provides a hook for uploading custom tables. Use the
     `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
     """
 
     def __init__(self, **kwargs):
-        super(SQLAlchemyCallback, self).__init__()
+        super(SQLCallback, self).__init__()
 
         # make sure any nested objects are casted from DictConfig's to regular dict's.
         kwargs = OmegaConf.create(kwargs)
@@ -25,13 +25,15 @@ class SQLAlchemyCallback(Callback):
         self.engine_kwargs = kwargs.get("engine")
         self.if_table_exists = kwargs.get("if_table_exists", "append")
 
-        assert (
-            self.engine_kwargs
-        ), "The SQL Alchemy callback did not receive a `engine` param."
+        assert self.engine_kwargs, (
+            "The SQL callback did not receive a `engine` param. "
+            + "This is required to set up SQLAlchemy."
+        )
 
-        assert self.engine_kwargs.get(
-            "url"
-        ), "The SQL Alchemy callback did not receive a `engine.url` param."
+        assert self.engine_kwargs.get("url"), (
+            "The SQL callback did not receive a `engine.url` param. "
+            + "This is required to set up SQLAlchemy."
+        )
 
     def on_begin(self, config: DictConfig):
         prepared_cfg = {
@@ -62,7 +64,7 @@ class SQLAlchemyCallback(Callback):
 
     def on_table(self, df: pd.DataFrame, name: str):
         assert hasattr(self, "id") and type(self.id) == str, (
-            "No database shortuuid. SQL Alchemy callback was not properly invoked at "
+            "No database shortuuid. SQL callback was not properly invoked at "
             + "the start of the pipeline. Make sure `on_begin` is always called."
         )
 
