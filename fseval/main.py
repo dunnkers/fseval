@@ -3,7 +3,7 @@ from logging import getLogger
 from os import getcwd
 from pathlib import Path
 from traceback import print_exc
-from typing import cast
+from typing import Dict, Optional, cast
 
 from hydra.core.utils import _save_config
 from hydra.utils import instantiate
@@ -16,7 +16,7 @@ from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 def run_pipeline(
     cfg: PipelineConfig, raise_incompatibility_errors: bool = False
-) -> None:
+) -> Optional[Dict]:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
 
@@ -51,7 +51,7 @@ def run_pipeline(
         if raise_incompatibility_errors:
             raise e
         else:
-            return
+            return None
 
     # run pipeline
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
@@ -116,3 +116,7 @@ def run_pipeline(
     )
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
+
+    # return final scores
+    scores = cast(Dict, scores)
+    return scores

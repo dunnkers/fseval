@@ -23,41 +23,43 @@ Key features 🚀:
 
 ## Getting started
 
-Given the following directory structure:
+Given the following [directory](https://github.com/dunnkers/fseval/tree/master/examples/quick-start) structure:
 ```shell
-$ tree examples/my-first-benchmark 
-examples/my-first-benchmark
-├── README.md
-├── conf
-│   ├── dataset
-│   │   └── iris.yaml
-│   ├── ranker
-│   │   └── boruta.yaml
-│   └── validator
-│       └── decision_tree.yaml
-└── requirements.txt
+$ tree
+.
+├── benchmark.py
+└── conf
+    ├── my_config.yaml
+    ├── dataset
+    │   └── iris.yaml
+    ├── ranker
+    │   └── relieff.yaml
+    └── validator
+        └── knn.yaml
 
 4 directories, 5 files
 ```
 
 
-A simple example:
-```python title="quickstart.py"
+And the file `benchmark.py`:
+```python title="benchmark.py"
 import hydra
 from fseval.config import PipelineConfig
 from fseval.main import run_pipeline
 
-@hydra.main(config_path=None, config_name="my_config")
+
+@hydra.main(config_path="conf", config_name="my_config")
 def main(cfg: PipelineConfig) -> None:
     run_pipeline(cfg)
+
 
 if __name__ == "__main__":
     main()
 ```
 
 
-Then running:
+We can then run a benchmark like so:
 ```shell
-python quickstart.py dataset=iris ranker=boruta validator=decision_tree
+python benchmark.py dataset=iris ranker=relieff validator=knn
 ```
-
+![Locale Dropdown](/img/quick-start/terminal.svg)

@@ -8,8 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'fseval',
   tagline: 'Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀',
-  url: 'https://dunnkers.com/fseval',
-  baseUrl: '/',
+  url: 'https://dunnkers.com',
+  baseUrl: '/fseval/',
   trailingSlash: true,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
