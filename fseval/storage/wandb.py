@@ -3,9 +3,8 @@ from logging import Logger, getLogger
 from os import path
 from typing import Any, Callable, Optional
 
-from fseval.types import TerminalColor
-
 import wandb
+from fseval.types import TerminalColor
 
 from .local import LocalStorage
 
@@ -130,7 +129,7 @@ class WandbStorage(LocalStorage):
         super(WandbStorage, self).save(filename, writer, mode)
 
         # save to wandb
-        wandb.save(filename, base_path="/", policy=self.save_policy)  # type: ignore
+        wandb.save(filename, policy=self.save_policy)  # type: ignore
         self.logger.info(
             f"uploaded {TerminalColor.blue(filename)} to "
             + TerminalColor.yellow("wandb servers")

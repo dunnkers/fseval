@@ -35,6 +35,7 @@ with open("README.md", "r") as fh:
             "scikit-learn>=0.24",
             "humanfriendly>=9",
             "shortuuid>=1.0",
+            "overrides>=6",
         ],
         python_requires=">= 3.7",
         setup_requires=["black==21.12b0", "pytest-runner>=5"],

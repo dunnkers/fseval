@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
+from hydra.utils import instantiate
+
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.utils.hydra_utils import get_group_pipeline_configs
-from hydra.utils import instantiate
 
 from ._group_test_utils import ShouldTestGroupItem
 

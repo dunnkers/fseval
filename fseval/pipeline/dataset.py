@@ -4,10 +4,11 @@ from logging import Logger, getLogger
 from typing import Optional, Tuple, Union
 
 import numpy as np
-from fseval.config import DatasetConfig
-from fseval.types import TerminalColor
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
+
+from fseval.config import DatasetConfig
+from fseval.types import TerminalColor
 
 
 @dataclass

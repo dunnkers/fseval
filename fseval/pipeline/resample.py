@@ -1,9 +1,10 @@
 import logging
 from typing import Optional
 
-from fseval.config import ResampleConfig
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import resample
+
+from fseval.config import ResampleConfig
 
 logger = logging.getLogger(__name__)
 

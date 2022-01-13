@@ -4,10 +4,11 @@ from typing import Callable
 
 import pandas as pd
 import pytest
+from pytest import FixtureRequest
+
 import wandb
 from fseval.storage.wandb import WandbStorage
 from fseval.utils.uuid_utils import generate_shortuuid
-from pytest import FixtureRequest
 from wandb.apis.public import Api, Run
 
 ENTITY: str = "fseval"
@@ -31,7 +32,7 @@ def test_save(request: FixtureRequest):
     wandb_storage.save(filename=filename, writer=df.to_csv)
 
     # give wandb some time to upload this file
-    time.sleep(5)
+    time.sleep(15)
 
     # finish run
     wandb.finish()
@@ -43,6 +44,7 @@ def test_save(request: FixtureRequest):
     cache.set("filename", filename)
 
 
+@pytest.mark.xfail(reason="Weights and Biases might not have saved the file correctly.")
 @pytest.mark.dependency(depends=["test_save"])
 def test_load(request: FixtureRequest):
     # retrieve previous run id from cache
@@ -74,7 +76,9 @@ def test_load(request: FixtureRequest):
         )
 
     # assert file was correctly restored
-    assert df is not None
+    assert (
+        df is not None
+    ), "DataFrame should be recovered using `wandb_storage.restore`."
     assert len(df.columns) == 1
     assert "acc" in df.columns
     assert df["acc"][0] == 0.8

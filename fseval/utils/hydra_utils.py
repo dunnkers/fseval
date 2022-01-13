@@ -1,10 +1,11 @@
 from typing import Callable, List, Optional, Tuple
 
-from fseval.config import PipelineConfig
 from hydra import compose, initialize_config_module
 from hydra.core.config_loader import ConfigLoader
 from hydra.core.global_hydra import GlobalHydra
 from hydra.core.object_type import ObjectType
+
+from fseval.config import PipelineConfig
 
 """Helper functions for Hydra-related operations. e.g. finding out what options are
 available for some group, or getting a specific config for some group item. Enables

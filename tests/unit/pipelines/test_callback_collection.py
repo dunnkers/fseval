@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 import pandas as pd
+from omegaconf import DictConfig, OmegaConf
+
 from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import Callback
-from omegaconf import DictConfig, OmegaConf
 
 
 @dataclass

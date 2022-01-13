@@ -2,12 +2,13 @@ import tempfile
 from typing import cast
 
 import pytest
+from hydra.utils import instantiate
+from omegaconf import OmegaConf
+
 from fseval.config import EstimatorConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.storage.local import LocalStorage
 from fseval.types import CacheUsage, IncompatibilityError, Task
-from hydra.utils import instantiate
-from omegaconf import OmegaConf
 
 
 @pytest.fixture

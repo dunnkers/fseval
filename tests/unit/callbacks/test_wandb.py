@@ -1,11 +1,12 @@
 import pandas as pd
 import pytest
+from omegaconf import DictConfig, OmegaConf
+from pytest import FixtureRequest
+
 import wandb
 from fseval.callbacks.wandb import WandbCallback
 from fseval.utils.dict_utils import dict_merge
 from fseval.utils.uuid_utils import generate_shortuuid
-from omegaconf import DictConfig, OmegaConf
-from pytest import FixtureRequest
 from wandb.apis.public import Api, Run
 from wandb.errors import CommError
 

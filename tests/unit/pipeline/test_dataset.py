@@ -3,9 +3,10 @@ from typing import Any
 
 import numpy as np
 import pytest
+from omegaconf import OmegaConf
+
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, Task
-from omegaconf import OmegaConf
 
 
 @dataclass

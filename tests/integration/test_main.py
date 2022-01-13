@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pytest
+
 from fseval.config import PipelineConfig
 from fseval.main import run_pipeline
 from fseval.types import IncompatibilityError

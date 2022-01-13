@@ -1,2 +1,0 @@
-sql_alchemy:
-  _target_: fseval.callbacks.sql_alchemy.SQLAlchemyCallback
