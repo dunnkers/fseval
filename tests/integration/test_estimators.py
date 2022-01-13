@@ -2,12 +2,13 @@ import itertools
 
 import numpy as np
 import pytest
+from hydra.utils import instantiate
+from sklearn.base import clone
+
 from fseval.config import EstimatorConfig, PipelineConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.types import Task
 from fseval.utils.hydra_utils import get_group_pipeline_configs
-from hydra.utils import instantiate
-from sklearn.base import clone
 
 from ._group_test_utils import ShouldTestGroupItem
 

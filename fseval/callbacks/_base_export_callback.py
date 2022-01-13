@@ -2,9 +2,10 @@ import os
 import time
 
 import pandas as pd
+from omegaconf import DictConfig
+
 from fseval.types import Callback
 from fseval.utils.uuid_utils import generate_shortuuid
-from omegaconf import DictConfig
 
 
 class BaseExportCallback(Callback):

@@ -3,6 +3,10 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 import pandas as pd
 import pytest
+from hydra.core.config_store import ConfigStore
+from hydra.utils import instantiate
+from sklearn.base import BaseEstimator
+
 from fseval.config import (
     CrossValidatorConfig,
     DatasetConfig,
@@ -13,9 +17,6 @@ from fseval.config import (
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from fseval.utils.hydra_utils import get_config
-from hydra.core.config_store import ConfigStore
-from hydra.utils import instantiate
-from sklearn.base import BaseEstimator
 
 cs = ConfigStore.instance()
 

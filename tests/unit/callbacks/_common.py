@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Callable
 
 import numpy as np
 import pandas as pd
 import pytest
-from fseval.types import Callback, Task
 from omegaconf import DictConfig, OmegaConf
+
+from fseval.types import Callback, Task
 
 
 class BaseCallbackTest(ABC):

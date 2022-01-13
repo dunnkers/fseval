@@ -1,8 +1,9 @@
 import hydra
-from fseval.config import PipelineConfig
-from fseval.main import run_pipeline
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import f_classif, mutual_info_classif
+
+from fseval.config import PipelineConfig
+from fseval.main import run_pipeline
 
 
 class ANOVAFValueClassifier(BaseEstimator):

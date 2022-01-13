@@ -1,12 +1,11 @@
 from typing import cast
 
-import numpy as np
 import pandas as pd
 import pytest
-from fseval.callbacks.to_sql import SQLCallback
-from fseval.types import Callback, Task
-from omegaconf import DictConfig, OmegaConf
 from overrides import overrides
+
+from fseval.callbacks.to_sql import SQLCallback
+from fseval.types import Callback
 
 from ._common import BaseCallbackTest
 

@@ -1,7 +1,8 @@
 import pytest
+from omegaconf import DictConfig
+
 from fseval.config import PipelineConfig
 from fseval.utils.hydra_utils import get_config
-from omegaconf import DictConfig
 
 
 @pytest.fixture

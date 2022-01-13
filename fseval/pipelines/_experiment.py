@@ -7,9 +7,10 @@ from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
+from humanfriendly import format_timespan
+
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, TerminalColor
-from humanfriendly import format_timespan
 
 
 @dataclass

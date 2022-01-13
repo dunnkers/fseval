@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from fseval.types import AbstractAdapter
 from omegaconf import MISSING
 
 import wandb
+from fseval.types import AbstractAdapter
 
 
 @dataclass

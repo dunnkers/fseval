@@ -3,9 +3,8 @@ from logging import Logger, getLogger
 from os import path
 from typing import Any, Callable, Optional
 
-from fseval.types import TerminalColor
-
 import wandb
+from fseval.types import TerminalColor
 
 from .local import LocalStorage
 

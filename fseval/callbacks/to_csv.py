@@ -1,11 +1,10 @@
-import os
-import time
 from logging import Logger, getLogger
 from pathlib import Path
 
 import pandas as pd
+from omegaconf import DictConfig
+
 from fseval.types import TerminalColor
-from omegaconf import DictConfig, OmegaConf
 
 from ._base_export_callback import BaseExportCallback
 
