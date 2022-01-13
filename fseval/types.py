@@ -49,12 +49,6 @@ class AbstractEstimator(ABC, BaseEstimator):
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         ...
 
-    def transform(self, X, y):
-        ...
-
-    def fit_transform(self, X, y):
-        ...
-
 
 class AbstractAdapter(ABC, BaseEstimator):
     @abstractmethod
@@ -120,14 +114,6 @@ class AbstractPipeline(AbstractEstimator, ABC):
 
 class TerminalColor:
     @staticmethod
-    def black(text):
-        return f"\u001b[30m{text}\u001b[0m"
-
-    @staticmethod
-    def red(text):
-        return f"\u001b[31m{text}\u001b[0m"
-
-    @staticmethod
     def green(text):
         return f"\u001b[32m{text}\u001b[0m"
 
@@ -146,10 +132,6 @@ class TerminalColor:
     @staticmethod
     def cyan(text):
         return f"\u001b[36m{text}\u001b[0m"
-
-    @staticmethod
-    def grey(text):
-        return f"\u001b[37m{text}\u001b[0m"
 
 
 class AbstractMetric:

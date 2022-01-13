@@ -1,12 +1,11 @@
 import pandas as pd
 import pytest
-from omegaconf import DictConfig, OmegaConf
-from pytest import FixtureRequest
-
 import wandb
 from fseval.callbacks.wandb import WandbCallback
 from fseval.utils.dict_utils import dict_merge
 from fseval.utils.uuid_utils import generate_shortuuid
+from omegaconf import DictConfig, OmegaConf
+from pytest import FixtureRequest
 from wandb.apis.public import Api, Run
 from wandb.errors import CommError
 
@@ -37,6 +36,14 @@ def test_init():
     # disable metrics
     wandb_callback = WandbCallback(log_metrics=False)
     assert wandb_callback.log_metrics == False
+
+
+def test_on_begin_parameters():
+    wandb_callback = WandbCallback(some_unknown_metric=False)
+
+    # verify a TypeError is raised when unknown parameters are passed
+    with pytest.raises(TypeError):
+        wandb_callback.on_begin(OmegaConf.create({}))
 
 
 @pytest.mark.dependency()

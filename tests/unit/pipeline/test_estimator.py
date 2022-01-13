@@ -2,13 +2,13 @@ import tempfile
 from typing import cast
 
 import pytest
-from hydra.utils import instantiate
-from omegaconf import OmegaConf
-
 from fseval.config import EstimatorConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.storage.local import LocalStorage
 from fseval.types import CacheUsage, IncompatibilityError, Task
+from hydra.utils import instantiate
+from omegaconf import OmegaConf
+from sklearn.base import BaseEstimator
 
 
 @pytest.fixture
@@ -96,3 +96,26 @@ def test_incompatibility(estimator_cfg: EstimatorConfig):
     estimator_cfg.is_multioutput_dataset = False
     with pytest.raises(IncompatibilityError):
         instantiate(estimator_cfg)
+
+
+class FakeFeatureRanker(BaseEstimator):
+    def fit(self, X, y):
+        ...
+        # does nothing! i.e. this fake ranker does not set the `feature_importances_`
+        # or `coef_` attributes.
+
+
+def test_invalid_feature_importances(estimator_cfg: EstimatorConfig):
+    """When a ranker sets `estimates_feature_importances`, it should have one of two
+    attributes after being fit: `feature_importances_` or `coef_`. If none are present
+    on the estimator object, a `ValueError` should be thrown."""
+
+    estimator_cfg.estimator = {
+        "_target_": "tests.unit.pipeline.test_estimator.FakeFeatureRanker"
+    }
+    estimator_cfg.estimates_feature_importances = True
+
+    # error should be raised when accessing `.feature_importances`
+    estimator: Estimator = instantiate(estimator_cfg)
+    with pytest.raises(ValueError):
+        print(estimator.feature_importances_)  # trying to access `.feature_importances`

@@ -1,0 +1,85 @@
+_target_: fseval.pipelines.rank_and_validate.BootstrappedRankAndValidate
+pipeline: rank-and-validate
+dataset:
+  _target_: fseval.pipeline.dataset.DatasetLoader
+  _recursive_: false
+  name: Iris Flowers
+  task: classification
+  adapter:
+    _target_: fseval.adapters.openml.OpenML
+    dataset_id: 61
+    target_column: class
+    drop_qualitative: true
+  adapter_callable: get_data
+  feature_importances: null
+  group: null
+  domain: nature
+  'n': 150
+  p: 4
+  multioutput: false
+cv:
+  _target_: fseval.pipeline.cv.CrossValidator
+  name: K-Fold
+  splitter:
+    _target_: sklearn.model_selection.KFold
+    n_splits: 5
+    shuffle: true
+    random_state: 0
+  fold: 0
+storage:
+  _target_: fseval.storage.mock.MockStorage
+  load_dir: null
+  save_dir: null
+resample:
+  _target_: fseval.pipeline.resample.Resample
+  name: Shuffle
+  replace: false
+  sample_size: 1.0
+  random_state: null
+  stratify: null
+ranker:
+  _target_: fseval.pipeline.estimator.Estimator
+  name: FailingRanker
+  estimator:
+    _target_: tests.integration.test_main.FailingRanker
+  load_cache: allow
+  save_cache: allow
+  _estimator_type: classifier
+  multioutput: false
+  multioutput_only: false
+  requires_positive_X: false
+  estimates_feature_importances: true
+  estimates_feature_support: false
+  estimates_feature_ranking: false
+  estimates_target: false
+  task: ${dataset.task}
+  is_multioutput_dataset: ${dataset.multioutput}
+validator:
+  _target_: fseval.pipeline.estimator.Estimator
+  name: k-NN
+  estimator:
+    _target_: sklearn.neighbors.KNeighborsClassifier
+  load_cache: allow
+  save_cache: allow
+  _estimator_type: classifier
+  multioutput: false
+  multioutput_only: false
+  requires_positive_X: false
+  estimates_feature_importances: false
+  estimates_feature_support: false
+  estimates_feature_ranking: false
+  estimates_target: true
+  task: ${dataset.task}
+  is_multioutput_dataset: ${dataset.multioutput}
+callbacks:
+  _target_: fseval.pipelines._callback_collection.CallbackCollection
+n_bootstraps: 1
+n_jobs: 1
+all_features_to_select: range(1, min(50, p) + 1)
+metrics:
+  feature_importance:
+    _target_: fseval.pipelines.rank_and_validate.metrics.feature_importance.upload_table.UploadFeatureImportances
+  ranking_scores:
+    _target_: fseval.pipelines.rank_and_validate.metrics.upload_ranking_scores.UploadRankingScores
+  validation_scores:
+    _target_: fseval.pipelines.rank_and_validate.metrics.upload_validation_scores.UploadValidationScores

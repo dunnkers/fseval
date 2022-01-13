@@ -6,8 +6,6 @@ from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
-from omegaconf import MISSING
-
 from fseval.config import EstimatorConfig
 from fseval.types import (
     AbstractEstimator,
@@ -16,6 +14,7 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
+from omegaconf import MISSING
 
 
 @dataclass
@@ -107,16 +106,6 @@ class Estimator(AbstractEstimator, EstimatorConfig):
         self.fit_time_ = fit_time
 
         return self
-
-    def transform(self, X, y):
-        self.logger.debug(f"Using {Estimator._get_class_repr(self)} transform...")
-        return self.estimator.transform(X, y)
-
-    def fit_transform(self, X, y):
-        self.logger.debug(
-            f"Fitting and transforming {Estimator._get_class_repr(self)}..."
-        )
-        return self.fit(X, y).transform(X, y)
 
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         self.logger.debug(f"Scoring {Estimator._get_class_repr(self)}...")
