@@ -1,0 +1,2 @@
+to_excel:
+  _target_: fseval.callbacks.to_excel.ExcelCallback
