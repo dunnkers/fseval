@@ -31,8 +31,10 @@ class CSVCallback(BaseExportCallback):
 
         # upgrade dir to Path type
         self.dir = Path(self.dir)
-        if not self.dir.exists():
-            os.makedirs(self.dir)  # ensure directories exist
+
+        # create directories where necessary
+        if not self.dir.is_dir():  # ensure directories exist
+            self.dir.mkdir(parents=True)  # parents=True so creates recursively
 
         # print save path
         dir_abs_str = TerminalColor.blue(self.dir.absolute())
