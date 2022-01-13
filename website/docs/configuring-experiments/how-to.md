@@ -3,7 +3,7 @@ sidebar_position: 0
 ---
 
 # How to configure experiments
-All the pipeline needs to run is a well-defined configuration. All classes are automatically instantiated, i.e. everything that has `_target_` attributes. The requirement is that whatever is passed into [`run_pipeline`](/docs/running-experiments/) is a `PipelineConfig` object.
+All the pipeline needs to run is a well-defined configuration. All classes are automatically instantiated, i.e. everything that has `_target_` attributes. The requirement is that whatever is passed into [`run_pipeline`](/docs/running-experiments/running-first-experiment) is a `PipelineConfig` object.
 
 The complete pipeline configuration is as follows:
 
