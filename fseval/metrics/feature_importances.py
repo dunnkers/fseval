@@ -7,10 +7,6 @@ from fseval.types import AbstractEstimator, AbstractMetric, Callback
 
 
 class UploadFeatureImportances(AbstractMetric):
-    def __init__(self, clip_to_zero: bool = False):
-        super(UploadFeatureImportances, self).__init__()
-        self.clip_to_zero = clip_to_zero
-
     def _build_table(self, feature_vector: np.ndarray):
         """Takes a feature importances vector of type (n_features) or
         (n_classes, n_features)."""
@@ -55,16 +51,10 @@ class UploadFeatureImportances(AbstractMetric):
 
         feature_importances = np.asarray(feature_importances)
 
-        # Set negative scores to zero, in case enabled.
-        if self.clip_to_zero:
-            feature_importances = np.clip(feature_importances, a_min=0, a_max=None)
-
         # get ranker feature importances, check whether all components > 0
         assert not (feature_importances < 0).any(), (
             "Estimated or ground-truth feature importances must be strictly positive."
             + " Some feature importance scores were negative."
-            + " To set all negative feature importance scores to 0.0, set "
-            + "`clip_to_zero` to `true`."
         )
 
         # normalize

@@ -27,16 +27,6 @@ Install fseval:
 ```shell
 pip install fseval
 ```
-<!-- 
-Also, we are going to use some external resources. We are going to use:
-
-- [openml](https://openml.github.io/openml-python/main/#how-to-get-openml-for-python) for datasets
-- [skrebate](https://github.com/EpistasisLab/scikit-rebate) for 
--  -->
-
-<!-- ```shell
-pip install openml skrebate
-``` -->
 
 Given the following [directory](https://github.com/dunnkers/fseval/tree/master/examples/quick-start) structure:
 ```shell
@@ -46,9 +36,10 @@ $ tree
 └── conf
     ├── my_config.yaml
     ├── dataset
-    │   └── iris.yaml
+    │   └── synthetic_dataset.yaml
     ├── ranker
-    │   └── relieff.yaml
+    │   ├── anova.yaml
+    │   └── mutual_info.yaml
     └── validator
         └── knn.yaml
 
@@ -61,6 +52,20 @@ And the file `benchmark.py`:
 import hydra
 from fseval.config import PipelineConfig
 from fseval.main import run_pipeline
+from sklearn.base import BaseEstimator
+from sklearn.feature_selection import f_classif, mutual_info_classif
+
+
+class ANOVAFValueClassifier(BaseEstimator):
+    def fit(self, X, y):
+        scores, _ = f_classif(X, y)
+        self.feature_importances_ = scores
+
+
+class MutualInfoClassifier(BaseEstimator):
+    def fit(self, X, y):
+        scores = mutual_info_classif(X, y)
+        self.feature_importances_ = scores
 
 
 @hydra.main(config_path="conf", config_name="my_config")
@@ -75,6 +80,18 @@ if __name__ == "__main__":
 
 We can then run a benchmark like so:
 ```shell
-python benchmark.py dataset=iris ranker=relieff validator=knn
+python benchmark.py --multirun ranker='glob(*)'
 ```
 ![Locale Dropdown](/img/quick-start/terminal.svg)
+
+The data is stored in a SQLite database:
+
+![database](/img/quick-start/database_file.png)
+
+We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/) The experiment config is stored in the `experiments` table:
+![experiments table](/img/quick-start/experiments_data.png)
+
+We can access the validation scores in the `validation_scores` table:
+![validation data](/img/quick-start/validation_data.png)
+
+This way, we can easily compare two feature selectors: ANOVA F Value and Mutual Info ✨.
