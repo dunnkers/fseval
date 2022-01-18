@@ -1,2 +1,6 @@
 to_sql:
   _target_: fseval.callbacks.to_sql.SQLCallback
+  engine:
+    # by default, save results to a SQLite database in `./outputs/` for single-job
+    # runs, and in `./multirun/` for multi-job runs.
+    url: sqlite:///../../fseval.sqlite

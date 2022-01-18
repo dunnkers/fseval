@@ -117,6 +117,8 @@ class PipelineConfig:
             {"cv": "kfold"},
             {"storage": "local"},
             {"resample": "shuffle"},
+            {"callbacks": ["to_sql"]},
+            {"metrics": ["feature_importances", "ranking_scores", "validation_scores"]},
             {"override hydra/job_logging": "colorlog"},
             {"override hydra/hydra_logging": "colorlog"},
         ]
@@ -137,19 +139,7 @@ class PipelineConfig:
     n_bootstraps: int = 1
     n_jobs: Optional[int] = 1
     all_features_to_select: str = "range(1, min(50, p) + 1)"
-    metrics: Dict[str, Any] = field(
-        default_factory=lambda: {
-            "feature_importance": {
-                "_target_": "fseval.pipelines.rank_and_validate.metrics.feature_importance.upload_table.UploadFeatureImportances"
-            },
-            "ranking_scores": {
-                "_target_": "fseval.pipelines.rank_and_validate.metrics.upload_ranking_scores.UploadRankingScores"
-            },
-            "validation_scores": {
-                "_target_": "fseval.pipelines.rank_and_validate.metrics.upload_validation_scores.UploadValidationScores"
-            },
-        }
-    )
+    metrics: Dict[str, Any] = field(default_factory=lambda: {})
 
 
 cs.store("base_pipeline_config", PipelineConfig)

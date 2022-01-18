@@ -11,6 +11,7 @@ from omegaconf import DictConfig
 
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
+from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
@@ -57,7 +58,11 @@ def run_pipeline(
     logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
     cfg.storage.load_dir = None  # set these after callbacks were initialized
     cfg.storage.save_dir = None  # set these after callbacks were initialized
-    pipeline.callbacks.on_begin(cfg)
+
+    # `callbacks.on_begin``
+    assert isinstance(pipeline.callbacks, CallbackCollection)
+    pipeline.callbacks.on_begin(cast(DictConfig, cfg))
+
     # set storage load- and save dirs
     cfg.storage.load_dir = pipeline.storage.get_load_dir()
     cfg.storage.save_dir = pipeline.storage.get_save_dir()

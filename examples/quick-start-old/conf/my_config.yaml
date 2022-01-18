@@ -1,0 +1,7 @@
+defaults:
+  - _self_
+  - base_pipeline_config
+  - callbacks: to_sql
+
+callbacks.to_sql.engine:
+  url: sqlite:///results.db

@@ -23,6 +23,21 @@ Key features 🚀:
 
 ## Getting started
 
+Install fseval:
+```shell
+pip install fseval
+```
+<!-- 
+Also, we are going to use some external resources. We are going to use:
+
+- [openml](https://openml.github.io/openml-python/main/#how-to-get-openml-for-python) for datasets
+- [skrebate](https://github.com/EpistasisLab/scikit-rebate) for 
+-  -->
+
+<!-- ```shell
+pip install openml skrebate
+``` -->
+
 Given the following [directory](https://github.com/dunnkers/fseval/tree/master/examples/quick-start) structure:
 ```shell
 $ tree

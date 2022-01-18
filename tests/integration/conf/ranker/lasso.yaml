@@ -1,5 +1,5 @@
 name: LASSO
 estimator:
   _target_: sklearn.linear_model.Lasso
-_estimator_type: classifier
+_estimator_type: regressor
 estimates_feature_importances: true

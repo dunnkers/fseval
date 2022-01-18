@@ -1,3 +1,0 @@
-# @package metrics
-upload_validation_scores:
-  _target_: fseval.pipelines.rank_and_validate.metrics.upload_validation_scores.UploadValidationScores

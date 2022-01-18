@@ -1,0 +1,5 @@
+name: ElasticNet
+estimator:
+  _target_: sklearn.linear_model.ElasticNet
+_estimator_type: regressor
+estimates_feature_importances: true

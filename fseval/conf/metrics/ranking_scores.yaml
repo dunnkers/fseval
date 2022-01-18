@@ -1,0 +1,3 @@
+# @package metrics
+ranking_scores:
+  _target_: fseval.metrics.ranking_scores.UploadRankingScores

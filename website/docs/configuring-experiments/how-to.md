@@ -25,7 +25,7 @@ class PipelineConfig:
     )
     _target_: str = "fseval.pipelines.rank_and_validate.BootstrappedRankAndValidate"
     pipeline: str = "rank-and-validate"
-    dataset: DatasetConfig = MISSING
+    dataset: [DatasetConfig](https://google.com/) = MISSING
     cv: CrossValidatorConfig = MISSING
     storage: StorageConfig = MISSING
     resample: ResampleConfig = MISSING
