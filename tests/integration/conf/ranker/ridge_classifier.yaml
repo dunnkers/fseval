@@ -1,5 +1,0 @@
-name: Ridge Regression classifier
-estimator:
-  _target_: sklearn.linear_model.RidgeClassifier
-_estimator_type: classifier
-estimates_feature_importances: true

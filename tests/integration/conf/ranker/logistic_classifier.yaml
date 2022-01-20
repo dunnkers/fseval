@@ -1,5 +1,0 @@
-name: Logistic Regression classifier
-estimator:
-  _target_: sklearn.linear_model.LogisticRegression
-_estimator_type: classifier
-estimates_feature_importances: true

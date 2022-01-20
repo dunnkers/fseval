@@ -1,8 +1,7 @@
 import pytest
-from omegaconf import DictConfig
-
 from fseval.config import PipelineConfig
 from fseval.utils.hydra_utils import get_config
+from omegaconf import DictConfig
 
 
 @pytest.fixture
@@ -28,4 +27,3 @@ def test_config_loading(cfg) -> None:
 def test_config_attributes(cfg) -> None:
     assert cfg.dataset is not None
     assert cfg.cv is not None
-    assert cfg.pipeline is not None

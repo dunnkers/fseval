@@ -26,34 +26,28 @@ class CrossValidatorConfig:
 @dataclass
 class DatasetConfig:
     """
-    Args:
-        name: human-readable name of dataset.
-
-        group: an optional group attribute, such to group datasets in the analytics
-        stage.
-
-        task: either Task.classification or Task.regression.
-
-        domain: dataset domain, e.g. medicine, finance, etc.
-
+    Attributes:
+        name (str): human-readable name of dataset.
+        task (Task): either Task.classification or Task.regression.
         adapter: dataset adapter. must be of fseval.types.AbstractAdapter type,
-        i.e. must implement a get_data() -> (X, y) method.
-
+            i.e. must implement a get_data() -> (X, y) method. Can also be a callable;
+            then the callable must return a tuple (X, y).
         adapter_callable: adapter class callable. the function to be called on the
-        instantiated class to fetch the data (X, y). is ignored when the target itself
-        is a function callable.
-
-        feature_importances: weightings indicating relevant features or instances.
-        should be a dict with each key and value like the following pattern:
-            X[<numpy selector>] = <float>
-        Example:
-            X[:, 0:3] = 1.0
-        which sets the 0-3 features as maximally relevant and all others
-        minimally relevant.
+            instantiated class to fetch the data (X, y). is ignored when the target
+            itself is a function callable.
+        feature_importances (Optional[Dict[str, float]]): weightings indicating relevant
+            features or instances. should be a dict with each key and value like the
+            following pattern:
+                X[<numpy selector>] = <float>
+            Example:
+                X[:, 0:3] = 1.0
+            which sets the 0-3 features as maximally relevant and all others
+            minimally relevant.
+        group (Optional[str]): an optional group attribute, such to group datasets in
+            the analytics stage.
+        domain (Optional[str]): dataset domain, e.g. medicine, finance, etc.
     """
 
-    _target_: str = "fseval.pipeline.dataset.DatasetLoader"
-    _recursive_: bool = False  # prevent adapter from getting initialized
     name: str = MISSING
     task: Task = MISSING
     adapter: Any = MISSING
@@ -62,10 +56,14 @@ class DatasetConfig:
     # optional tags
     group: Optional[str] = None
     domain: Optional[str] = None
-    # runtime properties: set once dataset is loaded
+    # runtime properties: will be set once dataset is loaded, no need to configure them.
     n: Optional[int] = None
     p: Optional[int] = None
     multioutput: Optional[bool] = None
+
+    # required for instantiation
+    _target_: str = "fseval.pipeline.dataset.DatasetLoader"
+    _recursive_: bool = False  # prevent adapter from getting initialized
 
 
 @dataclass
@@ -108,6 +106,43 @@ class StorageConfig:
 
 @dataclass
 class PipelineConfig:
+    """
+    The complete configuration needed to run the fseval pipeline.
+
+    Attributes:
+        dataset (DatasetConfig): Determines the dataset to use for this experiment.
+        ranker (EstimatorConfig): A Feature Ranker or Feature Selector.
+        validator (EstimatorConfig): Some estimator to validate the feature subsets.
+        cv (CrossValidatorConfig): The CV method and split to use in this experiment.
+        resample (ResampleConfig): Dataset resampling; e.g. with or without replacement.
+        storage (StorageConfig): A storage method used to store the fit estimators.
+        callbacks (Dict[str, Any]): Callbacks. Provide hooks for storing the config or
+            results.
+        metrics (Dict[str, Any]): Metrics allow custom computation after any pipeline
+            stage.
+        n_bootstraps (int): Amount of 'bootstraps' to run. A bootstrap means running
+            the pipeline again but with a resampled (see `resample`) version of the
+            dataset. This allows estimating stability, for example.
+        n_jobs (Optional[int]): Amount of CPU's to use for computing each bootstrap.
+            This thus distributes the amount of bootstraps over CPU's.
+        all_features_to_select (str): Once the ranker has been fit, this determines the
+            feature subsets to validate. By default, at most 50 subsets containing the
+            highest ranked features are validated.
+    """
+
+    dataset: DatasetConfig = MISSING
+    ranker: EstimatorConfig = MISSING
+    validator: EstimatorConfig = MISSING
+    cv: CrossValidatorConfig = MISSING
+    resample: ResampleConfig = MISSING
+    storage: StorageConfig = MISSING
+    callbacks: Dict[str, Any] = field(default_factory=lambda: {})
+    metrics: Dict[str, Any] = field(default_factory=lambda: {})
+    n_bootstraps: int = 1
+    n_jobs: Optional[int] = 1
+    all_features_to_select: str = "range(1, min(50, p) + 1)"
+
+    # default values for the above.
     defaults: List[Any] = field(
         default_factory=lambda: [
             "_self_",
@@ -117,29 +152,15 @@ class PipelineConfig:
             {"cv": "kfold"},
             {"storage": "local"},
             {"resample": "shuffle"},
-            {"callbacks": ["to_sql"]},
+            {"callbacks": []},
             {"metrics": ["feature_importances", "ranking_scores", "validation_scores"]},
             {"override hydra/job_logging": "colorlog"},
             {"override hydra/hydra_logging": "colorlog"},
         ]
     )
+
+    # required for instantiation
     _target_: str = "fseval.pipelines.rank_and_validate.BootstrappedRankAndValidate"
-    pipeline: str = "rank-and-validate"
-    dataset: DatasetConfig = MISSING
-    cv: CrossValidatorConfig = MISSING
-    storage: StorageConfig = MISSING
-    resample: ResampleConfig = MISSING
-    ranker: EstimatorConfig = MISSING
-    validator: EstimatorConfig = MISSING
-    callbacks: Dict[str, Any] = field(
-        default_factory=lambda: {
-            "_target_": "fseval.pipelines._callback_collection.CallbackCollection"
-        }
-    )
-    n_bootstraps: int = 1
-    n_jobs: Optional[int] = 1
-    all_features_to_select: str = "range(1, min(50, p) + 1)"
-    metrics: Dict[str, Any] = field(default_factory=lambda: {})
 
 
 cs.store("base_pipeline_config", PipelineConfig)

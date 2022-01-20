@@ -7,7 +7,7 @@ from typing import Dict, Optional, cast
 
 from hydra.core.utils import _save_config
 from hydra.utils import instantiate
-from omegaconf import DictConfig
+from omegaconf import DictConfig, open_dict
 
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
@@ -20,6 +20,12 @@ def run_pipeline(
 ) -> Optional[Dict]:
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
+
+    # callback target. requires disabling omegaconf struct.
+    with open_dict(cast(DictConfig, cfg)):
+        cfg.callbacks[
+            "_target_"
+        ] = "fseval.pipelines._callback_collection.CallbackCollection"
 
     # instantiate and load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
@@ -55,7 +61,7 @@ def run_pipeline(
             return None
 
     # run pipeline
-    logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
+    logger.info("starting pipeline...")
     cfg.storage.load_dir = None  # set these after callbacks were initialized
     cfg.storage.save_dir = None  # set these after callbacks were initialized
 
@@ -115,10 +121,7 @@ def run_pipeline(
             f"saved {n_saved_files} files to {TerminalColor.blue(cfg.storage.save_dir)} "
             + TerminalColor.green("✓")
         )
-    logger.info(
-        f"{TerminalColor.yellow(cfg.pipeline)} pipeline "
-        + f"finished {TerminalColor.green('✓')}"
-    )
+    logger.info(f"pipeline finished {TerminalColor.green('✓')}")
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
 

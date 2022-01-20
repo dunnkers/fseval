@@ -3,3 +3,5 @@ defaults:
   - base_pipeline_config
   - override dataset: synthetic_dataset
   - override validator: knn
+  - override /callbacks:
+      - to_sql

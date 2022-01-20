@@ -48,13 +48,13 @@ const FeatureListBottom = [
     Svg: require('../../static/img/undraw_metrics_re_6g90.svg').default,
     description: (
       <>
-        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, Postgresql, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>.
+        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, PostgreSQL, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>.
       </>
     ),
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({ Svg, title, description }) {
   return (
     <>
       <div className="text--center">
