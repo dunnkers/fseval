@@ -63,6 +63,17 @@ class OpenMLDataset:
     drop_qualitative: bool = False
 ```
 
+So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
+
+```yaml title="conf/dataset/iris.yaml"
+name: Iris Flowers
+task: classification
+adapter:
+  _target_: fseval.adapters.openml.OpenML
+  dataset_id: 61
+  target_column: class
+```
+
 ### Weights and Biases
 To load a dataset from [Weights and Biases](https://wandb.ai/) [artifacts](https://docs.wandb.ai/guides/artifacts), use the `fseval.adapters.wandb.Wandb` adapter.
 
@@ -72,6 +83,21 @@ class WandbDataset:
     _target_: str = "fseval.adapters.wandb.Wandb"
     artifact_id: str = MISSING
 ```
+
+So, for example, loading a dataset from wandb:
+
+```yaml title="conf/dataset/chen.yaml"
+name: Switch (Chen et al.)
+task: regression
+adapter:
+  _target_: benchmark.WandbAdapter
+  artifact_id: dunnkers/synthetic-datasets/switch:v0
+feature_importances:
+  X[:5000, 0:4]: 1.0
+  X[5000:, 4:8]: 1.0
+```
+
+| Note: `feature_importances` indicates the ground truth relevant features in the dataset.
 
 
 ### ⚙️ Custom Adapters
@@ -84,34 +110,17 @@ class AbstractAdapter(ABC, BaseEstimator):
         ...
 ```
 
-For example, the _Weights and Biases_ adapter is implemented like so:
+For example:
 
 ```python title="benchmark.py"
-import wandb
-
 @dataclass
-class WandbAdapter(AbstractAdapter):
+class CustomAdapter(AbstractAdapter):
     def get_data(self) -> Tuple[List, List]:
-        api = wandb.Api()
-        artifact = api.artifact(self.artifact_id)
-        X = artifact.get("X").data
-        Y = artifact.get("Y").data
+        X = [[]]
+        Y = []
+
         return X, Y
 ```
-
-And then loading an artifact:
-
-```yaml
-name: Switch (Chen et al.)
-task: regression
-adapter:
-  _target_: benchmark.WandbAdapter
-  artifact_id: dunnkers/synthetic-datasets/switch:v0
-feature_importances:
-  X[:5000, 0:4]: 1.0
-  X[5000:, 4:8]: 1.0
-```
-
 
 ## Example dataset configurations
 Datasets can be defined using YAML or [Structured Configs](https://hydra.cc/docs/tutorials/structured_config/intro/).
