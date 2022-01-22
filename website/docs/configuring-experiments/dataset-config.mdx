@@ -3,6 +3,12 @@ sidebar_position: 1
 ---
 
 # DatasetConfig
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+import IrisDatasetYAML from '!!raw-loader!../../../tests/integration/conf/dataset/iris.yaml';
+
 Datasets can be loaded with well-defined dataset configs. The dataset config looks as follows:
 
 ```python
@@ -65,14 +71,47 @@ class OpenMLDataset:
 
 So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
 
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/iris.yaml">{IrisDatasetYAML}</CodeBlock>
+
+
 ```yaml title="conf/dataset/iris.yaml"
 name: Iris Flowers
 task: classification
 adapter:
-  _target_: fseval.adapters.openml.OpenML
-  dataset_id: 61
-  target_column: class
+    _target_: fseval.adapters.openml.OpenML
+    dataset_id: 61
+    target_column: class
 ```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.types import Task
+from fseval.adapters.openml import OpenMLDataset
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
 
 ### Weights and Biases
 To load a dataset from [Weights and Biases](https://wandb.ai/) [artifacts](https://docs.wandb.ai/guides/artifacts), use the `fseval.adapters.wandb.Wandb` adapter.
@@ -97,10 +136,10 @@ feature_importances:
   X[5000:, 4:8]: 1.0
 ```
 
-| Note: `feature_importances` indicates the ground truth relevant features in the dataset.
+> Note: `feature_importances` indicates the ground truth relevant features in the dataset.
 
 
-### ⚙️ Custom Adapters
+## ⚙️ Custom Adapters
 To load datasets from different sources, we can use different **adapters**. You can create an adapter by implementing this interface:
 
 ```python
@@ -122,24 +161,14 @@ class CustomAdapter(AbstractAdapter):
         return X, Y
 ```
 
-## Example dataset configurations
-Datasets can be defined using YAML or [Structured Configs](https://hydra.cc/docs/tutorials/structured_config/intro/).
+## Example configs
 
-### Example YAML config
-We can define the Iris dataset using OpenML:
+We can also use _functions_ as adapters, as long as they return a tuple `(X, y)`. e.g. using `sklearn.datasets.make_classification` as an adapter:
 
-```yaml title="conf/dataset/iris.yaml"
-name: Iris Flowers
-task: classification
-adapter:
-  _target_: fseval.adapters.openml.OpenML
-  dataset_id: 61
-  target_column: class
-```
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
 
-But we can also use _functions_ as adapters, as long as they return a tuple `(X, y)`. e.g. using `sklearn.datasets.make_classification` as an adapter:
-
-```yaml title="conf/dataset/some_synthetic_dataset.yaml"
+```yaml title="conf/dataset/synthetic_dataset.yaml"
 name: My synthetic dataset
 task: classification
 adapter:
@@ -155,10 +184,8 @@ feature_importances:
   X[:, 0:2]: 1.0
 ```
 
-For more examples, see [this](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/dataset) directory.
-
-### Example Structured config
-Any dataset can also be configured using Python code. Like so:
+</TabItem>
+<TabItem value="structured" label="Structured Config">
 
 ```python
 from hydra.core.config_store import ConfigStore
@@ -170,11 +197,28 @@ cs = ConfigStore.instance()
 
 cs.store(
     group="dataset",
-    name="iris",
+    name="synthetic_dataset",
     node=DatasetConfig(
-        name="iris",
+        name="My synthetic dataset",
         task=Task.classification,
-        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+        adapter=dict(
+            _target_="sklearn.datasets.make_classification",
+            n_samples=10000,
+            n_informative=2,
+            n_classes=2,
+            n_features=20,
+            n_redundant=0,
+            random_state=0,
+            shuffle=False,
+        ),
+        feature_importances={
+            "X[:, 0:2]": 1.0
+        }
     ),
 )
 ```
+
+</TabItem>
+</Tabs>
+
+For more examples, see the repo for more [dataset configs](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/dataset).

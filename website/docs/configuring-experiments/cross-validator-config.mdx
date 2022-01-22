@@ -1,0 +1,105 @@
+---
+sidebar_position: 3
+---
+
+# CrossValidatorConfig
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Cross Validation is used to improve the reliability of the ranking and validation results. A CV method can be defined like so:
+
+```python
+@dataclass
+class CrossValidatorConfig:
+    """
+    Provides an interface as how to define a Cross Validation method. The CV is applied
+    at the beginning of the pipeline, so both the ranker and validator only get to see
+    the **training** dataset. The test dataset is used for scoring, i.e. for determining
+    the validation estimator scores.
+
+    Attributes:
+        name (str): Human-friendly name for this CV method.
+        splitter (Any): The cross validation splitter function. Must be of type
+            sklearn.model_selection.BaseCrossValidator or 
+            sklearn.model_selection.BaseShuffleSplit. In other words,
+            the `splitter` argument should contain a _target_ attribute which 
+            instantiates to an object that has a `split` method with the following
+            signature: `def split(self, X, y=None, groups=None)`.
+        fold (int): The fold to use in this specific run of the pipeline. e.g. you
+            can use `python my_benchmark.py --multirun cv=kfold cv.splitter.n_spits=5 cv.fold=range(0,5)`
+            to run a complete 5-fold CV scheme.
+    """
+
+    name: str = MISSING
+    splitter: Any = None
+    fold: int = 0
+
+    # required for instantiation
+    _target_: str = "fseval.pipeline.cv.CrossValidator"
+```
+
+## Available CV methods
+Built-in to fseval are `kfold` and `train_test_split`.
+
+### K-Fold CV
+
+`cv=kfold`
+
+```yaml title="conf/cv/kfold.yaml"
+name: K-Fold
+splitter:
+  _target_: sklearn.model_selection.KFold
+  n_splits: 5
+  shuffle: True
+  random_state: 0
+```
+
+For example: to use 10-fold CV, set `cv.splitter.n_splits=10`.
+
+### Train/test split
+
+`cv=train_test_split`
+
+```yaml title="conf/cv/train_test_split.yaml"
+name: Train/test split
+splitter:
+  _target_: sklearn.model_selection.ShuffleSplit
+  n_splits: 1
+  test_size: 0.25
+  random_state: 0
+```
+
+## ⚙️ Custom CV
+For example, we can implement Leave One Out cross validation like so:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/cv/loocv.yaml"
+name: Leave One Out
+splitter:
+    _target_: sklearn.model_selection.LeaveOneOut
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+
+loocv = CrossValidatorConfig(
+    name="Leave One Out",
+    splitter=dict(
+        _target_="sklearn.model_selection.LeaveOneOut",
+    )
+)
+
+cs = ConfigStore.instance()
+cs.store(name="loocv", node=loocv, group="cv")
+```
+
+</TabItem>
+</Tabs>
+
+Which can then be used by setting `cv=loocv` in the commandline.

@@ -69,7 +69,7 @@ class PipelineConfig:
 Experiments can be configured in two ways.
 
 1. Using **YAML** files stored in a directory
-2. Using **Python** (Structured Configs in Hydra)
+2. Using **Python** ([Structured Configs](https://hydra.cc/docs/tutorials/structured_config/intro/) in Hydra)
 
 ## Using YAML files
 ...
