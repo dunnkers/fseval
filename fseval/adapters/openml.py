@@ -3,18 +3,10 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from omegaconf import MISSING
-from openml.datasets import get_dataset
-
+from fseval.config.adapters import OpenMLDataset
 from fseval.types import AbstractAdapter
 
-
-@dataclass
-class OpenMLDataset:
-    _target_: str = "fseval.adapters.openml.OpenML"
-    dataset_id: int = MISSING
-    target_column: str = MISSING
-    drop_qualitative: bool = False
+from openml.datasets import get_dataset
 
 
 @dataclass
