@@ -19,7 +19,7 @@ class CrossValidatorConfig:
             sklearn.model_selection.BaseShuffleSplit. In other words,
             the `splitter` argument should contain a _target_ attribute which
             instantiates to an object that has a `split` method with the following
-            signature: `def split(self, X, y=None, groups=None)`.
+            signature `def split(self, X, y=None, groups=None)`.
         fold (int): The fold to use in this specific run of the pipeline. e.g. you
             can use `python my_benchmark.py --multirun cv=kfold cv.splitter.n_spits=5 cv.fold=range(0,5)`
             to run a complete 5-fold CV scheme.

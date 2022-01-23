@@ -1,0 +1,69 @@
+---
+title: WandbDataset
+sidebar_position: 2
+---
+
+# WandbDataset
+
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- fseval YAML configs -->
+import ChenSwitchDatasetYAML from '!!raw-loader!../../../../tests/integration/conf/dataset/chen_switch.yaml';
+
+
+```python
+class fseval.config.adapters.WandbDataset(
+    artifact_id: str=MISSING
+)
+```
+
+Loads a dataset from the Weights and Biases [artifacts](https://docs.wandb.ai/guides/artifacts) store.
+
+Requires being logged into the Weights and Biases CLI (in other words, having the [`WANDB_API_KEY`](https://docs.wandb.ai/guides/track/public-api-guide#authentication) set), and having installed the [`wandb`](https://pypi.org/project/wandb/) python package.
+
+
+**Attributes**:
+
+| | |
+|---|---|
+| artifact_id : str | The ID of the artifact to fetch. Has to be of the following form: `<entity>/<project>/<artifact_name>:<artifact_version>`. <br/><br/>For example:<br/> `dunnkers/synthetic-datasets/switch:v0` would be a valid artifact_id. |
+| | |
+
+
+## Example
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/chen.yaml">{ChenSwitchDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>

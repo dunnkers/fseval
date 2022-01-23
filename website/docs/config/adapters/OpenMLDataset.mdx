@@ -1,0 +1,72 @@
+---
+title: OpenMLDataset
+sidebar_position: 1
+---
+
+# OpenMLDataset
+
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- fseval YAML configs -->
+import IrisDatasetYAML from '!!raw-loader!../../../../tests/integration/conf/dataset/iris.yaml';
+
+
+```python
+class fseval.config.adapters.OpenMLDataset(
+    dataset_id: int=MISSING,
+    target_column: str=MISSING,
+    drop_qualitative: bool=False,
+)
+```
+
+Allows loading a dataset from [OpenML](https://www.openml.org/).
+
+**Attributes**:
+
+| | |
+|---|---|
+| dataset_id : int | The dataset ID. |
+| target_column : str | Which column to use as a target. This column will be used as `y`. |
+| drop_qualitative : bool | Whether to drop any column that is not numeric. |
+| | |
+
+
+## Example
+
+So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/iris.yaml">{IrisDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>

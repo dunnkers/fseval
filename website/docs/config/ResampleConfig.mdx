@@ -1,0 +1,65 @@
+---
+sidebar_position: 5
+title: fseval.config.ResampleConfig
+---
+
+# ResampleConfig
+
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- fseval -->
+import ResampleConfig from '!!raw-loader!../../../fseval/config/resample.py';
+
+<!-- fseval YAML configs -->
+import BootstrapYAML from '!!raw-loader!../../../fseval/conf/resample/bootstrap.yaml';
+import ShuffleYAML from '!!raw-loader!../../../fseval/conf/resample/shuffle.yaml';
+
+
+```python
+class fseval.config.ResampleConfig(
+    name: str=MISSING,
+    replace: bool=False,
+    sample_size: Any=None,
+    random_state: Optional[int]=None,
+    stratify: Optional[List]=None,
+)
+```
+
+
+Resampling can be used to take random samples from the dataset, with- or without replacement. Resampling is performed **after** the CV split. 
+
+A usecase would be to perform [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)). This means, that we can run the pipeline multiple times using the same configuration, but with different resamplings of the dataset. In this way, we can measure the [stability](https://www.jmlr.org/papers/volume18/17-514/17-514.pdf) of a feature ranking algorithm.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `name` : str | Human-friendly name of the resampling method. |
+| `replace` : bool | Whether to use resampling with replacement, yes or no. |
+| `sample_size` : Any | Can be one of two types. Either a **float** from [0.0 to 1.0], such to select a **fraction** of the dataset to be sampled. Or,  an **int** from [1 to n_samples] can be used. This is the amount of exact samples to be selected. |
+| `random_state` : Optional[int] | Optionally, one might fix a random state to be used in the resampling process. In this way, results can be reproduced. |
+| `stratify` : Optional[List] | Whether to use stratified resampling. See [sklearn.utils.resample](https://scikit-learn.org/stable/modules/generated/sklearn.utils.resample.html) for more information. |
+| | |
+
+## Available resampling methods
+Built-in resampling methods are `shuffle` and `bootstrap`.
+
+### Bootstrap
+Takes random samples with replacement. By default, uses resamples back to the amount of original dataset samples, using `sample_size=1.00`.
+
+<CodeBlock className="language-yaml" title="conf/resample/bootstrap.yaml">{BootstrapYAML}</CodeBlock>
+
+On the command line, use with `resample=bootstrap`.
+
+### Shuffle
+This resampling method shuffles the dataset samples.
+
+<CodeBlock className="language-yaml" title="conf/resample/shuffle.yaml">{ShuffleYAML}</CodeBlock>
+
+On the command line, use with `resample=shuffle`.
+
+## ⚙️ Custom resampling config
+...

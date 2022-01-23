@@ -1,0 +1,185 @@
+---
+sidebar_position: 6
+title: fseval.config.EstimatorConfig
+---
+
+# EstimatorConfig
+
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- fseval -->
+
+```python
+class fseval.config.EstimatorConfig(
+    name: str=MISSING, 
+    estimator: Any=None, 
+    load_cache: Optional[CacheUsage]=CacheUsage.allow, 
+    save_cache: Optional[CacheUsage]=CacheUsage.allow, 
+    _estimator_type: str=MISSING, 
+    multioutput: bool=False, 
+    multioutput_only: bool=False, 
+    requires_positive_X: bool=False, 
+    estimates_feature_importances: bool=False, 
+    estimates_feature_support: bool=False, 
+    estimates_feature_ranking: bool=False, 
+    estimates_target: bool=False,
+)
+```
+
+Configures an estimator: a Feature Ranker, Feature Selector or a validation
+estimator.
+
+In the case of Feature Rankers/Selectors, set one of
+`estimates_feature_importances`, `estimates_feature_support` or
+`estimates_feature_ranking` to True. In the case of a validation estimator,
+set `estimates_target` to True.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `name` : str | Human-friendly name of this estimator. |
+| `estimator` : Any | The estimator. Must be a dictionary with a key `_target_`, pointing to the class that is to be instantiated. All other properties in the dictionary will be passed to the estimator constructor. e.g | `_target_="sklearn.tree.DecisionTreeClassifier, max_depth=10)` |
+| `load_cache` : Optional[[CacheUsage](../../types/CacheUsage)] | How to handle loading a cached version of the estimator, in a pickle file. e.g. to ignore cache, or force using it. To be used in combination with `PipelineConfig.storage`. See [CacheUsage](../../types/CacheUsage). |
+| `save_cache` : Optional[[CacheUsage](../../types/CacheUsage)] | How to handle saving the fit estimator as a pickle file, such to facilitate caching. To be used in combination with `PipelineConfig.storage`. See [CacheUsage](../../types/CacheUsage). |
+| `_estimator_type` : str | Either 'classifier', 'regressor' or 'clusterer'. See the [sklearn](https://scikit-learn.org/stable/developers/develop.html#estimator-types). |
+| `multioutput` : bool | Whether this estimator supports multioutput datasets. |
+| `multioutput_only` : bool | If this estimator **only** supports multioutput datasets. |
+| `requires_positive_X` : bool | Whether the estimator fails if X contains negative values. |
+| `estimates_feature_importances` : bool | Whether the estimator estimates feature importances. For example, in the case of 2 features, the estimator can set `self.feature_importances_ = [0.9, 0.1]`, implying the estimator found the first feature the most useful. Alternatively, the `coef_` attribute can also be read and interpreted as a feature importance vector. |
+| `estimates_feature_support` : bool | Whether the estimator estimates feature support. A feature support vector indicates which features to include in a feature subset yes/no. In other words, it must be a boolean vector. It is to be set on the estimator `support_` attribute. Estimating the feature support `vector` : s synonymous with performing feature selection. e.g `self.support_ = [True, False]`, meaning to include only the first feature in a feature subset. |
+| `estimates_feature_ranking` : bool | Whether the estimator ranks the features in a specific order. Is similar to feature importance, but does not estimate exact importance quantities, i.e. that are proportional to each other. An `estimator` : an set the ranking using the `ranking_` attribute. e.g `self.ranking_ = [1, 0]`, such to indicate that the first feature ranks the highest. |
+| | |
+
+## Examples
+Example config for ReliefF feature selection using [skrebate](https://github.com/EpistasisLab/scikit-rebate):
+
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/ranker/relieff.yaml"
+name: ReliefF
+estimator:
+  _target_: skrebate.ReliefF
+_estimator_type: classifier
+estimates_feature_importances: true
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import EstimatorConfig
+
+cs = ConfigStore.instance()
+
+relieff = EstimatorConfig(
+    name="ReliefF",
+    estimator=dict(
+        _target_="skrebate.ReliefF"
+    ),
+    _estimator_type="classifier",
+    estimates_feature_importances=True,
+)
+cs.store(group="ranker", name="relieff", node=relieff)
+```
+
+</TabItem>
+</Tabs>
+
+
+Example config for Boruta using [boruta_py](https://github.com/scikit-learn-contrib/boruta_py):
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/ranker/boruta.yaml"
+name: Boruta
+estimator:
+  _target_: boruta.boruta_py.BorutaPy
+  estimator:
+    _target_: sklearn.ensemble.RandomForestClassifier
+  n_estimators: auto
+_estimator_type: classifier
+multioutput: false
+estimates_feature_importances: false
+estimates_feature_support: true
+estimates_feature_ranking: true
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import EstimatorConfig
+
+cs = ConfigStore.instance()
+
+boruta = EstimatorConfig(
+    name="Boruta",
+    estimator=dict(
+        _target_="boruta.boruta_py.BorutaPy",
+        estimator=dict(
+            _target_="sklearn.ensemble.RandomForestClassifier"
+        ),
+        n_estimators="auto"
+    ),
+    _estimator_type="classifier",
+    multioutput=False,
+    estimates_feature_importances=False,
+    estimates_feature_support=True,
+    estimates_feature_ranking=True,
+)
+cs.store(group="ranker", name="boruta", node=boruta)
+```
+
+</TabItem>
+</Tabs>
+
+
+
+Example config for a validation estimator, e.g. [k-NN](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html):
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/validator/knn.yaml"
+name: k-NN
+estimator:
+  _target_: sklearn.neighbors.KNeighborsClassifier
+_estimator_type: classifier
+multioutput: false
+estimates_target: true
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import EstimatorConfig
+
+cs = ConfigStore.instance()
+
+knn = EstimatorConfig(
+    name="k-NN",
+    estimator=dict(
+        _target_="sklearn.neighbors.KNeighborsClassifier",
+    ),
+    _estimator_type="classifier",
+    multioutput=False,
+    estimates_target=True,
+)
+cs.store(group="ranker", name="knn", node=knn)
+```
+
+</TabItem>
+</Tabs>
+
+→ See more example definitions of [rankers](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/ranker) and [validators](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/validator) in the repository.
