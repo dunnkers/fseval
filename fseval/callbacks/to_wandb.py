@@ -1,38 +1,27 @@
 import copy
 import sys
 import time
+from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Dict, Optional, cast
 
 import pandas as pd
-from omegaconf import DictConfig, OmegaConf
-
 import wandb
+from fseval.config.callbacks.to_wandb import ToWandbCallback
 from fseval.types import Callback
 from fseval.utils.dict_utils import dict_flatten, dict_merge
+from omegaconf import DictConfig, OmegaConf
 
 
-class WandbCallback(Callback):
-    def __init__(self, **kwargs):
-        super(WandbCallback, self).__init__()
-        # make sure any nested objects are casted from DictConfig's to regular dict's.
-        kwargs = OmegaConf.create(kwargs)
-        kwargs = OmegaConf.to_container(kwargs)
-
-        # whether to log metrics. in the case of a resumation run, a user might probably
-        # not want to log metrics, but just update the tables instead.
-        kwargs.setdefault("log_metrics", True)
-        self.log_metrics = kwargs.pop("log_metrics")
-
+@dataclass
+class WandbCallback(Callback, ToWandbCallback):
+    def __post_init__(self):
         if not self.log_metrics:
             logger: Logger = getLogger(__name__)
             logger.warning(
                 "logging metrics was disabled by user: "
                 + "logging only summary and tables to wandb."
             )
-
-        # the `kwargs` are passed to `wandb.init`
-        self.callback_config = kwargs
 
     def _prepare_cfg(self, cfg):
         """Flatten dict and use `/` separators"""
@@ -49,7 +38,7 @@ class WandbCallback(Callback):
         prepared_cfg = self._prepare_cfg(primitive_cfg)
 
         # use (1) callback config (2) overriden by pipeline config as input to wandb.init
-        init_kwargs = copy.deepcopy(self.callback_config)
+        init_kwargs = copy.deepcopy(self.wandb_init_kwargs)
         dict_merge(init_kwargs, {"config": prepared_cfg})
 
         try:

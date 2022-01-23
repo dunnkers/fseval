@@ -28,7 +28,10 @@ Install fseval:
 pip install fseval
 ```
 
-Given the following [directory](https://github.com/dunnkers/fseval/tree/master/examples/quick-start) structure:
+Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start):
+
+
+
 ```shell
 $ tree
 .
@@ -36,7 +39,7 @@ $ tree
 └── conf
     ├── my_config.yaml
     ├── dataset
-    │   └── synthetic_dataset.yaml
+    │   └── synthetic.yaml
     ├── ranker
     │   ├── anova.yaml
     │   └── mutual_info.yaml
@@ -45,6 +48,69 @@ $ tree
 
 4 directories, 5 files
 ```
+
+
+<div className="row">
+<div className="col col--5">
+
+```yaml title="conf/my_config.yaml"
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override dataset: synthetic
+  - override validator: knn
+  - override /callbacks:
+      - to_sql
+```
+
+```yaml title="conf/dataset/synthetic.yaml"
+name: My synthetic dataset
+task: classification
+adapter:
+  _target_: sklearn.datasets.make_classification
+  n_samples: 10000
+  n_informative: 2
+  n_classes: 2
+  n_features: 20
+  n_redundant: 0
+  random_state: 0
+  shuffle: false
+feature_importances:
+  X[:, 0:2]: 1.0
+```
+
+</div>
+
+<div className="col col--7">
+
+```yaml title="conf/ranker/anova.yaml"
+name: ANOVA F-value
+estimator:
+  _target_: benchmark.ANOVAFValueClassifier
+_estimator_type: classifier
+estimates_feature_importances: true
+```
+
+```yaml title="conf/ranker/mutual_info.yaml"
+name: Mutual Info
+estimator:
+  _target_: benchmark.MutualInfoClassifier
+_estimator_type: classifier
+multioutput: false
+estimates_feature_importances: true
+```
+
+```yaml title="conf/validator/knn.yaml"
+name: k-NN
+estimator:
+  _target_: sklearn.neighbors.KNeighborsClassifier
+_estimator_type: classifier
+multioutput: false
+estimates_target: true
+```
+
+</div>
+</div>
 
 
 And the file `benchmark.py`:

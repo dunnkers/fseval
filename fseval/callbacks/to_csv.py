@@ -1,42 +1,38 @@
+from dataclasses import dataclass
 from logging import Logger, getLogger
 from pathlib import Path
 
 import pandas as pd
-from omegaconf import DictConfig
-
+from fseval.config.callbacks.to_csv import ToCSVCallback
 from fseval.types import TerminalColor
+from omegaconf import MISSING, DictConfig
 
 from ._base_export_callback import BaseExportCallback
 
 
-class CSVCallback(BaseExportCallback):
+@dataclass
+class CSVCallback(BaseExportCallback, ToCSVCallback):
     """CSV support for fseval. Uploads general information on the experiment to
     a `experiments` table and provides a hook for uploading custom tables. Use the
     `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
     """
 
-    def __init__(self, **kwargs):
-        super(CSVCallback, self).__init__()
-
-        # extract config
-        self.dir = kwargs.get("dir")
-        self.mode = kwargs.get("mode", "a")
-
+    def __post_init__(self):
         # assert dir param was given
-        assert self.dir, (
+        assert self.dir is not MISSING, (
             "The CSV callback did not receive a `dir` param. All results will be "
             + "written to files in this dir. This is required to export to CSV files."
         )
 
         # upgrade dir to Path type
-        self.dir = Path(self.dir)
+        self.save_dir = Path(self.dir)
 
         # create directories where necessary
-        if not self.dir.is_dir():  # ensure directories exist
-            self.dir.mkdir(parents=True)  # parents=True so creates recursively
+        if not self.save_dir.is_dir():  # ensure directories exist
+            self.save_dir.mkdir(parents=True)  # parents=True so creates recursively
 
         # print save path
-        dir_abs_str = TerminalColor.blue(self.dir.absolute())
+        dir_abs_str = TerminalColor.blue(self.save_dir.absolute())
         self.logger: Logger = getLogger(__name__)
         self.logger.info(f"CSV callback enabled. Writing .csv files to: {dir_abs_str}")
 
@@ -52,7 +48,7 @@ class CSVCallback(BaseExportCallback):
         df = self.get_experiment_config(config)
 
         # write experiment config to `experiments.csv`
-        filepath = self.dir / "experiments.csv"
+        filepath = self.save_dir / "experiments.csv"
         header = self.should_insert_header(filepath)
         df.to_csv(filepath, mode=self.mode, header=header)
 
@@ -69,7 +65,7 @@ class CSVCallback(BaseExportCallback):
         df = self.add_experiment_id(df)
 
         # upload table to CSV file, named after the table name
-        filepath = self.dir / f"{name}.csv"
+        filepath = self.save_dir / f"{name}.csv"
         header = self.should_insert_header(filepath)
         df.to_csv(filepath, mode=self.mode, header=header)
 

@@ -21,10 +21,10 @@ class PipelineConfig:
 
     Attributes:
         dataset (DatasetConfig): Determines the dataset to use for this experiment.
-        ranker (EstimatorConfig): A Feature Ranker or Feature Selector.
-        validator (EstimatorConfig): Some estimator to validate the feature subsets.
         cv (CrossValidatorConfig): The CV method and split to use in this experiment.
         resample (ResampleConfig): Dataset resampling; e.g. with or without replacement.
+        ranker (EstimatorConfig): A Feature Ranker or Feature Selector.
+        validator (EstimatorConfig): Some estimator to validate the feature subsets.
         storage (StorageConfig): A storage method used to store the fit estimators.
         callbacks (Dict[str, Any]): Callbacks. Provide hooks for storing the config or
             results.
@@ -41,10 +41,10 @@ class PipelineConfig:
     """
 
     dataset: DatasetConfig = MISSING
-    ranker: EstimatorConfig = MISSING
-    validator: EstimatorConfig = MISSING
     cv: CrossValidatorConfig = MISSING
     resample: ResampleConfig = MISSING
+    ranker: EstimatorConfig = MISSING
+    validator: EstimatorConfig = MISSING
     storage: StorageConfig = MISSING
     callbacks: Dict[str, Any] = field(default_factory=lambda: {})
     metrics: Dict[str, Any] = field(default_factory=lambda: {})
@@ -57,11 +57,11 @@ class PipelineConfig:
         default_factory=lambda: [
             "_self_",
             {"dataset": MISSING},
+            {"cv": "kfold"},
+            {"resample": "shuffle"},
             {"ranker": MISSING},
             {"validator": MISSING},
-            {"cv": "kfold"},
             {"storage": "local"},
-            {"resample": "shuffle"},
             {"callbacks": []},
             {"metrics": ["feature_importances", "ranking_scores", "validation_scores"]},
             {"override hydra/job_logging": "colorlog"},

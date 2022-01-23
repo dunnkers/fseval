@@ -1,15 +1,17 @@
+from dataclasses import dataclass
 from logging import Logger, getLogger
 
 import pandas as pd
-from omegaconf import DictConfig, OmegaConf
-from sqlalchemy import create_engine
-
+from fseval.config.callbacks.to_sql import ToSQLCallback
 from fseval.types import TerminalColor
+from omegaconf import MISSING, DictConfig, OmegaConf
+from sqlalchemy import create_engine
 
 from ._base_export_callback import BaseExportCallback
 
 
-class SQLCallback(BaseExportCallback):
+@dataclass
+class SQLCallback(BaseExportCallback, ToSQLCallback):
     """SQL support for fseval. Uploads general information on the experiment to
     a `experiments` table and provides a hook for uploading custom tables. Use the
     `on_table` hook in your pipeline to upload a DataFrame to a certain database table.
@@ -20,23 +22,13 @@ class SQLCallback(BaseExportCallback):
     with the database.
     """
 
-    def __init__(self, **kwargs):
-        super(SQLCallback, self).__init__()
-
-        # make sure any nested objects are casted from DictConfig's to regular dict's.
-        kwargs = OmegaConf.create(kwargs)
-        kwargs = OmegaConf.to_container(kwargs)
-
+    def __post_init__(self):
         # assert SQL Alchemy config
-        self.engine_kwargs = kwargs.get("engine")
-        self.if_table_exists = kwargs.get("if_table_exists", "append")
-
-        assert self.engine_kwargs, (
+        assert self.engine_config is not MISSING, (
             "The SQL callback did not receive a `engine` param. "
             + "This is required to set up SQLAlchemy."
         )
-
-        assert self.engine_kwargs.get("url"), (
+        assert self.engine_config.get("url", MISSING) is not MISSING, (
             "The SQL callback did not receive a `engine.url` param. "
             + "This is required to set up SQLAlchemy."
         )
@@ -49,7 +41,7 @@ class SQLCallback(BaseExportCallback):
         df = self.get_experiment_config(config)
 
         # create SQL engine
-        self.engine = create_engine(**self.engine_kwargs)
+        self.engine = create_engine(**self.engine_config)
 
         # upload experiment config to SQL database
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)

@@ -1,3 +1,0 @@
-wandb:
-  _target_: fseval.callbacks.wandb.WandbCallback
-  job_type: ${hydra:job.name}

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 import wandb
-from fseval.callbacks.wandb import WandbCallback
+from fseval.callbacks.to_wandb import WandbCallback
 from fseval.utils.dict_utils import dict_merge
 from fseval.utils.uuid_utils import generate_shortuuid
 from omegaconf import DictConfig, OmegaConf
@@ -23,7 +23,9 @@ def api() -> Api:
 
 @pytest.fixture
 def wandb_callback() -> WandbCallback:
-    wandb_callback = WandbCallback(entity=ENTITY, project=PROJECT)
+    wandb_callback = WandbCallback(
+        wandb_init_kwargs=dict(entity=ENTITY, project=PROJECT)
+    )
     return wandb_callback
 
 
@@ -31,7 +33,7 @@ def test_init():
     # with logging metrics
     wandb_callback = WandbCallback()
     assert wandb_callback.log_metrics == True
-    assert wandb_callback.callback_config == {}
+    assert wandb_callback.wandb_init_kwargs == {}
 
     # disable metrics
     wandb_callback = WandbCallback(log_metrics=False)
@@ -39,17 +41,15 @@ def test_init():
 
 
 def test_on_begin_parameters():
-    wandb_callback = WandbCallback(some_unknown_metric=False)
-
     # verify a TypeError is raised when unknown parameters are passed
     with pytest.raises(TypeError):
-        wandb_callback.on_begin(OmegaConf.create({}))
+        WandbCallback(some_unknown_metric=False)
 
 
 @pytest.mark.dependency()
 def test_on_begin(wandb_callback: WandbCallback, api: Api, request: FixtureRequest):
     run_id: str = generate_shortuuid()
-    wandb_callback.callback_config["id"] = run_id
+    wandb_callback.wandb_init_kwargs["id"] = run_id
 
     # run `on_begin`
     config: DictConfig = OmegaConf.create(RUN_CONFIG_1)
