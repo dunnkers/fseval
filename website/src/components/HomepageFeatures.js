@@ -8,7 +8,9 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_server_re_twwj.svg').default,
     description: (
       <>
-        Run experiments on HPC clusters like SLURM, or use cloud providers like AWS, Azure or GCP to run large scale benchmarks.
+        Run experiments on HPC clusters like SLURM using
+        <a href="https://hydra.cc/docs/plugins/submitit_launcher"> Submitit</a>,
+        or use cloud providers like AWS with <a href="https://hydra.cc/docs/plugins/ray_launcher/">Ray</a> to run large scale benchmarks.
       </>
     ),
   },
@@ -84,10 +86,10 @@ export default function HomepageFeatures() {
         </div>
         <div className="row">
           <div className={clsx('col col--4 col--offset-2')}>
-            <Feature key={0} {...bottomLeftFeature} />
+            <Feature {...bottomLeftFeature} />
           </div>
           <div className={clsx('col col--4')}>
-            <Feature key={0} {...bottomRightFeature} />
+            <Feature {...bottomRightFeature} />
           </div>
         </div>
       </div>

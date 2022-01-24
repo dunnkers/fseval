@@ -2,21 +2,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import FileTree from './FileTree';
 import CodeBlock from '@theme/CodeBlock';
 
+const DEFAULT_ITEM = {
+    data: {
+        filePath: 'loading...',
+        fileExtension: '',
+        content: '',
+    }
+};
 
 export default function FileTreeCodeViewer({
     template,
     treeId,
     viewState,
-    defaultItem = {
-        data: {
-            filePath: 'loading...',
-            fileExtension: '',
-            content: '',
-        }
-    }
+    defaultItem = DEFAULT_ITEM
 }) {
     const environment = useRef();
     const [item, setItem] = useState(defaultItem);
+    const itemData = (item || DEFAULT_ITEM).data;
 
     // simulate clicking the default value.
     useEffect(() => {
@@ -28,6 +30,8 @@ export default function FileTreeCodeViewer({
             const selectedItems = viewStateTree.selectedItems;
 
             for (const selectedItem of selectedItems) {
+                if (!selectedItem) continue;
+
                 treeElement.invokePrimaryAction(selectedItem, treeId)
             }
         } catch (error) {
@@ -48,10 +52,10 @@ export default function FileTreeCodeViewer({
             </div>
             <div className="col col--8">
                 <CodeBlock
-                    className={`language-${item.data.fileExtension}`}
-                    title={item.data.filePath}
+                    className={`language-${itemData.fileExtension}`}
+                    title={itemData.filePath}
                 >
-                    {item.data.content}
+                    {itemData.content}
                 </CodeBlock>
             </div>
         </div>
