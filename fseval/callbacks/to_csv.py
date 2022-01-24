@@ -3,9 +3,10 @@ from logging import Logger, getLogger
 from pathlib import Path
 
 import pandas as pd
+from omegaconf import MISSING, DictConfig
+
 from fseval.config.callbacks.to_csv import ToCSVCallback
 from fseval.types import TerminalColor
-from omegaconf import MISSING, DictConfig
 
 from ._base_export_callback import BaseExportCallback
 

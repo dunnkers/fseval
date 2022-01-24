@@ -48,14 +48,132 @@ using an 'adapter'.
 
 ## Adapters
 
-To load data, you require to define an **adapter**. Several are available:
+To load data, you require to define an **adapter**. Several are available.
 
-- [OpenMLDataset](../adapters/OpenMLDataset) - loads datasets from OpenML.
-- [WandbDataset](../adapters/WandbDataset) - loads datasets from Weights and Biases artifacts.
+### `OpenMLDataset`
 
-To create your own, see [Custom Adapters](../adapters/Custom).
 
-## Example configs
+```python
+class fseval.config.adapters.OpenMLDataset(
+    dataset_id: int=MISSING,
+    target_column: str=MISSING,
+    drop_qualitative: bool=False,
+)
+```
+
+Allows loading a dataset from [OpenML](https://www.openml.org/).
+
+**Attributes**:
+
+| | |
+|---|---|
+| dataset_id : int | The dataset ID. |
+| target_column : str | Which column to use as a target. This column will be used as `y`. |
+| drop_qualitative : bool | Whether to drop any column that is not numeric. |
+| | |
+
+
+#### Example
+
+So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/iris.yaml">{IrisDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+
+### `WandbDataset`
+
+```python
+class fseval.config.adapters.WandbDataset(
+    artifact_id: str=MISSING
+)
+```
+
+Loads a dataset from the Weights and Biases [artifacts](https://docs.wandb.ai/guides/artifacts) store. Data must be stored in two tables `X` and `Y`.
+
+Requires being logged into the Weights and Biases CLI (in other words, having the [`WANDB_API_KEY`](https://docs.wandb.ai/guides/track/public-api-guide#authentication) set), and having installed the [`wandb`](https://pypi.org/project/wandb/) python package.
+
+
+**Attributes**:
+
+| | |
+|---|---|
+| artifact_id : str | The ID of the artifact to fetch. Has to be of the following form: `<entity>/<project>/<artifact_name>:<artifact_version>`. <br/><br/>For example:<br/> `dunnkers/synthetic-datasets/switch:v0` would be a valid artifact_id. |
+| | |
+
+
+#### Example
+
+For example, we could load the following artifact:
+
+![wandb adapter artifact example](/img/adapters/wandb.png)
+
+using the following config:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/chen.yaml">{ChenSwitchDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+### <\> Functions
 
 We can also use _functions_ as adapters, as long as they return a tuple `(X, y)`. e.g. using `sklearn.datasets.make_classification` as an adapter:
 
@@ -114,4 +232,29 @@ cs.store(
 </TabItem>
 </Tabs>
 
+### ⚙️ Custom adapter
+
+To load datasets from different sources, we can use different **adapters**. You can create an adapter by implementing this interface:
+
+```python
+class AbstractAdapter(ABC, BaseEstimator):
+    @abstractmethod
+    def get_data(self) -> Tuple[List, List]:
+        ...
+```
+
+For example:
+
+```python title="benchmark.py"
+@dataclass
+class CustomAdapter(AbstractAdapter):
+    def get_data(self) -> Tuple[List, List]:
+        X = [[]]
+        Y = []
+
+        return X, Y
+```
+
+
+## More examples
 For more examples, see the repo for more [dataset configs](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/dataset).

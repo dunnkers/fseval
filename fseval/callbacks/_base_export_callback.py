@@ -3,9 +3,10 @@ import time
 from dataclasses import dataclass
 
 import pandas as pd
+from omegaconf import DictConfig
+
 from fseval.types import Callback
 from fseval.utils.uuid_utils import generate_shortuuid
-from omegaconf import DictConfig
 
 
 @dataclass

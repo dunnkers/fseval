@@ -2,10 +2,11 @@ from typing import cast
 
 import pandas as pd
 import pytest
+from overrides import overrides
+
 from fseval.callbacks.to_sql import SQLCallback
 from fseval.config.callbacks.to_sql import EngineConfig, ToSQLCallback
 from fseval.types import Callback
-from overrides import overrides
 
 from ._common import BaseCallbackTest
 

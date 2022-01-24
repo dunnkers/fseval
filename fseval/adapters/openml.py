@@ -3,10 +3,10 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
+from openml.datasets import get_dataset
+
 from fseval.config.adapters import OpenMLDataset
 from fseval.types import AbstractAdapter
-
-from openml.datasets import get_dataset
 
 
 @dataclass

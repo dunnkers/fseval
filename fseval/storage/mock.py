@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
+from fseval.config.storage import MockStorageConfig
 from fseval.types import AbstractStorage
 
 
 @dataclass
-class MockStorage(AbstractStorage):
-    load_dir: Optional[str] = None
-    save_dir: Optional[str] = None
-
+class MockStorage(AbstractStorage, MockStorageConfig):
     def get_load_dir(self) -> str:
         ...
 

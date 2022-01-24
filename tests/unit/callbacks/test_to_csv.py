@@ -21,14 +21,14 @@ class TestCSVCallback(BaseCallbackTest):
         csv_dir = csv_dir / "some_sub_dir"
 
         # setup callback
-        callback = CSVCallback(dir=csv_dir)
+        callback = CSVCallback(dir=str(csv_dir))
 
         return callback
 
     @overrides
     def restore_config(self, callback: Callback) -> pd.DataFrame:
         callback = cast(CSVCallback, callback)
-        filepath = callback.dir / "experiments.csv"
+        filepath = callback.save_dir / "experiments.csv"
         df: pd.DataFrame = pd.read_csv(
             filepath,
             index_col="id",
@@ -40,7 +40,7 @@ class TestCSVCallback(BaseCallbackTest):
     @overrides
     def restore_table(self, callback: Callback, table_name: str) -> pd.DataFrame:
         callback = cast(CSVCallback, callback)
-        filepath = callback.dir / f"{table_name}.csv"
+        filepath = callback.save_dir / f"{table_name}.csv"
         df: pd.DataFrame = pd.read_csv(filepath, index_col="id")
 
         return df

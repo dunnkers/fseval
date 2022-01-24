@@ -1,4 +1,5 @@
 import hydra
+
 from fseval.config import PipelineConfig
 from fseval.main import run_pipeline
 

@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from logging import Logger, getLogger
 
 import pandas as pd
-from fseval.config.callbacks.to_sql import ToSQLCallback
-from fseval.types import TerminalColor
 from omegaconf import MISSING, DictConfig, OmegaConf
 from sqlalchemy import create_engine
+
+from fseval.config.callbacks.to_sql import ToSQLCallback
+from fseval.types import TerminalColor
 
 from ._base_export_callback import BaseExportCallback
 

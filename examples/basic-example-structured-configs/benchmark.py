@@ -1,11 +1,12 @@
 import hydra
+from hydra.core.config_store import ConfigStore
+from sklearn.base import BaseEstimator
+from sklearn.feature_selection import f_classif, mutual_info_classif
+
 from fseval.config import DatasetConfig, EstimatorConfig, PipelineConfig
 from fseval.config.adapters import OpenMLDataset
 from fseval.main import run_pipeline
 from fseval.types import Task
-from hydra.core.config_store import ConfigStore
-from sklearn.base import BaseEstimator
-from sklearn.feature_selection import f_classif, mutual_info_classif
 
 cs = ConfigStore.instance()
 

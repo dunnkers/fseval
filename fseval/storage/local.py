@@ -4,14 +4,12 @@ from logging import Logger, getLogger
 from pickle import dump, load
 from typing import Any, Callable, Optional
 
+from fseval.config.storage import LocalStorageConfig
 from fseval.types import AbstractStorage, TerminalColor
 
 
 @dataclass
-class LocalStorage(AbstractStorage):
-    load_dir: Optional[str] = None
-    save_dir: Optional[str] = None
-
+class LocalStorage(AbstractStorage, LocalStorageConfig):
     logger: Logger = getLogger(__name__)
 
     def get_load_dir(self) -> str:

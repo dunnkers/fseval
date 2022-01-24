@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from fseval.types import Task
 from omegaconf import MISSING
+
+from fseval.types import Task
 
 
 @dataclass

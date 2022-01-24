@@ -44,8 +44,8 @@ The complete configuration needed to run the fseval pipeline.
 | `ranker` : [EstimatorConfig](../EstimatorConfig) | A Feature Ranker or Feature Selector. |
 | `validator` : [EstimatorConfig](../EstimatorConfig) | Some estimator to validate the feature subsets. |
 | `storage` : [StorageConfig](../StorageConfig) | A storage method used to store the fit estimators. |
-| `callbacks` : Dict[str, Any] | Callbacks. Provide hooks for storing the config or results. |
-| `metrics` : Dict[str, Any] | Metrics allow custom computation after any pipeline stage. |
+| `callbacks` : Dict[str, Any] | [Callbacks](../callbacks). Provide hooks for storing the config or results. |
+| `metrics` : Dict[str, Any] | [Metrics](../metrics) allow custom computation after any pipeline stage. |
 | `n_bootstraps` : int | Amount of 'bootstraps' to run. A bootstrap means running the pipeline again but with a resampled (see `resample`) version of the dataset. This allows estimating stability, for example. |
 | `n_jobs` : Optional[int] | Amount of CPU's to use for computing each bootstrap. This thus distributes the amount of bootstraps over CPU's. |
 | `all_features_to_select` : str | Once the ranker has been fit, this determines the feature subsets to validate. By default, at most 50 subsets containing the highest ranked features are validated. |

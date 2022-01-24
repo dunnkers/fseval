@@ -6,6 +6,8 @@ from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
+from omegaconf import MISSING
+
 from fseval.config import EstimatorConfig
 from fseval.types import (
     AbstractEstimator,
@@ -14,7 +16,6 @@ from fseval.types import (
     IncompatibilityError,
     Task,
 )
-from omegaconf import MISSING
 
 
 @dataclass

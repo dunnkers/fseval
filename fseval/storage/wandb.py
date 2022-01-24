@@ -3,40 +3,16 @@ from logging import Logger, getLogger
 from os import path
 from typing import Any, Callable, Optional
 
-import wandb
+from fseval.config.storage import WandbStorageConfig
 from fseval.types import TerminalColor
+
+import wandb
 
 from .local import LocalStorage
 
 
 @dataclass
-class WandbStorage(LocalStorage):
-    """Storage for Weights and Biases (wandb), allowing users to save- and
-    restore files to the service.
-
-    Arguments:
-        load_dir: Optional[str] - when set, an attempt is made to load from the
-        designated local directory first, before downloading the data off of wandb. Can
-        be used to perform faster loads or prevent being rate-limited on wandb.
-
-        save_dir: Optional[str] - when set, uses this directory to save files, instead
-        of the usual wandb run directory, under the `files` subdirectory.
-
-        entity: Optional[str] - allows you to recover from a specific entity,
-        instead of using the entity that is set for the 'current' run.
-
-        project: Optional[str] - recover from a specific project.
-
-        run_id: Optional[str] - recover from a specific run id.
-
-        save_policy: str - policy for `wandb.save`. Can be 'live', 'now' or 'end'.
-        Determines at which point of the run the file is uploaded."""
-
-    entity: Optional[str] = None
-    project: Optional[str] = None
-    run_id: Optional[str] = None
-    save_policy: Optional[str] = "live"
-
+class WandbStorage(LocalStorage, WandbStorageConfig):
     logger: Logger = getLogger(__name__)
 
     def _assert_wandb_available(self):

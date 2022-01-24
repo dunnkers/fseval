@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from fseval.types import CacheUsage, Task
 from omegaconf import II, MISSING
+
+from fseval.types import CacheUsage, Task
 
 
 @dataclass
