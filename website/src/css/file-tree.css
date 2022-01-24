@@ -1,0 +1,19 @@
+
+:root {
+    --rct-color-tree-bg: #F6F8FA;
+    --rct-item-height: 26px;
+}
+
+.rct-tree-root {
+    font-family: inherit;
+    border-top-left-radius: var(--ifm-global-radius);
+    border-top-right-radius: var(--ifm-global-radius);
+    border-bottom-left-radius: var(--ifm-global-radius);
+    border-bottom-right-radius: var(--ifm-global-radius);
+
+    padding: 0.75rem 0;
+}
+
+.rct-tree-item-li {
+    font-size: var(--ifm-code-font-size);
+}

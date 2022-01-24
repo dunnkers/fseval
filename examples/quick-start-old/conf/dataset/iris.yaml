@@ -1,6 +1,0 @@
-name: Iris Flowers
-task: classification
-adapter:
-  _target_: fseval.adapters.openml.OpenML
-  dataset_id: 61
-  target_column: class
