@@ -1,0 +1,260 @@
+---
+sidebar_position: 2
+title: fseval.config.DatasetConfig
+---
+
+# DatasetConfig
+
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- fseval -->
+import OpenMLDataset from '!!raw-loader!../../../fseval/config/adapters/openml_dataset.py';
+import WandbDataset from '!!raw-loader!../../../fseval/config/adapters/wandb_dataset.py';
+
+<!-- fseval YAML configs -->
+import IrisDatasetYAML from '!!raw-loader!../../../tests/integration/conf/dataset/iris.yaml';
+import ChenSwitchDatasetYAML from '!!raw-loader!../../../tests/integration/conf/dataset/chen_switch.yaml';
+
+```python
+class fseval.config.DatasetConfig(
+    name: str=MISSING,
+    task: Task=MISSING,
+    adapter: Any=MISSING,
+    adapter_callable: str="get_data",
+    feature_importances: Optional[Dict[str, float]]=None,
+    group: Optional[str]=None,
+    domain: Optional[str]=None,
+)
+```
+
+Configures a dataset, to be used in the pipeline. Can be loaded from various sources
+using an 'adapter'.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `name` : str | Human-readable name of dataset. |
+| `task` : [Task](/fseval/docs/types/Task) | Either Task.classification or Task.regression. |
+| `adapter` : Any | Dataset adapter. must be of fseval.types.AbstractAdapter type, i.e. must implement a get_data() -> (X, y) method. Can also be a callable; then the callable must return a tuple (X, y). |
+| `adapter_callable` : Any | Adapter class callable. the function to be called on the instantiated class to fetch the data (X, y). is ignored when the target itself is a function callable. | 
+| `feature_importances` : Optional[Dict[str, float]] | Weightings indicating relevant features or instances. Should be a dict with each key and value like the following pattern:     `X[<numpy selector>] = <float>` Example:     `X[:, 0:3] = 1.0` which sets the 0-3 features as maximally relevant and all others minimally relevant. |
+| `group` : Optional[str] | An optional group attribute, such to group datasets in the analytics stage. |
+| `domain` : Optional[str] | Dataset domain, e.g. medicine, finance, etc. |
+| | |
+
+## Adapters
+
+To load data, you require to define an **adapter**. Several are available.
+
+### `OpenMLDataset`
+
+
+```python
+class fseval.config.adapters.OpenMLDataset(
+    dataset_id: int=MISSING,
+    target_column: str=MISSING,
+    drop_qualitative: bool=False,
+)
+```
+
+Allows loading a dataset from [OpenML](https://www.openml.org/).
+
+**Attributes**:
+
+| | |
+|---|---|
+| dataset_id : int | The dataset ID. |
+| target_column : str | Which column to use as a target. This column will be used as `y`. |
+| drop_qualitative : bool | Whether to drop any column that is not numeric. |
+| | |
+
+
+#### Example
+
+So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/iris.yaml">{IrisDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+
+### `WandbDataset`
+
+```python
+class fseval.config.adapters.WandbDataset(
+    artifact_id: str=MISSING
+)
+```
+
+Loads a dataset from the Weights and Biases [artifacts](https://docs.wandb.ai/guides/artifacts) store. Data must be stored in two tables `X` and `Y`.
+
+Requires being logged into the Weights and Biases CLI (in other words, having the [`WANDB_API_KEY`](https://docs.wandb.ai/guides/track/public-api-guide#authentication) set), and having installed the [`wandb`](https://pypi.org/project/wandb/) python package.
+
+
+**Attributes**:
+
+| | |
+|---|---|
+| artifact_id : str | The ID of the artifact to fetch. Has to be of the following form: `<entity>/<project>/<artifact_name>:<artifact_version>`. <br/><br/>For example:<br/> `dunnkers/synthetic-datasets/switch:v0` would be a valid artifact_id. |
+| | |
+
+
+#### Example
+
+For example, we could load the following artifact:
+
+![wandb adapter artifact example](/img/adapters/wandb.png)
+
+using the following config:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+<CodeBlock className="language-yaml" title="conf/dataset/chen.yaml">{ChenSwitchDatasetYAML}</CodeBlock>
+
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+Any dataset can also be configured using Python code. Like so:
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.config.adapters import OpenMLDataset
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="iris",
+    node=DatasetConfig(
+        name="Iris Flowers",
+        task=Task.classification,
+        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+### <\> Functions
+
+We can also use _functions_ as adapters, as long as they return a tuple `(X, y)`. e.g. using `sklearn.datasets.make_classification` as an adapter:
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/dataset/synthetic_dataset.yaml"
+name: My synthetic dataset
+task: classification
+adapter:
+  _target_: sklearn.datasets.make_classification
+  n_samples: 10000
+  n_informative: 2
+  n_classes: 2
+  n_features: 20
+  n_redundant: 0
+  random_state: 0
+  shuffle: false
+feature_importances:
+  X[:, 0:2]: 1.0
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import DatasetConfig
+from fseval.types import Task
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="dataset",
+    name="synthetic_dataset",
+    node=DatasetConfig(
+        name="My synthetic dataset",
+        task=Task.classification,
+        adapter=dict(
+            _target_="sklearn.datasets.make_classification",
+            n_samples=10000,
+            n_informative=2,
+            n_classes=2,
+            n_features=20,
+            n_redundant=0,
+            random_state=0,
+            shuffle=False,
+        ),
+        feature_importances={
+            "X[:, 0:2]": 1.0
+        }
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+### ⚙️ Custom adapter
+
+To load datasets from different sources, we can use different **adapters**. You can create an adapter by implementing this interface:
+
+```python
+class AbstractAdapter(ABC, BaseEstimator):
+    @abstractmethod
+    def get_data(self) -> Tuple[List, List]:
+        ...
+```
+
+For example:
+
+```python title="benchmark.py"
+@dataclass
+class CustomAdapter(AbstractAdapter):
+    def get_data(self) -> Tuple[List, List]:
+        X = [[]]
+        Y = []
+
+        return X, Y
+```
+
+
+## More examples
+For more examples, see the repo for more [dataset configs](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/dataset).

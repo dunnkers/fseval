@@ -8,7 +8,9 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_server_re_twwj.svg').default,
     description: (
       <>
-        Run experiments on HPC clusters like SLURM, or use cloud providers like AWS, Azure or GCP to run large scale benchmarks.
+        Run experiments on HPC clusters like SLURM using
+        <a href="https://hydra.cc/docs/plugins/submitit_launcher"> Submitit</a>,
+        or use cloud providers like AWS with <a href="https://hydra.cc/docs/plugins/ray_launcher/">Ray</a> to run large scale benchmarks.
       </>
     ),
   },
@@ -48,13 +50,13 @@ const FeatureListBottom = [
     Svg: require('../../static/img/undraw_metrics_re_6g90.svg').default,
     description: (
       <>
-        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, Postgresql, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>.
+        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, PostgreSQL, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>.
       </>
     ),
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({ Svg, title, description }) {
   return (
     <>
       <div className="text--center">
@@ -84,10 +86,10 @@ export default function HomepageFeatures() {
         </div>
         <div className="row">
           <div className={clsx('col col--4 col--offset-2')}>
-            <Feature key={0} {...bottomLeftFeature} />
+            <Feature {...bottomLeftFeature} />
           </div>
           <div className={clsx('col col--4')}>
-            <Feature key={0} {...bottomRightFeature} />
+            <Feature {...bottomRightFeature} />
           </div>
         </div>
       </div>

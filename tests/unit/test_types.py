@@ -1,4 +1,5 @@
 import pandas as pd
+
 from fseval.types import (
     AbstractAdapter,
     AbstractEstimator,

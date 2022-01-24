@@ -28,4 +28,3 @@ def test_config_loading(cfg) -> None:
 def test_config_attributes(cfg) -> None:
     assert cfg.dataset is not None
     assert cfg.cv is not None
-    assert cfg.pipeline is not None

@@ -1,10 +1,11 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
 import pytest
 from hydra.core.config_store import ConfigStore
 from hydra.utils import instantiate
+from omegaconf import DictConfig, open_dict
 from sklearn.base import BaseEstimator
 
 from fseval.config import (
@@ -97,7 +98,6 @@ cv: CrossValidatorConfig = CrossValidatorConfig(
 cs.store(name="simple_shuffle_split", node=cv, group="cv")
 
 config = PipelineConfig(
-    pipeline="testing",
     n_bootstraps=2,
     n_jobs=None,
     all_features_to_select="range(1, min(50, p) + 1)",
@@ -125,6 +125,12 @@ def cfg() -> PipelineConfig:
 def test_without_ranker_gt(cfg: PipelineConfig):
     """Test execution without dataset ground-truth."""
 
+    # callback target. requires disabling omegaconf struct.
+    with open_dict(cast(DictConfig, cfg)):
+        cfg.callbacks[
+            "_target_"
+        ] = "fseval.pipelines._callback_collection.CallbackCollection"
+
     # load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
     dataset: Dataset = dataset_loader.load()
@@ -145,6 +151,12 @@ def test_with_ranker_gt(cfg: PipelineConfig):
     """Test execution with dataset ground-truth: a feature importances vector attached;
     i.e. the relevance per feature, known apriori."""
     cfg.dataset.feature_importances = {"X[:, :]": 1.0}  # uniform
+
+    # callback target. requires disabling omegaconf struct.
+    with open_dict(cast(DictConfig, cfg)):
+        cfg.callbacks[
+            "_target_"
+        ] = "fseval.pipelines._callback_collection.CallbackCollection"
 
     # load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
@@ -168,6 +180,12 @@ def test_with_ranker_gt_no_importances_substitution(cfg: PipelineConfig):
 
     cfg.dataset.feature_importances = {"X[:, :]": 1.0}  # uniform
     cfg.ranker.estimates_feature_ranking = False
+
+    # callback target. requires disabling omegaconf struct.
+    with open_dict(cast(DictConfig, cfg)):
+        cfg.callbacks[
+            "_target_"
+        ] = "fseval.pipelines._callback_collection.CallbackCollection"
 
     # load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)

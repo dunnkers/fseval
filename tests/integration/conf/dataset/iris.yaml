@@ -1,8 +1,6 @@
 name: Iris Flowers
 task: classification
-domain: nature
 adapter:
   _target_: fseval.adapters.openml.OpenML
   dataset_id: 61
   target_column: class
-  drop_qualitative: true

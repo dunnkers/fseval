@@ -3,22 +3,40 @@ from logging import getLogger
 from os import getcwd
 from pathlib import Path
 from traceback import print_exc
-from typing import cast
+from typing import Dict, Optional, cast
 
 from hydra.core.utils import _save_config
 from hydra.utils import instantiate
-from omegaconf import DictConfig
+from omegaconf import DictConfig, open_dict
 
 from fseval.config import PipelineConfig
 from fseval.pipeline.dataset import Dataset, DatasetLoader
+from fseval.pipelines._callback_collection import CallbackCollection
 from fseval.types import AbstractPipeline, IncompatibilityError, TerminalColor
 
 
 def run_pipeline(
     cfg: PipelineConfig, raise_incompatibility_errors: bool = False
-) -> None:
+) -> Optional[Dict]:
+    """
+    Runs the fseval pipeline.
+
+    Attributes:
+        cfg (PipelineConfig): The pipeline configuration to use.
+        raise_incompatibility_errors (bool): Whether to raise an error when an
+            incompatible config was passed. Otherwise, the pipeline is exited
+            gracefully. That is, no error is raised and the pipeline is stopped with an
+            exit(0).
+    """
+
     logger = getLogger(__name__)
     logger.info("instantiating pipeline components...")
+
+    # callback target. requires disabling omegaconf struct.
+    with open_dict(cast(DictConfig, cfg)):
+        cfg.callbacks[
+            "_target_"
+        ] = "fseval.pipelines._callback_collection.CallbackCollection"
 
     # instantiate and load dataset
     dataset_loader: DatasetLoader = instantiate(cfg.dataset)
@@ -51,13 +69,17 @@ def run_pipeline(
         if raise_incompatibility_errors:
             raise e
         else:
-            return
+            return None
 
     # run pipeline
-    logger.info(f"starting {TerminalColor.yellow(cfg.pipeline)} pipeline...")
+    logger.info("starting pipeline...")
     cfg.storage.load_dir = None  # set these after callbacks were initialized
     cfg.storage.save_dir = None  # set these after callbacks were initialized
-    pipeline.callbacks.on_begin(cfg)
+
+    # `callbacks.on_begin``
+    assert isinstance(pipeline.callbacks, CallbackCollection)
+    pipeline.callbacks.on_begin(cast(DictConfig, cfg))
+
     # set storage load- and save dirs
     cfg.storage.load_dir = pipeline.storage.get_load_dir()
     cfg.storage.save_dir = pipeline.storage.get_save_dir()
@@ -110,9 +132,10 @@ def run_pipeline(
             f"saved {n_saved_files} files to {TerminalColor.blue(cfg.storage.save_dir)} "
             + TerminalColor.green("✓")
         )
-    logger.info(
-        f"{TerminalColor.yellow(cfg.pipeline)} pipeline "
-        + f"finished {TerminalColor.green('✓')}"
-    )
+    logger.info(f"pipeline finished {TerminalColor.green('✓')}")
     pipeline.callbacks.on_summary(scores)
     pipeline.callbacks.on_end()
+
+    # return final scores
+    scores = cast(Dict, scores)
+    return scores

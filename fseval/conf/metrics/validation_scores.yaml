@@ -1,0 +1,3 @@
+# @package metrics
+validation_scores:
+  _target_: fseval.metrics.validation_scores.UploadValidationScores

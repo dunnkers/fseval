@@ -24,7 +24,7 @@ with open("README.md", "r") as fh:
         project_urls={
             "Github": "https://github.com/dunnkers/fseval",
             "Bug Tracker": "https://github.com/dunnkers/fseval/issues",
-            "Documentation": "https://fseval.github.io/",
+            "Documentation": "https://dunnkers.com/fseval",
         },
         include_package_data=True,
         install_requires=[

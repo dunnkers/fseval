@@ -1,0 +1,3 @@
+# @package metrics
+feature_importances:
+  _target_: fseval.metrics.feature_importances.UploadFeatureImportances

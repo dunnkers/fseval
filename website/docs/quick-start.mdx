@@ -1,0 +1,87 @@
+---
+sidebar_position: 1
+---
+
+# Quick start
+
+import FileTreeCodeViewer from '../src/components/FileTreeCodeViewer';
+import '../src/css/file-tree.css';
+
+
+<!-- files -->
+import ConfDatasetSynthetic from '!!raw-loader!../../examples/quick-start/conf/dataset/synthetic.yaml';
+import ConfRankerAnova from '!!raw-loader!../../examples/quick-start/conf/ranker/anova.yaml';
+import ConfRankerMutualInfo from '!!raw-loader!../../examples/quick-start/conf/ranker/mutual_info.yaml';
+import ConfValidatorKnn from '!!raw-loader!../../examples/quick-start/conf/validator/knn.yaml';
+import ConfMyConfig from '!!raw-loader!../../examples/quick-start/conf/my_config.yaml';
+import BenchmarkPy from '!!raw-loader!../../examples/quick-start/benchmark.py';
+
+fseval helps you benchmark **Feature Selection** and **Feature Ranking** algorithms. Any algorithm that ranks features in importance.
+
+It comes useful if you are one of the following types of users:
+1. **Feature Selection / Feature Ranker algorithm authors**. You are the author of a novel Feature Selection algorithm. Now, you have to prove the performance of your algorithm against other competitors. Therefore, you are going to run a large-scale benchmark. Many authors, however, spend much time rewriting similar pipelines to benchmark their algorithms. fseval helps you run benchmarks in a structured manner, on supercomputer clusters or on the cloud.
+1. **Interpretable AI method authors**. You wrote a new Interpretable AI method that aims to find out which features are most meaningful by ranking them. Now, the challenge is to find out how well your method ranked those features. fseval can help with this.
+1. **Machine Learning practitioners**. You have a dataset and want to find out with exactly what features your models will perform best. You can use fseval to try multiple Feature Selection or Feature Ranking algorithms.
+
+
+
+Key features 🚀:
+- Built on [Hydra](https://hydra.cc/)
+- Support for distributed systems (SLURM through the [Submitit launcher](https://hydra.cc/docs/plugins/submitit_launcher), AWS support through the [Ray launcher](https://hydra.cc/docs/plugins/ray_launcher/))
+- Easy to use
+- Reproducible experiments (your entire experiment can be described and reproduced by 1 YAML file)
+- Send experiment results directly to a dashboard (integration with [Weights and Biases](https://wandb.ai/) is built-in)
+- Export your data to any SQL database (integration with [SQLAlchemy](https://www.sqlalchemy.org/))
+
+## Getting started
+
+Install fseval:
+```shell
+pip install fseval
+```
+
+Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start):
+
+<FileTreeCodeViewer treeId="tree-1" template={{
+  root: {
+    "conf": {
+      "dataset": {
+        "synthetic.yaml": ConfDatasetSynthetic
+      },
+      "ranker": {
+        "anova.yaml": ConfRankerAnova,
+        "mutual_info.yaml": ConfRankerMutualInfo,
+      },
+      "validator": {
+        "knn.yaml": ConfValidatorKnn
+      },
+      "my_config.yaml": ConfMyConfig,
+    },
+    "benchmark.py": BenchmarkPy,
+  }
+}} viewState={{
+  "tree-1": {
+      expandedItems: ["conf", "ranker", "dataset", "validator"],
+      selectedItems: ["my_config.yaml"]
+  }
+}} />
+
+<br/>
+
+We can then run a benchmark like so:
+```shell
+python benchmark.py --multirun ranker='glob(*)'
+```
+
+![Locale Dropdown](/img/quick-start/terminal.svg)
+
+The results are now stored in a SQLite database. We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
+
+![validation data](/img/quick-start/validation_data.png)
+
+In the example above, 
+the <span style={{backgroundColor: "#5050FF", color: "white"}}>purple</span>&nbsp;
+line resembles ANOVA F value feature selection, and 
+the <span style={{backgroundColor: "#0075DD", color: "white"}}>light blue</span>&nbsp;
+line resembles Mutual Info.
+This way, we can easily compare two feature selectors: ANOVA F Value and Mutual Info ✨.

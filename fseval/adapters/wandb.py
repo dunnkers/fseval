@@ -4,13 +4,8 @@ from typing import List, Tuple
 from omegaconf import MISSING
 
 import wandb
+from fseval.config.adapters import WandbDataset
 from fseval.types import AbstractAdapter
-
-
-@dataclass
-class WandbDataset:
-    _target_: str = "fseval.adapters.wandb.Wandb"
-    artifact_id: str = MISSING
 
 
 @dataclass

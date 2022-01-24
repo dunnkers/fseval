@@ -4,9 +4,10 @@ from typing import Dict, Union, cast
 
 import numpy as np
 import pandas as pd
-from fseval.types import TerminalColor as tc
 from omegaconf import MISSING
 from sklearn.base import clone
+
+from fseval.types import TerminalColor as tc
 
 from .._experiment import Experiment
 from ._config import RankAndValidatePipeline

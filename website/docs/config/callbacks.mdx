@@ -1,0 +1,118 @@
+---
+title: Callbacks
+---
+
+
+# Callbacks
+
+## To SQL
+
+
+```python
+class fseval.config.callbacks.ToSQLCallback(
+    engine_config: EngineConfig=MISSING,
+    if_table_exists: str="append"
+)
+```
+
+SQL support for fseval. Uploads general information on the experiment to a `experiments` table and provides a hook for uploading custom tables.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `engine_config` : [EngineConfig](#engineconfig) | All keyword arguments to pass to SQLAlchemy's [`create_engine`](https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine) function. |
+| `if_table_exists` : str | What to do when a table of the specified name already exists. Can be 'fail', 'replace' or 'append'. By default is 'append'. For more info, see the [Pandas.DataFrame#to_sql](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html) function. |
+| | |
+
+
+    
+    
+### `EngineConfig`
+
+```python
+class EngineConfig(
+    url: str=MISSING
+)
+```
+
+A type definition whatever we are passing to SQLAlchemy's [create_engine](https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine) function.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `url` : str | The database URL. Is of type RFC-1738, e.g. `dialect+driver://username:password@host:port/database` See the SQLAlchemy documentation for more information; https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls |
+| | |
+
+
+## To CSV
+
+
+```python
+class fseval.config.callbacks.ToCSVCallback(
+    dir: str=MISSING,
+    mode: str="a",
+)
+```
+
+
+CSV support for fseval. Uploads general information on the experiment to a `experiments` table and provides a hook for uploading custom tables.
+
+**Attributes**:
+
+| | |
+|---|---|
+| `dir` : str | The directory to save all CSV files to. For example, in this directory a file `experiments.csv` will be created, containing the config of all experiments that were run. |
+| `mode` : str | Whether to overwrite or append. Use "a" for appending and "w" for overwriting. |
+| | |
+
+
+
+## To Weights and Biases
+
+```python
+class fseval.config.callbacks.ToWandbCallback(
+    log_metrics: bool=True,
+    wandb_init_kwargs: Dict[str, Any]=field(default_factory=lambda: {}),
+)
+```
+
+Support for exporting the job config and result tables to Weights and Biases.
+    
+**Attributes**:
+
+| | |
+|---|---|
+| `log_metrics` : bool | Whether to log metrics. In the case of a resumation run, a user might probably not want to log metrics, but just update the tables instead. |
+| `wandb_init_kwargs` : Dict[str, Any] | Any additional settings to be passed to `wandb.init()`. See the function signature for details; https://docs.wandb.ai/ref/python/init |
+| | |
+
+
+## ⚙️ Custom Callbacks
+
+To create a custom callback, implement the following interface:
+
+```python
+class Callback(ABC):
+    def on_begin(self, config: DictConfig):
+        ...
+
+    def on_config_update(self, config: Dict):
+        ...
+
+    def on_metrics(self, metrics):
+        ...
+
+    def on_table(self, df: pd.DataFrame, name: str):
+        ...
+
+    def on_summary(self, summary: Dict):
+        ...
+
+    def on_end(self, exit_code: Optional[int] = None):
+        ...
+```
+
+For example implementations, check the fseval repository [`fseval/callbacks`](https://github.com/dunnkers/fseval/tree/master/fseval/callbacks) directory, and its associated [yaml configs](https://github.com/dunnkers/fseval/tree/master/fseval/conf/callbacks).
+
