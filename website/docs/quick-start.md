@@ -28,8 +28,8 @@ Install fseval:
 pip install fseval
 ```
 
+### Configuring a benchmark
 Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start):
-
 
 
 ```shell
@@ -143,13 +143,14 @@ if __name__ == "__main__":
     main()
 ```
 
-
+### Running the benchmark
 We can then run a benchmark like so:
 ```shell
 python benchmark.py --multirun ranker='glob(*)'
 ```
 ![Locale Dropdown](/img/quick-start/terminal.svg)
 
+### Results
 The data is stored in a SQLite database:
 
 ![database](/img/quick-start/database_file.png)

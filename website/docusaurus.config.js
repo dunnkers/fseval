@@ -24,15 +24,11 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          sidebarCollapsed: true,
           // Please change this to your repo.
           editUrl: 'https://github.com/dunnkers/fseval/tree/website/',
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/dunnkers/fseval/tree/website/',
-        },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -71,8 +67,16 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Docs',
+                label: 'Quick start',
                 to: '/docs/quick-start',
+              },
+              {
+                label: 'API reference',
+                to: '/docs/main',
+              },
+              {
+                label: 'Recipes',
+                to: '/docs/recipes/algorithm-stability',
               },
             ],
           },
