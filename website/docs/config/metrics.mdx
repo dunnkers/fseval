@@ -39,7 +39,7 @@ For example, the `validation_scores` table:
 
 
 
-## ⚙️ Custom metrics
+## ⚙️ Custom Metrics
 
 To add your own custom metric, you can use the `AbstractMetric` interface.
 
@@ -132,3 +132,13 @@ class UploadRankingScores(AbstractMetric):
         return scores
 
 ```
+
+With its according config file:
+
+```yaml title="conf/metrics/ranking_scores.yaml"
+# @package metrics
+ranking_scores:
+  _target_: fseval.metrics.ranking_scores.UploadRankingScores
+```
+
+And can then be activated on the commandline with `+metrics='[ranking_scores]'`.

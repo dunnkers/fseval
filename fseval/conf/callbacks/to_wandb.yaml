@@ -1,3 +1,4 @@
-wandb:
+to_wandb:
   _target_: fseval.callbacks.to_wandb.WandbCallback
-  job_type: ${hydra:job.name}
+  wandb_init_kwargs:
+    job_type: ${hydra:job.name}

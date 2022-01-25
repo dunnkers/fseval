@@ -3,11 +3,6 @@ from typing import Dict, List, Tuple, Union, cast
 import numpy as np
 import pandas as pd
 import pytest
-from hydra.core.config_store import ConfigStore
-from hydra.utils import instantiate
-from omegaconf import DictConfig, open_dict
-from sklearn.base import BaseEstimator
-
 from fseval.config import (
     CrossValidatorConfig,
     DatasetConfig,
@@ -18,13 +13,18 @@ from fseval.config import (
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from fseval.utils.hydra_utils import get_config
+from hydra.core.config_store import ConfigStore
+from hydra.utils import instantiate
+from omegaconf import DictConfig, open_dict
+from sklearn.base import BaseEstimator
 
 cs = ConfigStore.instance()
 
 
 class RandomEstimator(BaseEstimator):
-    def __init__(self, random_state=None):
+    def __init__(self, random_state=None, multi_dim=False):
         self.random_state = random_state
+        self.multi_dim = multi_dim
 
     def _get_random_state(self):
         return np.random.RandomState(self.random_state)
@@ -32,9 +32,21 @@ class RandomEstimator(BaseEstimator):
     def fit(self, X, y):
         n, p = np.asarray(X).shape
         self.n_features = p
-        self.feature_importances_ = self._get_random_state().rand(self.n_features)
-        self.support_ = self._get_random_state().rand(self.n_features)
-        self.ranking_ = self._get_random_state().rand(self.n_features)
+
+        # random generator
+        random_state: np.random.RandomState = self._get_random_state()
+
+        # feature support. is always 1-dimensional.
+        self.support_ = random_state.rand(self.n_features) > 0.5
+
+        # 1-dimensional
+        if not self.multi_dim:
+            self.feature_importances_ = random_state.rand(self.n_features)
+            self.ranking_ = random_state.rand(self.n_features)
+        # multi-dimensional
+        else:
+            self.feature_importances_ = random_state.rand(self.n_features, 3)
+            self.ranking_ = random_state.rand(self.n_features, 3)
 
     def score(self, X, y, **kwargs) -> Union[Dict, pd.DataFrame, np.generic, None]:
         return self._get_random_state().rand()
@@ -63,6 +75,14 @@ ranker: EstimatorConfig = EstimatorConfig(
     estimates_feature_ranking=True,
 )
 cs.store(name="random_ranker", node=ranker, group="ranker")
+
+ranker_multi_dim: EstimatorConfig = ranker
+ranker_multi_dim.estimator = {
+    "_target_": "tests.integration.pipelines.test_rank_and_validate.RandomEstimator",
+    "random_state": 0,
+    "multi_dim": True,
+}
+cs.store(name="random_ranker_multi_dim", node=ranker, group="ranker")
 
 validator: EstimatorConfig = EstimatorConfig(
     name="Random Validator",
@@ -122,9 +142,7 @@ def cfg() -> PipelineConfig:
     return cfg
 
 
-def test_without_ranker_gt(cfg: PipelineConfig):
-    """Test execution without dataset ground-truth."""
-
+def run_pipeline___test_version(cfg: PipelineConfig):
     # callback target. requires disabling omegaconf struct.
     with open_dict(cast(DictConfig, cfg)):
         cfg.callbacks[
@@ -145,6 +163,28 @@ def test_without_ranker_gt(cfg: PipelineConfig):
     )
     pipeline.fit(X_train, y_train)
     pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
+
+
+def test_without_ranker_gt(cfg: PipelineConfig):
+    """Test execution without dataset ground-truth."""
+
+    run_pipeline___test_version(cfg)
+
+
+def test_with_multi_dim_ranker():
+    cfg: PipelineConfig = get_config(
+        config_module="tests.integration.pipelines.conf",
+        config_name="my_test_config",
+        overrides=[
+            "dataset=some_dataset",
+            "cv=simple_shuffle_split",
+            "validator=random_validator",
+            "ranker=random_ranker_multi_dim",
+            "resample=default_resampling",
+        ],
+    )
+
+    run_pipeline___test_version(cfg)
 
 
 def test_with_ranker_gt(cfg: PipelineConfig):
@@ -152,26 +192,7 @@ def test_with_ranker_gt(cfg: PipelineConfig):
     i.e. the relevance per feature, known apriori."""
     cfg.dataset.feature_importances = {"X[:, :]": 1.0}  # uniform
 
-    # callback target. requires disabling omegaconf struct.
-    with open_dict(cast(DictConfig, cfg)):
-        cfg.callbacks[
-            "_target_"
-        ] = "fseval.pipelines._callback_collection.CallbackCollection"
-
-    # load dataset
-    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
-    dataset: Dataset = dataset_loader.load()
-    cfg.dataset.n = dataset.n
-    cfg.dataset.p = dataset.p
-    cfg.dataset.multioutput = dataset.multioutput
-
-    # fit pipeline
-    pipeline = instantiate(cfg)
-    X_train, X_test, y_train, y_test = pipeline.cv.train_test_split(
-        dataset.X, dataset.y
-    )
-    pipeline.fit(X_train, y_train)
-    pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
+    run_pipeline___test_version(cfg)
 
 
 def test_with_ranker_gt_no_importances_substitution(cfg: PipelineConfig):
@@ -181,26 +202,7 @@ def test_with_ranker_gt_no_importances_substitution(cfg: PipelineConfig):
     cfg.dataset.feature_importances = {"X[:, :]": 1.0}  # uniform
     cfg.ranker.estimates_feature_ranking = False
 
-    # callback target. requires disabling omegaconf struct.
-    with open_dict(cast(DictConfig, cfg)):
-        cfg.callbacks[
-            "_target_"
-        ] = "fseval.pipelines._callback_collection.CallbackCollection"
-
-    # load dataset
-    dataset_loader: DatasetLoader = instantiate(cfg.dataset)
-    dataset: Dataset = dataset_loader.load()
-    cfg.dataset.n = dataset.n
-    cfg.dataset.p = dataset.p
-    cfg.dataset.multioutput = dataset.multioutput
-
-    # fit pipeline
-    pipeline = instantiate(cfg)
-    X_train, X_test, y_train, y_test = pipeline.cv.train_test_split(
-        dataset.X, dataset.y
-    )
-    pipeline.fit(X_train, y_train)
-    pipeline.score(X_test, y_test, feature_importances=dataset.feature_importances)
+    run_pipeline___test_version(cfg)
 
 
 def test_validator_incompatibility_check(cfg: PipelineConfig):

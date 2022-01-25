@@ -57,11 +57,11 @@ set `estimates_target` to True.
 ## Examples
 Example config for ReliefF feature selection using [skrebate](https://github.com/EpistasisLab/scikit-rebate):
 
-
+### <kbd>Ranker</kbd> ReliefF
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-```yaml title="conf/ranker/relieff.yaml"
+```yaml {5} title="conf/ranker/relieff.yaml"
 name: ReliefF
 estimator:
   _target_: skrebate.ReliefF
@@ -84,6 +84,7 @@ relieff = EstimatorConfig(
         _target_="skrebate.ReliefF"
     ),
     _estimator_type="classifier",
+    # highlight-next-line
     estimates_feature_importances=True,
 )
 cs.store(group="ranker", name="relieff", node=relieff)
@@ -92,13 +93,16 @@ cs.store(group="ranker", name="relieff", node=relieff)
 </TabItem>
 </Tabs>
 
+Then use with `ranker=relieff` on the commandline.
 
+
+### <kbd>Ranker</kbd> Boruta
 Example config for Boruta using [boruta_py](https://github.com/scikit-learn-contrib/boruta_py):
 
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-```yaml title="conf/ranker/boruta.yaml"
+```yaml {9-11} title="conf/ranker/boruta.yaml"
 name: Boruta
 estimator:
   _target_: boruta.boruta_py.BorutaPy
@@ -132,9 +136,11 @@ boruta = EstimatorConfig(
     ),
     _estimator_type="classifier",
     multioutput=False,
+    # highlight-start
     estimates_feature_importances=False,
     estimates_feature_support=True,
     estimates_feature_ranking=True,
+    # highlight-end
 )
 cs.store(group="ranker", name="boruta", node=boruta)
 ```
@@ -142,14 +148,16 @@ cs.store(group="ranker", name="boruta", node=boruta)
 </TabItem>
 </Tabs>
 
+Then use with `ranker=boruta` on the commandline.
 
 
+### <kbd>Validator</kbd> k-NN
 Example config for a validation estimator, e.g. [k-NN](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html):
 
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-```yaml title="conf/validator/knn.yaml"
+```yaml {6} title="conf/validator/knn.yaml"
 name: k-NN
 estimator:
   _target_: sklearn.neighbors.KNeighborsClassifier
@@ -174,6 +182,7 @@ knn = EstimatorConfig(
     ),
     _estimator_type="classifier",
     multioutput=False,
+    # highlight-next-line
     estimates_target=True,
 )
 cs.store(group="ranker", name="knn", node=knn)
@@ -182,4 +191,7 @@ cs.store(group="ranker", name="knn", node=knn)
 </TabItem>
 </Tabs>
 
-→ See more example definitions of [rankers](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/ranker) and [validators](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/validator) in the repository.
+Then use with `validator=knn` on the commandline.
+
+## More examples
+See more example definitions of [rankers](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/ranker) and [validators](https://github.com/dunnkers/fseval/tree/master/tests/integration/conf/validator) in the repository.

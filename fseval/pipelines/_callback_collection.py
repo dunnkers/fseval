@@ -1,9 +1,8 @@
 from typing import Dict, Optional
 
 import pandas as pd
-from omegaconf import DictConfig
-
 from fseval.types import Callback
+from omegaconf import DictConfig
 
 
 class CallbackCollection(Callback):

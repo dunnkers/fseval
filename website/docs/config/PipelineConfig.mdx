@@ -8,6 +8,14 @@ title: fseval.config.PipelineConfig
 <!-- Docusaurus -->
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+<!-- YAML files -->
+import ConfMyConfigYAML from '!!raw-loader!../../../examples/quick-start-yaml/conf/my_config.yaml';
+
+<!-- Python files -->
+import ConfMyConfigPy from '!!raw-loader!../../../examples/quick-start-structured-configs/conf/my_config.py';
+
 
 ```python
 class fseval.config.PipelineConfig(
@@ -64,7 +72,7 @@ The complete configuration needed to run the fseval pipeline.
 Experiments can be configured in two ways.
 
 1. Using **YAML** files stored in a directory
-2. Using **Python** ([Structured Configs](https://hydra.cc/docs/tutorials/structured_config/intro/) in Hydra)
+2. Using **Python** ([Structured Configs](https://hydra.cc/docs/tutorials/structured_config/intro/))
 
 ## Examples
 
@@ -72,39 +80,18 @@ Experiments can be configured in two ways.
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-```yaml title="conf/my_config.yaml"
-defaults:
-  - _self_
-  - base_pipeline_config
-  - override dataset: iris
-  - override validator: knn
-
-n_bootstraps: 5
-```
+<CodeBlock className="language-yaml" title="conf/my_config.yaml">
+        {ConfMyConfigYAML}
+</CodeBlock>
 
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
-Any dataset can also be configured using Python code. Like so:
-
-```python
-from hydra.core.config_store import ConfigStore
-from fseval.config import PipelineConfig
-from typing import List, Any
-from dataclasses import field
-
-cs = ConfigStore.instance()
-
-cs.store(name="my_config", node=PipelineConfig(
-        defaults=field(
-                default_factory=lambda: [
-                        {"dataset": "iris"},
-                        {"validator": "knn"}
-                ]
-        ),
-        n_boostraps=5,
-))
-```
+<CodeBlock className="language-py" title="conf/my_config.py">
+        {ConfMyConfigPy}
+</CodeBlock>
 
 </TabItem>
 </Tabs>
+
+Using the _override_ keyword is required when overriding a config **group**. See more [here](https://hydra.cc/docs/next/upgrades/1.0_to_1.1/defaults_list_override/#internaldocs-banner).

@@ -17,6 +17,12 @@ import WandbDataset from '!!raw-loader!../../../fseval/config/adapters/wandb_dat
 <!-- fseval YAML configs -->
 import IrisDatasetYAML from '!!raw-loader!../../../tests/integration/conf/dataset/iris.yaml';
 import ChenSwitchDatasetYAML from '!!raw-loader!../../../tests/integration/conf/dataset/chen_switch.yaml';
+import ConfDatasetSyntheticYAML from '!!raw-loader!../../../examples/quick-start-yaml/conf/dataset/synthetic.yaml';
+
+<!-- fseval Python configs -->
+import ConfDatasetSyntheticPy from '!!raw-loader!../../../examples/quick-start-structured-configs/conf/dataset/synthetic.py';
+
+
 
 ```python
 class fseval.config.DatasetConfig(
@@ -86,8 +92,6 @@ So, for example, loading the [Iris](https://www.openml.org/d/61) dataset:
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
-Any dataset can also be configured using Python code. Like so:
-
 ```python
 from hydra.core.config_store import ConfigStore
 from fseval.config import DatasetConfig
@@ -149,23 +153,25 @@ using the following config:
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
-Any dataset can also be configured using Python code. Like so:
-
 ```python
 from hydra.core.config_store import ConfigStore
 from fseval.config import DatasetConfig
-from fseval.config.adapters import OpenMLDataset
+from fseval.config.adapters import WandbDataset
 from fseval.types import Task
 
 cs = ConfigStore.instance()
 
 cs.store(
     group="dataset",
-    name="iris",
+    name="chen_switch",
     node=DatasetConfig(
-        name="Iris Flowers",
-        task=Task.classification,
-        adapter=OpenMLDataset(dataset_id=61, target_column="class"),
+        name="Switch (Chen et al.)",
+        task=Task.regression,
+        adapter=WandbDataset(artifact_id="dunnkers/synthetic-datasets/switch:v0"),
+        feature_importances={
+            "X[:5000, 0:4]": 1.0,
+            "X[5000:, 4:8]": 1.0
+        }
     ),
 )
 ```
@@ -180,54 +186,16 @@ We can also use _functions_ as adapters, as long as they return a tuple `(X, y)`
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-```yaml title="conf/dataset/synthetic_dataset.yaml"
-name: My synthetic dataset
-task: classification
-adapter:
-  _target_: sklearn.datasets.make_classification
-  n_samples: 10000
-  n_informative: 2
-  n_classes: 2
-  n_features: 20
-  n_redundant: 0
-  random_state: 0
-  shuffle: false
-feature_importances:
-  X[:, 0:2]: 1.0
-```
+<CodeBlock className="language-yaml" title="conf/dataset/synthetic.yaml">
+        {ConfDatasetSyntheticYAML}
+</CodeBlock>
 
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
-```python
-from hydra.core.config_store import ConfigStore
-from fseval.config import DatasetConfig
-from fseval.types import Task
-
-cs = ConfigStore.instance()
-
-cs.store(
-    group="dataset",
-    name="synthetic_dataset",
-    node=DatasetConfig(
-        name="My synthetic dataset",
-        task=Task.classification,
-        adapter=dict(
-            _target_="sklearn.datasets.make_classification",
-            n_samples=10000,
-            n_informative=2,
-            n_classes=2,
-            n_features=20,
-            n_redundant=0,
-            random_state=0,
-            shuffle=False,
-        ),
-        feature_importances={
-            "X[:, 0:2]": 1.0
-        }
-    ),
-)
-```
+<CodeBlock className="language-py" title="conf/dataset/synthetic.py">
+        {ConfDatasetSyntheticPy}
+</CodeBlock>
 
 </TabItem>
 </Tabs>

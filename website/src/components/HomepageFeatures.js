@@ -41,7 +41,7 @@ const FeatureListBottom = [
     Svg: require('../../static/img/undraw_dark_analytics_re_2kvy.svg').default,
     description: (
       <>
-        fseval integrates with <a href="https://wandb.ai">Weights and Biases</a>, so you can enjoy all the powerful tooling built into the platform to help analyze your data.
+        fseval integrates with <a href="https://wandb.ai">Weights and Biases</a>, so you can enjoy all the powerful tooling built into the platform to help analyze your data. <p><a href="docs/config/callbacks/#to-weights-and-biases">See how</a>.</p>
       </>
     ),
   },
@@ -50,7 +50,7 @@ const FeatureListBottom = [
     Svg: require('../../static/img/undraw_metrics_re_6g90.svg').default,
     description: (
       <>
-        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, PostgreSQL, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>.
+        Experiment metrics can be sent to one of many SQL databases. Support includes SQLite, PostgreSQL, MySQL, Oracle and more. Support is achieved through integration with <a href="https://www.sqlalchemy.org/">SQL ALchemy</a>. <p><a href="docs/config/callbacks/#to-sql">See how</a>.</p>
       </>
     ),
   },

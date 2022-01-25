@@ -61,8 +61,14 @@ Assuming your rankers and validators `save_cache` is configured to `CacheUsage.a
 | | |
 
 
-Use with `storage=local`.
+Use with `storage=local` on the commandline, or.
 
+```yaml {4} title="conf/my_config.yaml"
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override storage: local
+```
 
 ### Weights and Biases
 ```python
@@ -95,7 +101,15 @@ Like local storage, estimator caches are saved, as well as the entire YAML confi
 | `save_policy` : str | policy for `wandb.save`. Can be 'live', 'now' or 'end'. Determines at which point of the run the file is uploaded. Defaults to "live". |
 | | |
 
-Use with `storage=wandb`. Make sure you are logged into the wandb CLI.
+Use with `storage=wandb` on the commandline, or.
+
+Alternatively, in your config:
+```yaml {4} title="conf/my_config.yaml"
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override storage: wandb
+```
 
 ### Mock
 ```python
@@ -116,4 +130,11 @@ Disables storage.
 | | |
 
 
-Use with `storage=mock`.
+Use with `storage=mock` on the commandline, or.
+
+```yaml {4} title="conf/my_config.yaml"
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override storage: mock
+```

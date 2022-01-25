@@ -62,4 +62,51 @@ This resampling method shuffles the dataset samples.
 On the command line, use with `resample=shuffle`.
 
 ### ⚙️ Custom resampling
-...
+
+Adding a custom resampling method can be done by implementing the [`ResampleConfig`](.) interface.
+
+For example, define:
+
+
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="conf/resample/custom_bootstrap.yaml"
+name: Bootstrap with half of samples
+replace: true
+sample_size: 0.50
+```
+
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+```python
+from hydra.core.config_store import ConfigStore
+from fseval.config import ResampleConfig
+
+cs = ConfigStore.instance()
+
+cs.store(
+    group="resample",
+    name="custom_bootstrap",
+    node=ResampleConfig(
+        name="Bootstrap with half of samples",
+        replace=True,
+        sample_size=0.50,
+    ),
+)
+```
+
+</TabItem>
+</Tabs>
+
+Which can then be used using `resample=custom_bootstrap` on the commandline.
+
+Or, in the config file:
+
+```yaml title="conf/my_config.yaml"
+defaults:
+  - _self_
+  - base_pipeline_config
+  - override resample: custom_bootstrap
+```

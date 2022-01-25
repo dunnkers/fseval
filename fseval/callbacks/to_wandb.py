@@ -6,12 +6,11 @@ from logging import Logger, getLogger
 from typing import Dict, Optional, cast
 
 import pandas as pd
-from omegaconf import DictConfig, OmegaConf
-
 import wandb
 from fseval.config.callbacks.to_wandb import ToWandbCallback
 from fseval.types import Callback
 from fseval.utils.dict_utils import dict_flatten, dict_merge
+from omegaconf import DictConfig, OmegaConf
 
 
 @dataclass
