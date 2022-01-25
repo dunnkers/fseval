@@ -1,2 +1,0 @@
-fseval==2.1.1
-hydra-submitit-launcher==1.1.5

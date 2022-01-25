@@ -1,6 +1,0 @@
-name: Mutual Info
-estimator:
-  _target_: benchmark.MutualInfoClassifier
-_estimator_type: classifier
-multioutput: false
-estimates_feature_importances: true

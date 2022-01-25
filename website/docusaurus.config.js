@@ -74,10 +74,10 @@ const config = {
                 label: 'API reference',
                 to: '/docs/main',
               },
-              {
-                label: 'Recipes',
-                to: '/docs/recipes/algorithm-stability',
-              },
+              // {
+              //   label: 'Recipes',
+              //   to: '/docs/recipes/algorithm-stability',
+              // },
             ],
           },
           {

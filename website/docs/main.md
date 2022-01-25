@@ -19,6 +19,6 @@ Runs the fseval pipeline.
 
 | | |
 |---|---|
-| `cfg` : PipelineConfig | The pipeline configuration to use. |
+| `cfg` : [PipelineConfig](../config/PipelineConfig) | The pipeline configuration to use. |
 | `raise_incompatibility_errors` : bool | Whether to raise an error when an  incompatible config was passed. Otherwise, the pipeline is exited gracefully. That is, no error is raised and the pipeline is stopped with an exit(0). |
 | | |

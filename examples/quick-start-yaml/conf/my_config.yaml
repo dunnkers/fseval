@@ -5,3 +5,5 @@ defaults:
   - override validator: knn
   - override /callbacks:
       - to_sql
+
+n_bootstraps: 1

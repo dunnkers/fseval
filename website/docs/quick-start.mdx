@@ -4,17 +4,28 @@ sidebar_position: 1
 
 # Quick start
 
+<!-- Docusaurus -->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import FileTreeCodeViewer from '../src/components/FileTreeCodeViewer';
 import '../src/css/file-tree.css';
 
 
-<!-- files -->
-import ConfDatasetSynthetic from '!!raw-loader!../../examples/quick-start/conf/dataset/synthetic.yaml';
-import ConfRankerAnova from '!!raw-loader!../../examples/quick-start/conf/ranker/anova.yaml';
-import ConfRankerMutualInfo from '!!raw-loader!../../examples/quick-start/conf/ranker/mutual_info.yaml';
-import ConfValidatorKnn from '!!raw-loader!../../examples/quick-start/conf/validator/knn.yaml';
-import ConfMyConfig from '!!raw-loader!../../examples/quick-start/conf/my_config.yaml';
-import BenchmarkPy from '!!raw-loader!../../examples/quick-start/benchmark.py';
+<!-- YAML files -->
+import ConfDatasetSyntheticYAML from '!!raw-loader!../../examples/quick-start-yaml/conf/dataset/synthetic.yaml';
+import ConfRankerAnovaYAML from '!!raw-loader!../../examples/quick-start-yaml/conf/ranker/anova.yaml';
+import ConfRankerMutualInfoYAML from '!!raw-loader!../../examples/quick-start-yaml/conf/ranker/mutual_info.yaml';
+import ConfValidatorKnnYAML from '!!raw-loader!../../examples/quick-start-yaml/conf/validator/knn.yaml';
+import ConfMyConfigYAML from '!!raw-loader!../../examples/quick-start-yaml/conf/my_config.yaml';
+import BenchmarkPyYAML from '!!raw-loader!../../examples/quick-start-yaml/benchmark.py';
+
+<!-- Python files -->
+import ConfDatasetSyntheticPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/dataset/synthetic.py';
+import ConfRankerAnovaPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/ranker/anova.py';
+import ConfRankerMutualInfoPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/ranker/mutual_info.py';
+import ConfValidatorKnnPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/validator/knn.py';
+import ConfMyConfigPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/my_config.py';
+import BenchmarkPy from '!!raw-loader!../../examples/quick-start-structured-configs/benchmark.py';
 
 fseval helps you benchmark **Feature Selection** and **Feature Ranking** algorithms. Any algorithm that ranks features in importance.
 
@@ -26,9 +37,9 @@ It comes useful if you are one of the following types of users:
 
 
 Key features 🚀:
+- Easily benchmark Feature Ranking algorithms
 - Built on [Hydra](https://hydra.cc/)
 - Support for distributed systems (SLURM through the [Submitit launcher](https://hydra.cc/docs/plugins/submitit_launcher), AWS support through the [Ray launcher](https://hydra.cc/docs/plugins/ray_launcher/))
-- Easy to use
 - Reproducible experiments (your entire experiment can be described and reproduced by 1 YAML file)
 - Send experiment results directly to a dashboard (integration with [Weights and Biases](https://wandb.ai/) is built-in)
 - Export your data to any SQL database (integration with [SQLAlchemy](https://www.sqlalchemy.org/))
@@ -42,22 +53,25 @@ pip install fseval
 
 Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start):
 
+<Tabs groupId="config-representation">
+<TabItem value="yaml" label="YAML" default>
+
 <FileTreeCodeViewer treeId="tree-1" template={{
   root: {
     "conf": {
       "dataset": {
-        "synthetic.yaml": ConfDatasetSynthetic
+        "synthetic.yaml": ConfDatasetSyntheticYAML
       },
       "ranker": {
-        "anova.yaml": ConfRankerAnova,
-        "mutual_info.yaml": ConfRankerMutualInfo,
+        "anova.yaml": ConfRankerAnovaYAML,
+        "mutual_info.yaml": ConfRankerMutualInfoYAML,
       },
       "validator": {
-        "knn.yaml": ConfValidatorKnn
+        "knn.yaml": ConfValidatorKnnYAML
       },
-      "my_config.yaml": ConfMyConfig,
+      "my_config.yaml": ConfMyConfigYAML,
     },
-    "benchmark.py": BenchmarkPy,
+    "benchmark.py": BenchmarkPyYAML,
   }
 }} viewState={{
   "tree-1": {
@@ -66,11 +80,44 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
   }
 }} />
 
+</TabItem>
+<TabItem value="structured" label="Structured Config">
+
+
+<FileTreeCodeViewer treeId="tree-2" template={{
+  root: {
+    "conf": {
+      "dataset": {
+        "synthetic.py": ConfDatasetSyntheticPy
+      },
+      "ranker": {
+        "anova.py": ConfRankerAnovaPy,
+        "mutual_info.py": ConfRankerMutualInfoPy,
+      },
+      "validator": {
+        "knn.py": ConfValidatorKnnPy
+      },
+      "my_config.py": ConfMyConfigPy,
+    },
+    "benchmark.py": BenchmarkPy,
+  }
+}} viewState={{
+  "tree-2": {
+      expandedItems: ["conf", "ranker", "dataset", "validator"],
+      selectedItems: ["my_config.py"]
+  }
+}} />
+
+</TabItem>
+</Tabs>
+
+
+
 <br/>
 
 We can then run a benchmark like so:
 ```shell
-python benchmark.py --multirun ranker='glob(*)'
+python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url='sqlite:////Users/dunnkers/Downloads/results.sqlite'
 ```
 
 ![Locale Dropdown](/img/quick-start/terminal.svg)

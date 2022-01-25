@@ -7,7 +7,7 @@ fseval executes a predefined number of steps to benchmark your Feature Selector 
 
 See the schematic illustration below:
 
-![Pipeline main architecture](/img/the-pipeline/schematic-pipeline-main-architecture.svg)
+![Pipeline main architecture](/img/the-pipeline/fseval___schematic-pipeline-main-architecture.svg)
 
 1. First, the **config** is loaded. The config is at all times a [`PipelineConfig`](../config/PipelineConfig) object.
 2. Second, a **dataset** is loaded, like defined in the [`DatasetConfig`](../config/DatasetConfig) object.
@@ -18,7 +18,7 @@ See the schematic illustration below:
 
 To get a better idea of what is happening in the pipeline, we can take a closer look:
 
-![Pipeline zoomed](/img/the-pipeline/schematic-pipeline-zoomed.svg)
+![Pipeline zoomed](/img/the-pipeline/fseval___schematic-pipeline-zoomed.svg)
 
 In the pipeline, the following steps are performed:
 1. The data is (optionally) **resampled**. This is useful, for example, to do a [bootstrap](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)). Such, the stability of an algorithm can be determined. The resampling is configured using the [`ResampleConfig`](../config/ResampleConfig).

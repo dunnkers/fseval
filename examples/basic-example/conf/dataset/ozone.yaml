@@ -1,6 +1,0 @@
-name: Ozone Levels
-task: classification
-adapter:
-  _target_: fseval.adapters.openml.OpenML
-  dataset_id: 1487
-  target_column: Class

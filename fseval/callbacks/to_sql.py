@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
+from typing import Dict
 
 import pandas as pd
-from omegaconf import MISSING, DictConfig, OmegaConf
-from sqlalchemy import create_engine
-
 from fseval.config.callbacks.to_sql import ToSQLCallback
 from fseval.types import TerminalColor
+from omegaconf import MISSING, DictConfig, OmegaConf
+from sqlalchemy import create_engine
 
 from ._base_export_callback import BaseExportCallback
 
@@ -25,26 +25,22 @@ class SQLCallback(BaseExportCallback, ToSQLCallback):
 
     def __post_init__(self):
         # assert SQL Alchemy config
-        assert self.engine_config is not MISSING, (
-            "The SQL callback did not receive a `engine` param. "
+        assert self.url is not MISSING, (
+            "The SQL callback did not receive a `url` param. "
             + "This is required to set up SQLAlchemy."
         )
-        assert self.engine_config.get("url", MISSING) is not MISSING, (
-            "The SQL callback did not receive a `engine.url` param. "
-            + "This is required to set up SQLAlchemy."
-        )
+        assert isinstance(self.kwargs, Dict)
 
         # log - tell user callback is enabled
         self.logger: Logger = getLogger(__name__)
         self.logger.info("SQL callback enabled.")
 
     def on_begin(self, config: DictConfig):
-        df = self.get_experiment_config(config)
-
         # create SQL engine
-        self.engine = create_engine(**self.engine_config)
+        self.engine = create_engine(self.url, **self.kwargs)
 
         # upload experiment config to SQL database
+        df = self.get_experiment_config(config)
         df.to_sql("experiments", con=self.engine, if_exists=self.if_table_exists)
         self.logger.info(
             f"Written experiment config to {TerminalColor.blue('experiments')} SQL table "

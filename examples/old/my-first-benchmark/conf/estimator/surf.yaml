@@ -1,9 +1,0 @@
-name: SURF
-classifier:
-  estimator:
-    _target_: skrebate.SURF
-regressor:
-  estimator:
-    _target_: skrebate.SURF
-  multioutput: false
-estimates_feature_importances: true

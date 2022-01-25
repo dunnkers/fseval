@@ -35,9 +35,16 @@ class PipelineConfig:
             dataset. This allows estimating stability, for example.
         n_jobs (Optional[int]): Amount of CPU's to use for computing each bootstrap.
             This thus distributes the amount of bootstraps over CPU's.
-        all_features_to_select (str): Once the ranker has been fit, this determines the
-            feature subsets to validate. By default, at most 50 subsets containing the
-            highest ranked features are validated.
+        all_features_to_select (str): Once the ranker has been fit, this determines
+            the feature subsets to validate. By default, at most 50 subsets containing
+            the highest ranked features are validated. The format of this parameter is
+            a string that can contain an arbitrary Python expression. The condition is
+            that the expression must evaluate to a `List[int]` object. For example, the
+            default is: `range(1, min(50, p) + 1)`. Each number in the list is passed
+            to the `sklearn.feature_selection.SelectFromModel` as the `max_features`
+            parameter. To see how the expression is evaluated, check out the
+            `fseval.pipelines.rank_and_validate._dataset_validator` module.
+        defaults (List[Any]): Default values for the above.
     """
 
     dataset: DatasetConfig = MISSING
