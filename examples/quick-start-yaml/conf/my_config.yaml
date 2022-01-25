@@ -4,10 +4,6 @@ defaults:
   - override dataset: synthetic
   - override validator: knn
   - override /callbacks:
-      - to_csv
+      - to_sql
 
 n_bootstraps: 1
-
-callbacks:
-  to_csv:
-    dir: /Users/dunnkers/Downloads/results_dir
