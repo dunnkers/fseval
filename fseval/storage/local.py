@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from logging import Logger, getLogger
 from pickle import dump, load
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from fseval.config.storage import LocalStorageConfig
 from fseval.types import AbstractStorage, TerminalColor

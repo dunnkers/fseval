@@ -1,5 +1,6 @@
-from fseval.config import PipelineConfig
 from omegaconf import MISSING
+
+from fseval.config import PipelineConfig
 
 # To set PipelineConfig defaults in a Structured Config, we must redefine the entire
 # defaults list.

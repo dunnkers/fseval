@@ -20,7 +20,7 @@ class CSVCallback(BaseExportCallback, ToCSVCallback):
 
     def __post_init__(self):
         # assert dir param was given
-        assert self.dir is not MISSING, (
+        assert self.dir != MISSING, (
             "The CSV callback did not receive a `dir` param. All results will be "
             + "written to files in this dir. This is required to export to CSV files."
         )

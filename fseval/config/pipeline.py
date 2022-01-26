@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from fseval.types import CacheUsage, Task
 from hydra.core.config_store import ConfigStore
-from omegaconf import II, MISSING
+from omegaconf import MISSING
 
 from .cross_validator import CrossValidatorConfig
 from .dataset import DatasetConfig

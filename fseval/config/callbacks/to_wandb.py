@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
-from omegaconf import MISSING
-
 
 @dataclass
 class ToWandbCallback:

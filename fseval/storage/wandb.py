@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from logging import Logger, getLogger
 from os import path
-from typing import Any, Callable, Optional
+from typing import Any, Callable
+
+import wandb
 
 from fseval.config.storage import WandbStorageConfig
 from fseval.types import TerminalColor
-
-import wandb
 
 from .local import LocalStorage
 

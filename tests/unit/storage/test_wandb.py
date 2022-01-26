@@ -4,12 +4,12 @@ from typing import Callable
 
 import pandas as pd
 import pytest
-from pytest import FixtureRequest
-
 import wandb
+from pytest import FixtureRequest
+from wandb.apis.public import Api, Run
+
 from fseval.storage.wandb import WandbStorage
 from fseval.utils.uuid_utils import generate_shortuuid
-from wandb.apis.public import Api, Run
 
 ENTITY: str = "fseval"
 PROJECT: str = "test_wandb.py"

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from fseval.config.storage import MockStorageConfig
 from fseval.types import AbstractStorage

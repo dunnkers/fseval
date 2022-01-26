@@ -3,10 +3,11 @@ from logging import Logger, getLogger
 from typing import Dict
 
 import pandas as pd
+from omegaconf import MISSING, DictConfig
+from sqlalchemy import create_engine
+
 from fseval.config.callbacks.to_sql import ToSQLCallback
 from fseval.types import TerminalColor
-from omegaconf import MISSING, DictConfig, OmegaConf
-from sqlalchemy import create_engine
 
 from ._base_export_callback import BaseExportCallback
 
@@ -25,7 +26,7 @@ class SQLCallback(BaseExportCallback, ToSQLCallback):
 
     def __post_init__(self):
         # assert SQL Alchemy config
-        assert self.url is not MISSING, (
+        assert self.url != MISSING, (
             "The SQL callback did not receive a `url` param. "
             + "This is required to set up SQLAlchemy."
         )

@@ -1,15 +1,15 @@
 import hydra
-from fseval.config import PipelineConfig
-from fseval.main import run_pipeline
-from hydra.core.config_store import ConfigStore
-from sklearn.base import BaseEstimator
-from sklearn.feature_selection import f_classif, mutual_info_classif
-
 from conf.dataset.synthetic import synthetic_dataset
 from conf.my_config import my_config
 from conf.ranker.anova import anova_ranker
 from conf.ranker.mutual_info import mutual_info_ranker
 from conf.validator.knn import knn_validator
+from hydra.core.config_store import ConfigStore
+from sklearn.base import BaseEstimator
+from sklearn.feature_selection import f_classif, mutual_info_classif
+
+from fseval.config import PipelineConfig
+from fseval.main import run_pipeline
 
 
 class ANOVAFValueClassifier(BaseEstimator):

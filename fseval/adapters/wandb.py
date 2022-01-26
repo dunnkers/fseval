@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from omegaconf import MISSING
-
 import wandb
+
 from fseval.config.adapters import WandbDataset
 from fseval.types import AbstractAdapter
 
