@@ -1,7 +1,12 @@
 import pandas as pd
 
-from fseval.types import (AbstractAdapter, AbstractEstimator, AbstractPipeline,
-                          AbstractStorage, Callback)
+from fseval.types import (
+    AbstractAdapter,
+    AbstractEstimator,
+    AbstractPipeline,
+    AbstractStorage,
+    Callback,
+)
 
 
 def test_abstract_estimator():

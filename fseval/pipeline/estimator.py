@@ -9,8 +9,13 @@ import pandas as pd
 from omegaconf import MISSING
 
 from fseval.config import EstimatorConfig
-from fseval.types import (AbstractEstimator, AbstractStorage, CacheUsage,
-                          IncompatibilityError, Task)
+from fseval.types import (
+    AbstractEstimator,
+    AbstractStorage,
+    CacheUsage,
+    IncompatibilityError,
+    Task,
+)
 
 
 @dataclass

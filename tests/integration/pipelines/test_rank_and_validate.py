@@ -8,8 +8,13 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, open_dict
 from sklearn.base import BaseEstimator
 
-from fseval.config import (CrossValidatorConfig, DatasetConfig,
-                           EstimatorConfig, PipelineConfig, ResampleConfig)
+from fseval.config import (
+    CrossValidatorConfig,
+    DatasetConfig,
+    EstimatorConfig,
+    PipelineConfig,
+    ResampleConfig,
+)
 from fseval.pipeline.dataset import Dataset, DatasetLoader
 from fseval.types import AbstractAdapter, IncompatibilityError, Task
 from fseval.utils.hydra_utils import get_config
