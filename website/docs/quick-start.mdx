@@ -127,8 +127,6 @@ The results are now stored in a SQLite database. We can open the data using [DB 
 ![validation data](/img/quick-start/validation_data.png)
 
 In the example above, 
-the <span style={{backgroundColor: "#5050FF", color: "white"}}>purple</span>&nbsp;
-line resembles ANOVA F value feature selection, and 
-the <span style={{backgroundColor: "#0075DD", color: "white"}}>light blue</span>&nbsp;
-line resembles Mutual Info.
+the graph plots the **feature subset size** (`n_features_to_select`) vs. **classification accuracy** (`score`)
+for <span style={{backgroundColor: "#5050FF", color: "white"}}>ANOVA F value</span> vs. <span style={{backgroundColor: "#0075DD", color: "white"}}>Mutual Info</span>.
 This way, we can easily compare two feature selectors: ANOVA F Value and Mutual Info ✨.

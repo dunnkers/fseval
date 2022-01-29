@@ -4,7 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 
 const DEFAULT_ITEM = {
     data: {
-        filePath: 'loading...',
+        filePath: '',
         fileExtension: '',
         content: '',
     }
