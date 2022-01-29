@@ -27,6 +27,10 @@ import ConfValidatorKnnPy from '!!raw-loader!../../examples/quick-start-structur
 import ConfMyConfigPy from '!!raw-loader!../../examples/quick-start-structured-configs/conf/my_config.py';
 import BenchmarkPy from '!!raw-loader!../../examples/quick-start-structured-configs/benchmark.py';
 
+<!-- asciinema -->
+import AsciinemaPlayer from '../src/components/AsciinemaPlayer';
+import 'asciinema-player/dist/bundle/asciinema-player.css';
+
 fseval helps you benchmark **Feature Selection** and **Feature Ranking** algorithms. Any algorithm that ranks features in importance.
 
 It comes useful if you are one of the following types of users:
@@ -115,12 +119,18 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
 
 <br/>
 
-We can then run a benchmark like so:
+Let's export the results to a local SQLite database.
 ```shell
-python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url='sqlite:////Users/dunnkers/Downloads/results.sqlite'
+results_db=/Users/dunnkers/Downloads/results.sqlite # edit this url
 ```
 
-![Locale Dropdown](/img/quick-start/terminal.svg)
+We can now run the benchmark:
+```shell
+python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=sqlite:///$results_db
+```
+
+<AsciinemaPlayer src="/fseval/cast/examples_quick_start.cast" rows={30} idleTimeLimit={3} preload={true} />
+<br/>
 
 The results are now stored in a SQLite database. We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
 
