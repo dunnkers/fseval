@@ -3,11 +3,11 @@ from logging import Logger, getLogger
 from typing import Dict
 
 import pandas as pd
-from omegaconf import MISSING, DictConfig
-from sqlalchemy import create_engine
-
 from fseval.config.callbacks.to_sql import ToSQLCallback
 from fseval.types import TerminalColor
+from omegaconf import MISSING, DictConfig
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 
 from ._base_export_callback import BaseExportCallback
 

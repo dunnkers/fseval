@@ -1,0 +1,22 @@
+defaults:
+  - base_pipeline_config
+  - _self_
+  - override dataset: iris
+  - override ranker: chi2
+  - override validator: knn
+  - override /callbacks:
+      - to_sql
+      - to_csv
+      - to_wandb
+
+callbacks:
+  to_sql:
+    url: sqlite://
+  to_csv:
+    dir: .
+n_jobs: 2 # use 2 CPU's
+n_bootstraps: 2
+
+hydra:
+  searchpath:
+    - pkg://fseval.conf

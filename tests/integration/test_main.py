@@ -2,12 +2,11 @@ import os
 import tempfile
 
 import pytest
-from hydra.conf import ConfigStore
-
 from fseval.config import EstimatorConfig, PipelineConfig
 from fseval.main import run_pipeline
 from fseval.types import IncompatibilityError
 from fseval.utils.hydra_utils import get_config
+from hydra.conf import ConfigStore
 
 
 @pytest.fixture
@@ -117,3 +116,22 @@ def failing_cfg() -> PipelineConfig:
 def test_pipeline_failure(failing_cfg: PipelineConfig):
     with pytest.raises(SomeError):
         run_pipeline(failing_cfg)
+
+
+@pytest.fixture
+def to_sql_multiprocessing_cfg() -> PipelineConfig:
+    config = get_config(
+        config_module="tests.integration.conf",
+        config_name="to_sql_multiprocessing",
+    )
+
+    return config
+
+
+def test_to_sql_multiprocessing(to_sql_multiprocessing_cfg: PipelineConfig):
+    # execute from temporary dir
+    tmpdir = tempfile.mkdtemp()
+    os.chdir(tmpdir)
+
+    # run pipeline
+    run_pipeline(to_sql_multiprocessing_cfg)

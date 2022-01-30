@@ -1,6 +1,6 @@
 defaults:
-  - _self_
   - base_pipeline_config
+  - _self_
   - override dataset: iris
   - override ranker: chi2
   - override validator: knn

@@ -45,8 +45,8 @@ Use with `+callbacks='[to_csv]' +callbacks.to_csv.dir=<save_dir>` on the command
 
 ```yaml {4-5,7-9}
 defaults:
-  - _self_
   - base_pipeline_config
+  - _self_
   - override /callbacks:
       - to_csv
 
@@ -93,8 +93,8 @@ Use with `+callbacks='[to_sql]' +callbacks.to_sql.url=<db_url>` on the commandli
 
 ```yaml {4-5,7-9}
 defaults:
-  - _self_
   - base_pipeline_config
+  - _self_
   - override /callbacks:
       - to_sql
 
@@ -147,8 +147,8 @@ Use with `+callbacks='[to_wandb]' +callbacks.to_wandb.wandb_init_kwargs.project=
 
 ```yaml {4-5,7-10}
 defaults:
-  - _self_
   - base_pipeline_config
+  - _self_
   - override /callbacks:
       - to_wandb
 

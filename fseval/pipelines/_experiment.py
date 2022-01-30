@@ -3,14 +3,14 @@ from dataclasses import dataclass, field
 from functools import reduce
 from logging import Logger, getLogger
 from time import perf_counter
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from humanfriendly import format_timespan
-
 from fseval.pipeline.estimator import Estimator
-from fseval.types import AbstractEstimator, TerminalColor
+from fseval.types import AbstractEstimator, Callback, TerminalColor
+from humanfriendly import format_timespan
+from sqlalchemy.engine import Engine
 
 
 @dataclass
@@ -71,6 +71,7 @@ class Experiment(AbstractEstimator):
                 estimator.prefit()
 
     def _fit_estimator(self, X, y, step_number, estimator):
+        # logs
         logger = self._logger(estimator)
         text = self._step_text("fit", step_number, estimator)
 
@@ -104,11 +105,48 @@ class Experiment(AbstractEstimator):
                 for step_number, estimator in enumerate(self.estimators)
             ]
 
+            # # dispose SQLAlchemy engine if present
+            # # @see https://docs.sqlalchemy.org/en/14/core/pooling.html
+            # if "to_sql" in self.callbacks.callback_names:
+            #     engine: Engine = self.callbacks.to_sql.engine
+            #     engine.dispose()
+
+            def remove_and_get_callbacks() -> Tuple[Dict[str, Callback], List[str]]:
+                callback_objects = dict()
+                callback_names = self.callbacks.callback_names
+
+                for callback_name in self.callbacks.callback_names:
+                    callback_objects[callback_name] = getattr(
+                        self.callbacks, callback_name
+                    )
+                    delattr(self.callbacks, callback_name)
+
+                self.callbacks.callback_names = []
+
+                return callback_objects, callback_names
+
+            def set_callbacks(
+                callback_objects: Dict[str, Callback], callback_names: List[str]
+            ):
+                self.callbacks.callback_names = callback_names
+
+                for callback_name in self.callbacks.callback_names:
+                    setattr(
+                        self.callbacks, callback_name, callback_objects[callback_name]
+                    )
+
+            callback_objects, callback_names = remove_and_get_callbacks()
+
+            # open pool and fit estimators.
             pool = multiprocessing.Pool(processes=cpus)
             estimators = pool.starmap(self._fit_estimator, star_input)
             pool.close()
             pool.join()
 
+            # restore callbacks in main thread
+            set_callbacks(callback_objects, callback_names)
+
+            # set collected estimators to this local object
             self.estimators = estimators
         else:
             for step_number, estimator in enumerate(self.estimators):
