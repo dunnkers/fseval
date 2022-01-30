@@ -136,7 +136,7 @@ class Experiment(AbstractEstimator):
             assert n_jobs >= 1 or n_jobs == -1, f"incorrect `n_jobs`: {n_jobs}"
 
             # remove callbacks this object and store locally in main thread.
-            callback_objects, callback_names = self.remove_and_get_callbacks()
+            callback_objects, callback_names = self._remove_and_get_callbacks()
 
             # determine amount of CPU's to use. ALL if n_jobs is -1, else n_jobs.
             cpus = multiprocessing.cpu_count() if n_jobs == -1 else n_jobs
@@ -155,7 +155,7 @@ class Experiment(AbstractEstimator):
             pool.join()
 
             # restore callbacks in main thread
-            self.set_callbacks(callback_objects, callback_names)
+            self._set_callbacks(callback_objects, callback_names)
 
             # set collected estimators to this local object
             self.estimators = estimators
