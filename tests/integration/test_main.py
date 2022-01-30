@@ -119,19 +119,19 @@ def test_pipeline_failure(failing_cfg: PipelineConfig):
 
 
 @pytest.fixture
-def to_sql_multiprocessing_cfg() -> PipelineConfig:
+def callbacks_multiprocessing_cfg() -> PipelineConfig:
     config = get_config(
         config_module="tests.integration.conf",
-        config_name="to_sql_multiprocessing",
+        config_name="callbacks_multiprocessing",
     )
 
     return config
 
 
-def test_to_sql_multiprocessing(to_sql_multiprocessing_cfg: PipelineConfig):
+def test_callbacks_multiprocessing(callbacks_multiprocessing_cfg: PipelineConfig):
     # execute from temporary dir
     tmpdir = tempfile.mkdtemp()
     os.chdir(tmpdir)
 
     # run pipeline
-    run_pipeline(to_sql_multiprocessing_cfg)
+    run_pipeline(callbacks_multiprocessing_cfg)
