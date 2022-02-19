@@ -5,5 +5,7 @@ defaults:
   - override validator: knn
   - override /callbacks:
       - to_sql
+  - override /metrics:
+      - stability_nogueira
 
-n_bootstraps: 25
+n_bootstraps: 2

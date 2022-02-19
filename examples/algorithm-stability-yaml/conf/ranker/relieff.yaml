@@ -1,0 +1,7 @@
+name: ReliefF
+estimator:
+  _target_: benchmark.ReliefF_FeatureSelection
+  n_features_to_select: 10 # select best 10 features in feature subset.
+_estimator_type: classifier
+estimates_feature_importances: true
+estimates_feature_support: true

@@ -63,10 +63,11 @@ class SupportValidator(SubsetValidator):
         scores = pd.DataFrame([scores_dict])
 
         # add custom metrics
+        X_, y_ = self._prepare_data(X, y)
+
         for metric_name, metric_class in self.metrics.items():
-            X, y = self._prepare_data(X, y)
             scores_metric = metric_class.score_support(  # type: ignore
-                scores, self.validator, X, y, self.callbacks
+                scores, self.validator, X_, y_, self.callbacks
             )  # type: ignore
 
             if scores_metric is not None:

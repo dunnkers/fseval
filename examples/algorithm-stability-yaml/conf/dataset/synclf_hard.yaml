@@ -11,7 +11,7 @@ adapter:
   n_informative: 4
   n_redundant: 0
   n_repeated: 0
-  n_samples: 10000
+  n_samples: 100
   random_state: 0
   shuffle: false
 feature_importances:
