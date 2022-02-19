@@ -1,16 +1,13 @@
-import math
-from dataclasses import dataclass, field
 from typing import Dict, Optional, Union
 
 import hydra
 import numpy as np
 import pandas as pd
+from skrebate import ReliefF
+
 from fseval.config import PipelineConfig
 from fseval.main import run_pipeline
 from fseval.types import AbstractEstimator, AbstractMetric, Callback
-from scipy.stats import norm
-from sklearn.base import BaseEstimator
-from skrebate import ReliefF
 
 """
 The checkInputType and getStability functions come from the following paper:
