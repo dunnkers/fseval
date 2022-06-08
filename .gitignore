@@ -1,0 +1,6 @@
+.eggs
+artifacts
+wandb
+*.egg-info
+.env
+.DS_Store
