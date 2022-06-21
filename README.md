@@ -4,6 +4,9 @@
 
 Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀
 
+## Demo
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Bsuxxuw0-mEsYRSnNbmvD_wNUAkOPiQa?usp=sharing)
+
 ## Install
 
 ```shell
