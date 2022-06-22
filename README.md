@@ -20,7 +20,12 @@ pip install fseval
 See the [documentation](https://dunnkers.com/fseval).
 
 ## About
-Built at the University of Groningen.
+Built at the University of Groningen. It stemmed from a previous project that proposed the feature selection algorithm called FeatBoost (see full citation below). The open source Python code of FeatBoost is available in https://github.com/amjams/FeatBoost.
+
+
+Ahmad Alsahaf, Nicolai Petkov, Vikram Shenoy, George Azzopardi, "A framework for feature selection through boosting", Expert Systems with Applications,
+Volume 187, 2022, 115895, ISSN 0957-4174, https://doi.org/10.1016/j.eswa.2021.115895.
+
 
 ---
 
