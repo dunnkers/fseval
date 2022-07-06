@@ -1,5 +1,5 @@
-hydra-core>=1.1
-hydra-colorlog>=1.1
+hydra-core==1.1.2
+hydra-colorlog==1.1.0
 numpy>=1.19
 pandas>=1
 scikit-learn>=0.24
