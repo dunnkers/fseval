@@ -9,13 +9,6 @@ tags:
   - software
   - python
 authors:
-
-      \name Jeroen G. S. Overschie $^a$ \email j.g.s.overschie@student.rug.nl
-      \AND
-      \name Ahmad Alsahaf $^b$ \email a.m.j.a.alsahaf@umcg.nl \AND \name George Azzopardi $^a$ \email g.azzopardi@rug.nl\\
-      \addr $^a~$Bernoulli Institute for Mathematics, Computer Science and Artificial Intelligence, University of Groningen, P.O. Box 407, 9700 AK Groningen, The Netherlands \\
-      \addr $^b~$Department of Biomedical Sciences of Cells and Systems, University Medical Center Groningen, University of Groningen, 9713 GZ Groningen, The Netherlands
-
   - name: Jeroen G. S. Overschie
     orcid: 0000-0003-3304-3800
     affiliation: 1
