@@ -19,6 +19,6 @@
 			}
 		}
 	},
-	"postCreateCommand": "pip install -r requirements.txt && pip install -r .devcontainer/requirements.txt",
+	"postCreateCommand": "pip install -r requirements.txt && pip install -r .devcontainer/requirements.txt && pip install --upgrade setuptools wheel",
 	"remoteUser": "vscode"
 }
