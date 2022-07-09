@@ -67,7 +67,6 @@ random_estimator = {
 
 ranker: EstimatorConfig = EstimatorConfig(
     name="Random Ranker",
-    task=Task.classification,
     estimator=random_estimator,
     _estimator_type="classifier",
     is_multioutput_dataset=False,
