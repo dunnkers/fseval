@@ -3,11 +3,6 @@ from typing import Dict, List, Tuple, Union, cast
 import numpy as np
 import pandas as pd
 import pytest
-from hydra.core.config_store import ConfigStore
-from hydra.utils import instantiate
-from omegaconf import DictConfig, open_dict
-from sklearn.base import BaseEstimator
-
 from fseval.config import (
     CrossValidatorConfig,
     DatasetConfig,
@@ -16,8 +11,13 @@ from fseval.config import (
     ResampleConfig,
 )
 from fseval.pipeline.dataset import Dataset, DatasetLoader
-from fseval.types import AbstractAdapter, IncompatibilityError, Task
+from fseval.types import AbstractAdapter, Task
 from fseval.utils.hydra_utils import get_config
+from hydra.core.config_store import ConfigStore
+from hydra.errors import InstantiationException
+from hydra.utils import instantiate
+from omegaconf import DictConfig, open_dict
+from sklearn.base import BaseEstimator
 
 cs = ConfigStore.instance()
 
@@ -67,7 +67,6 @@ random_estimator = {
 
 ranker: EstimatorConfig = EstimatorConfig(
     name="Random Ranker",
-    task=Task.classification,
     estimator=random_estimator,
     _estimator_type="classifier",
     is_multioutput_dataset=False,
@@ -207,7 +206,7 @@ def test_with_ranker_gt_no_importances_substitution(cfg: PipelineConfig):
 
 
 def test_validator_incompatibility_check(cfg: PipelineConfig):
-    with pytest.raises(IncompatibilityError):
+    with pytest.raises(InstantiationException):
         cfg.dataset.n = 5
         cfg.dataset.p = 5
         cfg.dataset.multioutput = False
@@ -216,7 +215,7 @@ def test_validator_incompatibility_check(cfg: PipelineConfig):
 
 
 def test_ranker_incompatibility_check(cfg: PipelineConfig):
-    with pytest.raises(IncompatibilityError):
+    with pytest.raises(InstantiationException):
         cfg.dataset.n = 5
         cfg.dataset.p = 5
         cfg.dataset.multioutput = False
