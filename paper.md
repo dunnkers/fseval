@@ -1,5 +1,5 @@
 ---
-title: 'fseval: A benchmarking framework}{Overschie, Alsahaf and Azzopardi'
+title: 'fseval: A benchmarking framework'
 tags:
   - feature ranking
   - feature selection
@@ -73,6 +73,7 @@ file. This can be very convenient to researchers in order to prove the
 integrity of their benchmarks. The scope of `fseval` is limited to
 handle tabular datasets for the classification and regression
 objectives.
+
 # Key Features
 
 `fseval` is a flexible and unbiased framework which provides as much
