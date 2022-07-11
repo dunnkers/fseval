@@ -1,5 +1,5 @@
 ---
-title: 'fseval: A benchmarking framework'
+title: 'fseval: A Benchmarking Framework for Feature Selection and Feature Ranking Algorithms'
 tags:
   - feature ranking
   - feature selection
@@ -191,28 +191,6 @@ metrics [@nogueira_stability_2018]. Another example of a custom metric
 would be to compare the dataset ground-truth feature importances to the
 estimated importances, which information would be available when using
 *synthetic* datasets.
-
-# Quality Assurance
-
-To ensure the library meets the desired quality standards, the following
-measures were taken.
-
-**Test suite**. Individual modules are covered using unit tests, and
-workflows are covered using integration tests. To ensure
-classification-, regression-, and multi-output scenarios are all
-supported, the pipeline is tested with estimators and datasets of many
-types.
-
-**Continuous Integration** (CI). On every commit, besides running the
-test suite, a set of quality assurance steps are undertaken. The code is
-type-checked, linted, formatted and run through a continuous code
-security analysis. The CI pipeline is executed on multiple Python
-versions and all major OS platforms.
-
-**Documentation**. The docs are built using Docusaurus, allowing us to
-make the documentation more interactive than what would normally be
-possible with in-code documentation docstrings. The docs contain quick
-start examples, images, and an API reference.
 
 # Conclusion and Future Work
 
