@@ -43,15 +43,27 @@ jobs:
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
         run: |
           pytest tests --cov=./ --cov-report=xml
+      # The following should only run once per build
+      # → e.g. we configure it only to trigger for python==3.9 and os==ubuntu
       - name: Codecov
-        uses: codecov/codecov-action@v2.1.0
         if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v2.1.0
       - name: Zip examples
+        if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
         run: |
-          sh .github/zip_examples.sh
-      - name: Upload example zips
+          mkdir -p /tmp/fseval-examples-zips
+          cd examples
+          zip -r /tmp/fseval-examples-zips/quick-start-structured-configs quick-start-structured-configs
+          zip -r /tmp/fseval-examples-zips/quick-start-yaml quick-start-yaml
+      - name: Upload zip for Quick start - structured configs
+        if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v3
         with:
-          name: upload-example-zips
-          path: |
-            examples_zipped/*.zip
+          name: quick-start-structured-configs
+          path: /tmp/fseval-examples-zips/quick-start-structured-configs.zip
+      - name: Upload zip for Quick start - yaml
+        if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: quick-start-yaml
+          path: /tmp/fseval-examples-zips/quick-start-yaml.zip
