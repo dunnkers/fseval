@@ -18,7 +18,7 @@ class MutualInfoClassifier(BaseEstimator):
         self.feature_importances_ = scores
 
 
-@hydra.main(config_path="conf", config_name="my_config")
+@hydra.main(config_path="conf", config_name="my_config", version_base="1.1")
 def main(cfg: PipelineConfig) -> None:
     run_pipeline(cfg)
 

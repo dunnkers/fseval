@@ -20,7 +20,9 @@ def _ensure_hydra_initialized(
     """Initializes Hydra only if it is not already initialized."""
     gh = GlobalHydra()
     if not gh.is_initialized():
-        initialize_config_module(config_module=config_module, job_name=job_name)
+        initialize_config_module(
+            config_module=config_module, job_name=job_name, version_base="1.1"
+        )
 
 
 def get_config(

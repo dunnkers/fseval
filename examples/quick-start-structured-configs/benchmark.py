@@ -32,7 +32,7 @@ cs.store(group="validator", name="knn", node=knn_validator)
 cs.store(name="my_config", node=my_config)
 
 
-@hydra.main(config_path="conf", config_name="my_config")
+@hydra.main(config_path="conf", config_name="my_config", version_base="1.1")
 def main(cfg: PipelineConfig) -> None:
     run_pipeline(cfg)
 
