@@ -1,3 +1,4 @@
+from time import sleep
 import pandas as pd
 import pytest
 import wandb
@@ -129,6 +130,7 @@ def test_on_end(wandb_callback: WandbCallback, api: Api, request: FixtureRequest
 
     # `on_end`
     wandb_callback.on_end()
+    sleep(5)  # wait to give wandb run time to end
 
     # ensure finished
     api._runs = {}  # reset wandb runs internal cache
