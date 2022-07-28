@@ -41,7 +41,7 @@ continuous integration, and rich documentation. The package is open
 source and can be installed through PyPI. The source code is available
 at: <https://github.com/dunnkers/fseval>.
 
-# Statement of need
+# Statement of Need
 
 Feature Selection (FS) and Feature Ranking (FR) are important and
 extensively researched topics within machine learning
