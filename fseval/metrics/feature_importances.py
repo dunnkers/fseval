@@ -37,7 +37,7 @@ class UploadFeatureImportances(AbstractMetric):
                         "class": class_index,
                     }
                 )
-                df = df.append(df_class)
+                df = pd.concat([df, df_class])
 
             return df
 
@@ -88,14 +88,14 @@ class UploadFeatureImportances(AbstractMetric):
             estimated_df = self._build_table(estimated)
             estimated_df["group"] = "estimated"
             estimated_df["bootstrap_state"] = bootstrap_state
-            table = table.append(estimated_df)
+            table = pd.concat([table, estimated_df])
 
         if feature_importances is not None:
             ground_truth = self._normalize_feature_importances(feature_importances)
             ground_truth_df = self._build_table(ground_truth)
             ground_truth_df["group"] = "ground_truth"
             ground_truth_df["bootstrap_state"] = bootstrap_state
-            table = table.append(ground_truth_df)
+            table = pd.concat([table, ground_truth_df])
 
         if not table.empty:
             callbacks.on_table(table, "feature_importances")
