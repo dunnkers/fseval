@@ -28,8 +28,8 @@ with open("README.md", "r") as fh:
         },
         include_package_data=True,
         install_requires=[
-            "hydra-core==1.1.2",
-            "hydra-colorlog==1.1.0",
+            "hydra-core>=1.1.2",
+            "hydra-colorlog>=1.1.0",
             "numpy>=1.19",
             "pandas>=1.1",
             "scikit-learn>=0.24",
@@ -47,6 +47,7 @@ with open("README.md", "r") as fh:
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
             "Operating System :: POSIX :: Linux",
             "Operating System :: MacOS",
             "Operating System :: Microsoft :: Windows",
