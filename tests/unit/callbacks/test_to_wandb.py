@@ -114,12 +114,16 @@ def test_on_summary(wandb_callback: WandbCallback):
 
 
 @pytest.mark.xfail(
-    "The Weights-and-Biases platform has proven to have too large delays to be able to"
-    + " run integration tests on it consistently. Alhough the WandB platform does"
-    + " eventually upload all the data that is being sent to it, all logging is queued,"
-    + " making it hard to rely on it in integration-/ unit test settings."
-    + "Therefore this test is marked as optional to prevent unnecessary build failures."
-    + " The test is kept in the codebase, however, for convenience in local debugging."
+    reason="""
+    The Weights-and-Biases platform has proven to have too large delays to be able to
+    run integration tests on it consistently. Alhough the WandB platform does
+    eventually upload all the data that is being sent to it, all logging is queued,
+    making it hard to rely on it in integration-/ unit test settings.
+    Therefore this test is marked as optional to prevent unnecessary build failures.
+    The test is kept in the codebase, however, for convenience in local debugging.
+
+    See https://github.com/dunnkers/fseval/issues/78
+"""
 )
 @pytest.mark.dependency(
     depends=[
