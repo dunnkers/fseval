@@ -46,3 +46,12 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v2.1.0
         if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
+      - name: Zip examples
+        run: |
+          sh .github/zip_examples.sh
+      - name: Upload example zips
+        uses: actions/upload-artifact@v3
+        with:
+          name: upload-example-zips
+          path: |
+            examples_zipped/*.zip
