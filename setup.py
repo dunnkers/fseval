@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
-        version="3.0.2",
+        version="3.0.3",
         packages=find_namespace_packages(include=["hydra_plugins.*"])
         + find_packages(include=["fseval", "fseval.*"]),
         entry_points={"console_scripts": ["fseval = fseval.main:main"]},
