@@ -44,7 +44,14 @@ def test_save(request: FixtureRequest):
     cache.set("filename", filename)
 
 
-@pytest.mark.xfail(reason="Weights and Biases might not have saved the file correctly.")
+@pytest.mark.xfail(
+    "The Weights-and-Biases platform has proven to have too large delays to be able to"
+    + " run integration tests on it consistently. Alhough the WandB platform does"
+    + " eventually upload all the data that is being sent to it, all logging is queued,"
+    + " making it hard to rely on it in integration-/ unit test settings."
+    + "Therefore this test is marked as optional to prevent unnecessary build failures."
+    + " The test is kept in the codebase, however, for convenience in local debugging."
+)
 @pytest.mark.dependency(depends=["test_save"])
 def test_load(request: FixtureRequest):
     # retrieve previous run id from cache
