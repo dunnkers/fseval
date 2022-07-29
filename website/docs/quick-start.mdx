@@ -43,17 +43,21 @@ To get started, there's two main resources.
 
 Let's run our first experiment. The goal will be to compare two feature selectors _ANOVA F-Value_ and _Mutual Info_.
 
-Install fseval:
+First, install fseval:
 
 ```
 pip install fseval
 ```
 
+Now you can decide whether you want to define your configuration in _YAML_ or in _Python_. Choose whatever you find most convenient.
+
 
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
 
-Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start-yaml):
+Download the example configuration: [quick-start-yaml.zip](pathname:///fseval/zipped-examples/quick-start-yaml.zip)
+
+Then, `cd` into the example directory. You should now have the following files:
 
 <FileTreeCodeViewer treeId="tree-1" template={{
   root: {
@@ -82,7 +86,9 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
-Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start-structured-configs):
+Download the example configuration: [quick-start-structured-configs.zip](pathname:///fseval/zipped-examples/quick-start-structured-configs.zip)
+
+You should now have the following files:
 
 <FileTreeCodeViewer treeId="tree-2" template={{
   root: {
@@ -115,24 +121,38 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
 
 <br/>
 
-Let's export the results to a local SQLite database.
+We can now decide how to export the results. We can upload our results to a live SQL database. For now, let's choose a local database. SQLite is good for this.
+
 ```shell
-results_db=/Users/dunnkers/Downloads/results.sqlite # edit this url
+sql_con=sqlite:////Users/dunnkers/Downloads/results.sqlite # any well-defined database URL
 ```
 
-We can now run the benchmark:
+We are now ready to run an experiment. In a terminal, `cd` into the unzipped example directory and run the following:
 ```shell
-python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=sqlite:///$results_db
+python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=$sql_con
 ```
+
+And our experiment starts running 👏🏻!
 
 <AsciinemaPlayer src="/fseval/cast/examples_quick_start.cast" rows={30} idleTimeLimit={3} preload={true} />
 <br/>
 
-The results are now stored in a SQLite database. We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
+Using `--multirun` combined with `ranker='glob(*)'` we instructed fseval to run experiments for all available rankers. The results are now stored in a SQLite database.
+
+```shell
+$ tree ~/Downloads
+/Users/dunnkers/Downloads
+└── results.sqlite
+
+0 directories, 1 file
+```
+
+We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
 
 ![validation data](/img/quick-start/validation_data.png)
 
 In the example above, 
-the graph plots the **feature subset size** (`n_features_to_select`) vs. **classification accuracy** (`score`)
-for <span style={{backgroundColor: "#5050FF", color: "white"}}>ANOVA F value</span> vs. <span style={{backgroundColor: "#0075DD", color: "white"}}>Mutual Info</span>.
-This way, we can easily compare two feature selectors: ANOVA F Value and Mutual Info ✨.
+the graph plots the **feature subset size** (`n_features_to_select`) vs. **classification accuracy** (`score`).
+
+For our two feature selectors, <span style={{backgroundColor: "#5050FF", color: "white"}}>ANOVA F value</span> vs. <span style={{backgroundColor: "#0075DD", color: "white"}}>Mutual Info</span>, we can now see which gets the highest classification accuracy with which feature subset.
+Using fseval, we can easily compare many feature- selectors or rankers, and at a large scale 🙏🏻.
