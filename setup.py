@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
         version="3.0.3",
         packages=find_namespace_packages(include=["hydra_plugins.*"])
         + find_packages(include=["fseval", "fseval.*"]),
-        entry_points={"console_scripts": ["fseval = fseval.main:main"]},
+        entry_points={"console_scripts": ["fseval = fseval.main:run_pipeline"]},
         description="Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀",
         keywords="",
         long_description=LONG_DESC,
