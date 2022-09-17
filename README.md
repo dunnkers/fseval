@@ -18,10 +18,9 @@ Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀
 ## Install
 
 1. Installation through [PyPi](https://pypi.org/project/fseval/)
-
-    <small>
-    ⭐️ this is the recommended installation option
-    </small>
+    <sup><sub>
+    ⭐️ RECOMMENDED OPTION
+    </sub></sup>
 
     ```shell
     pip install fseval
