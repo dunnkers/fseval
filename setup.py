@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
-        version="3.0.0",
+        version="3.0.3",
         packages=find_namespace_packages(include=["hydra_plugins.*"])
         + find_packages(include=["fseval", "fseval.*"]),
         entry_points={"console_scripts": ["fseval = fseval.main:main"]},
@@ -28,7 +28,7 @@ with open("README.md", "r") as fh:
         },
         include_package_data=True,
         install_requires=[
-            "hydra-core>=1.1.0",
+            "hydra-core>=1.1.2",
             "hydra-colorlog>=1.1.0",
             "numpy>=1.19",
             "pandas>=1.1",
@@ -47,6 +47,7 @@ with open("README.md", "r") as fh:
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
             "Operating System :: POSIX :: Linux",
             "Operating System :: MacOS",
             "Operating System :: Microsoft :: Windows",

@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
     name: Python ${{ matrix.python-version }} - ${{ matrix.os }}
 
@@ -43,6 +43,8 @@ jobs:
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
         run: |
           pytest tests --cov=./ --cov-report=xml
+      # The following should only run once per build
+      # → e.g. we configure it only to trigger for python==3.9 and os==ubuntu
       - name: Codecov
-        uses: codecov/codecov-action@v2.1.0
         if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v2.1.0

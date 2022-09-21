@@ -176,7 +176,7 @@ class Experiment(AbstractEstimator):
                 estimator.postfit()
 
     def _aggregate_dataframe_scores(self, a: pd.DataFrame, b: pd.DataFrame):
-        return a.append(b)
+        return pd.concat([a, b])
 
     def _aggregate_dict_scores(self, a: Dict, b: Dict):
         aggregated = {}

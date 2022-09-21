@@ -1,7 +1,7 @@
-hydra-core>=1.1
-hydra-colorlog>=1.1
+hydra-core>=1.1.2
+hydra-colorlog>=1.1.0
 numpy>=1.19
-pandas>=1
+pandas>=1.1
 scikit-learn>=0.24
 humanfriendly>=9
 shortuuid>=1.0
@@ -10,7 +10,7 @@ types-dataclasses>=0.6
 PyYAML>=6
 types-PyYAML>=6
 SQLAlchemy>=1
-wandb>=0.12
+wandb==0.12.11
 -e git+https://github.com/dunnkers/FeatBoost.git@b81059ea4c5ac49fec075e823491104fae3d12b7#egg=featboost
 -e git+https://github.com/dunnkers/infinite-selection.git@6c9db1d5fe1b12bc34eb2af5893a4f3ca385aaff#egg=infinite_selection
 -e git+https://github.com/dunnkers/stability-selection.git@baf54e7526bbce57d80871fcd93cdfdd67972a43#egg=stability_selection
@@ -23,3 +23,4 @@ skrebate>=0.62
 xgboost>=1
 pytest-dependency
 overrides>=6
+protobuf==3.20.0

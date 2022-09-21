@@ -3,13 +3,14 @@ from typing import cast
 
 import pytest
 from hydra.utils import instantiate
+from hydra.errors import InstantiationException
 from omegaconf import OmegaConf
 from sklearn.base import BaseEstimator
 
 from fseval.config import EstimatorConfig
 from fseval.pipeline.estimator import Estimator
 from fseval.storage.local import LocalStorage
-from fseval.types import CacheUsage, IncompatibilityError, Task
+from fseval.types import CacheUsage, Task
 
 
 @pytest.fixture
@@ -79,7 +80,7 @@ def test_incompatibility(estimator_cfg: EstimatorConfig):
     # classification estimator, but regression task
     estimator_cfg._estimator_type = "classifier"
     estimator_cfg.task = Task.regression
-    with pytest.raises(IncompatibilityError):
+    with pytest.raises(InstantiationException):
         instantiate(estimator_cfg)
 
     # multioutput, but estimator does not support it (`multioutput=False`)
@@ -87,7 +88,7 @@ def test_incompatibility(estimator_cfg: EstimatorConfig):
     estimator_cfg.task = Task.classification
     estimator_cfg.multioutput = False
     estimator_cfg.is_multioutput_dataset = True
-    with pytest.raises(IncompatibilityError):
+    with pytest.raises(InstantiationException):
         instantiate(estimator_cfg)
 
     # multioutput only, but
@@ -95,7 +96,7 @@ def test_incompatibility(estimator_cfg: EstimatorConfig):
     estimator_cfg.task = Task.classification
     estimator_cfg.multioutput_only = True
     estimator_cfg.is_multioutput_dataset = False
-    with pytest.raises(IncompatibilityError):
+    with pytest.raises(InstantiationException):
         instantiate(estimator_cfg)
 
 

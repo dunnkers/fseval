@@ -1,0 +1,25 @@
+// For format details, see https://aka.ms/devcontainer.json. 
+{
+	"name": "fseval",
+	"dockerFile": "Dockerfile",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"eamodio.gitlens",
+				"GitHub.vscode-pull-request-github"
+			],
+			"settings": {
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				"python.formatting.provider": "black",
+				"python.linting.enabled": true,
+				"python.linting.mypyEnabled": true,
+				"python.envFile": "${workspaceFolder}/.env"
+			}
+		}
+	},
+	"postCreateCommand": "pip install -r requirements.txt && pip install -r .devcontainer/requirements.txt && pip install --upgrade setuptools wheel",
+	"remoteUser": "vscode"
+}

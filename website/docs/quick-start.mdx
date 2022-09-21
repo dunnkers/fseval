@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Quick start
+# Getting started
 
 <!-- Docusaurus -->
 import Tabs from '@theme/Tabs';
@@ -31,34 +31,33 @@ import BenchmarkPy from '!!raw-loader!../../examples/quick-start-structured-conf
 import AsciinemaPlayer from '../src/components/AsciinemaPlayer';
 import 'asciinema-player/dist/bundle/asciinema-player.css';
 
-fseval helps you benchmark **Feature Selection** and **Feature Ranking** algorithms. Any algorithm that ranks features in importance.
+To get started, there's two main resources.
 
-It comes useful if you are one of the following types of users:
-1. **Feature Selection / Feature Ranker algorithm authors**. You are the author of a novel Feature Selection algorithm. Now, you have to prove the performance of your algorithm against other competitors. Therefore, you are going to run a large-scale benchmark. Many authors, however, spend much time rewriting similar pipelines to benchmark their algorithms. fseval helps you run benchmarks in a structured manner, on supercomputer clusters or on the cloud.
-1. **Interpretable AI method authors**. You wrote a new Interpretable AI method that aims to find out which features are most meaningful by ranking them. Now, the challenge is to find out how well your method ranked those features. fseval can help with this.
-1. **Machine Learning practitioners**. You have a dataset and want to find out with exactly what features your models will perform best. You can use fseval to try multiple Feature Selection or Feature Ranking algorithms.
+1. A [Google Colab](https://colab.research.google.com/drive/1Bsuxxuw0-mEsYRSnNbmvD_wNUAkOPiQa?usp=sharing)
+  
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Bsuxxuw0-mEsYRSnNbmvD_wNUAkOPiQa?usp=sharing)
+2. The [⚡️ Quick start](#%EF%B8%8F-quick-start) guide below 👇🏻
 
 
+## ⚡️ Quick start
 
-Key features 🚀:
-- Easily benchmark Feature Ranking algorithms
-- Built on [Hydra](https://hydra.cc/)
-- Support for distributed systems (SLURM through the [Submitit launcher](https://hydra.cc/docs/plugins/submitit_launcher), AWS support through the [Ray launcher](https://hydra.cc/docs/plugins/ray_launcher/))
-- Reproducible experiments (your entire experiment can be described and reproduced by 1 YAML file)
-- Send experiment results directly to a dashboard (integration with [Weights and Biases](https://wandb.ai/) is built-in)
-- Export your data to any SQL database (integration with [SQLAlchemy](https://www.sqlalchemy.org/))
+Let's run our first experiment. The goal will be to compare two feature selectors _ANOVA F-Value_ and _Mutual Info_.
 
-## Getting started
+First, install fseval:
 
-Install fseval:
-```shell
+```
 pip install fseval
 ```
 
-Given the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/quick-start):
+Now you can decide whether you want to define your configuration in _YAML_ or in _Python_. Choose whatever you find most convenient.
+
 
 <Tabs groupId="config-representation">
 <TabItem value="yaml" label="YAML" default>
+
+Download the example configuration: [quick-start-yaml.zip](pathname:///fseval/zipped-examples/quick-start-yaml.zip)
+
+Then, `cd` into the example directory. You should now have the following files:
 
 <FileTreeCodeViewer treeId="tree-1" template={{
   root: {
@@ -87,6 +86,9 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
 </TabItem>
 <TabItem value="structured" label="Structured Config">
 
+Download the example configuration: [quick-start-structured-configs.zip](pathname:///fseval/zipped-examples/quick-start-structured-configs.zip)
+
+You should now have the following files:
 
 <FileTreeCodeViewer treeId="tree-2" template={{
   root: {
@@ -119,24 +121,38 @@ Given the following [configuration](https://github.com/dunnkers/fseval/tree/mast
 
 <br/>
 
-Let's export the results to a local SQLite database.
+We can now decide how to export the results. We can upload our results to a live SQL database. For now, let's choose a local database. SQLite is good for this.
+
 ```shell
-results_db=/Users/dunnkers/Downloads/results.sqlite # edit this url
+sql_con=sqlite:////Users/dunnkers/Downloads/results.sqlite # any well-defined database URL
 ```
 
-We can now run the benchmark:
+We are now ready to run an experiment. In a terminal, `cd` into the unzipped example directory and run the following:
 ```shell
-python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=sqlite:///$results_db
+python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=$sql_con
 ```
+
+And our experiment starts running 👏🏻!
 
 <AsciinemaPlayer src="/fseval/cast/examples_quick_start.cast" rows={30} idleTimeLimit={3} preload={true} />
 <br/>
 
-The results are now stored in a SQLite database. We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
+Using `--multirun` combined with `ranker='glob(*)'` we instructed fseval to run experiments for all available rankers. The results are now stored in a SQLite database.
+
+```shell
+$ tree ~/Downloads
+/Users/dunnkers/Downloads
+└── results.sqlite
+
+0 directories, 1 file
+```
+
+We can open the data using [DB Browser for SQLite](https://sqlitebrowser.org/). We can access the validation scores in the `validation_scores` table:
 
 ![validation data](/img/quick-start/validation_data.png)
 
 In the example above, 
-the graph plots the **feature subset size** (`n_features_to_select`) vs. **classification accuracy** (`score`)
-for <span style={{backgroundColor: "#5050FF", color: "white"}}>ANOVA F value</span> vs. <span style={{backgroundColor: "#0075DD", color: "white"}}>Mutual Info</span>.
-This way, we can easily compare two feature selectors: ANOVA F Value and Mutual Info ✨.
+the graph plots the **feature subset size** (`n_features_to_select`) vs. **classification accuracy** (`score`).
+
+For our two feature selectors, <span style={{backgroundColor: "#5050FF", color: "white"}}>ANOVA F value</span> vs. <span style={{backgroundColor: "#0075DD", color: "white"}}>Mutual Info</span>, we can now see which gets the highest classification accuracy with which feature subset.
+Using fseval, we can easily compare many feature- selectors or rankers, and at a large scale 🙏🏻.
