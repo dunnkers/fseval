@@ -8,4 +8,4 @@ defaults:
   - override /metrics:
       - stability_nogueira
 
-n_bootstraps: 2
+n_bootstraps: 10

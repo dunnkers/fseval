@@ -1,3 +1,0 @@
-# Running on AWS
-
-evaluate!
