@@ -2,14 +2,14 @@
 
 from setuptools import find_namespace_packages, find_packages, setup
 
-with open("README.md", "r") as fh:
+with open("README.md", mode="r", encoding="utf8") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
         version="3.0.3",
         packages=find_namespace_packages(include=["hydra_plugins.*"])
         + find_packages(include=["fseval", "fseval.*"]),
-        entry_points={"console_scripts": ["fseval = fseval.main:main"]},
+        entry_points={"console_scripts": ["fseval = fseval.main:run_pipeline"]},
         description="Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀",
         keywords="",
         long_description=LONG_DESC,
