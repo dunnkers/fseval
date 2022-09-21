@@ -144,6 +144,14 @@ We can now decide how to export the results. We can upload our results to a live
 sql_con=sqlite:////Users/dunnkers/Downloads/results.sqlite # any well-defined database URL
 ```
 
+:::note Relative vs absolute paths
+
+If you define a _relative_ database URL, like `sql_con=sqlite:///./results.sqlite`, the results will be saved right where Hydra stores its individual run files. In other words, multiple `.sqlite` files are stored in the `./multirun` subfolders.
+
+To prevent this, and store all results in 1 `.sqlite` file, use an **absolute** path, like above. But preferably, you are using a proper running database - see the recipes for more instructions on this.
+
+:::
+
 We are now ready to run an experiment. In a terminal, `cd` into the unzipped example directory and run the following:
 ```shell
 python benchmark.py --multirun ranker='glob(*)' +callbacks.to_sql.url=$sql_con
