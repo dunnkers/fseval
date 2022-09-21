@@ -2,7 +2,7 @@
 
 from setuptools import find_namespace_packages, find_packages, setup
 
-with open("README.md", "r") as fh:
+with open("README.md", mode="r", encoding="utf8") as fh:
     LONG_DESC = fh.read()
     setup(
         name="fseval",
