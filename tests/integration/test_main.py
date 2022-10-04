@@ -2,9 +2,10 @@ import os
 import tempfile
 
 import pytest
+from hydra.conf import ConfigStore
+
 from fseval.config import EstimatorConfig, PipelineConfig
 from fseval.main import run_pipeline
-from fseval.types import IncompatibilityError
 from fseval.utils.hydra_utils import get_config
 from hydra.conf import ConfigStore
 from hydra.errors import InstantiationException

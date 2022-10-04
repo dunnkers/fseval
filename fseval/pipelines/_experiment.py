@@ -7,10 +7,10 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from humanfriendly import format_timespan
+
 from fseval.pipeline.estimator import Estimator
 from fseval.types import AbstractEstimator, Callback, TerminalColor
-from humanfriendly import format_timespan
-from sqlalchemy.engine import Engine
 
 
 @dataclass
