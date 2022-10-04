@@ -7,9 +7,7 @@ Therefore, let's do such an experiment! We are going to compare the stability of
 
 ## The experiment
 
-We are going to run an experiment with the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/algorithm-stability-yaml/). 
-
-Download the experiment config: [algorithm-stability-yaml.zip](pathname:///fseval/zipped-examples/algorithm-stability-yaml.zip)
+We are going to run an experiment with the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/algorithm-stability-yaml/). Download the experiment config: [algorithm-stability-yaml.zip](pathname:///fseval/zipped-examples/algorithm-stability-yaml.zip).
 
 Most notably are the following configuration settings:
 
