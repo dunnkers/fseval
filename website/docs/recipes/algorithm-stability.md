@@ -1,15 +1,49 @@
 # Analyze algorithm stability
 
+For many applications, it is very important the algorithms that are used are **stable** enough. This means, that when a different sample of data is taken from some distribution, the results will turn out similar. This, combined with possible inherent stochastic properties of an algorithm, make up for the _stability_ of the algorithm. The same applies to Feature Selection or Feature Ranking algorithms.
 
-.
+Therefore, let's do such an experiment! We are going to compare the stability of [ReliefF](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.56.4740&rep=rep1&type=pdf) to [Boruta](https://www.jstatsoft.org/article/view/v036i11), two popular feature selection algorithms. We are going to do this using a metric introduced in [Nogueira et al, 2018](https://www.jmlr.org/papers/volume18/17-514/17-514.pdf).
 
-.
 
-.
+## The experiment
 
-.
+We are going to run an experiment with the following [configuration](https://github.com/dunnkers/fseval/tree/master/examples/algorithm-stability-yaml/). 
 
-Hi! Let's analyze the results of the experiment you just ran. To recap:
+Download the experiment config: [algorithm-stability-yaml.zip](pathname:///fseval/zipped-examples/algorithm-stability-yaml.zip)
+
+Most notably are the following configuration settings:
+
+```yaml title="my_config.yaml"
+defaults:
+  - base_pipeline_config
+  - _self_
+  - override dataset: synclf_hard
+  - override validator: knn
+  - override /callbacks:
+      - to_sql
+  // highlight-start
+  - override /metrics:
+      - stability_nogueira
+  // highlight-end
+
+// highlight-start
+n_bootstraps: 10
+// highlight-end
+```
+
+That means, we are going to generate a synthetic dataset and sample 10 subsets from it. This is because `n_bootstraps=10`. Then, after the feature selection algorithm was executed and fitted on the dataset, a custom installed metric will be executed, called `stability_nogueira`. This can be found in the `/conf/metrics` folder, which in turn refers to a class in the `benchmark.py` file.
+
+To now run the experiment, run the following command inside the `algorithm-stability-yaml` folder:
+
+```shell
+python benchmark.py --multirun ranker="glob(*)" +callbacks.to_sql.url="sqlite:///$HOME/results.sqlite"
+```
+
+## Analyzing the results
+
+### Recap
+
+Hi! Let's analyze the results of the experiment you just ran. To **recap**:
 
 1. You just ran something similar to:
 
@@ -23,14 +57,16 @@ Hi! Let's analyze the results of the experiment you just ran. To recap:
 
 Let's now analyze the results! 📈
 
+### Analysis
+
+> The rest of the text assumes all code was ran inside a Jupyter Notebook, in chronological order. The source Notebook can be found [here](https://github.com/dunnkers/fseval/tree/master/examples/algorithm-stability-yaml/analyze-results.ipynb)
+
 First, we will install `plotly-express`, so we can make nice plots later.
 
 
 ```python
 %pip install plotly-express --quiet
 ```
-
-    Note: you may need to restart the kernel to use updated packages.
 
 
 Figure out the SQL connection URI.
