@@ -5,13 +5,8 @@ env_setup:
   pip_packages:
     fseval: 3.0.3
 
-stop_cluster: false
 ray:
   cluster:
-    provider:
-      cache_stopped_nodes:
-        true
-
     # Mount our code to the execution directory on both the head- and worker nodes.
     # See: https://docs.ray.io/en/master/cluster/vms/references/ray-cluster-configuration.html#cluster-configuration-file-mounts
     file_mounts:
