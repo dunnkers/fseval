@@ -1,0 +1,38 @@
+defaults:
+  - ray_aws
+
+env_setup:
+  pip_packages:
+    fseval: 3.0.3
+
+# ray:
+#   cluster:
+#     provider:
+#       region: eu-west-1
+#       availability_zone: eu-west-1a,eu-west-1b,eu-west-1c
+#     available_node_types:
+#       ray.head.default:
+#         node_config:
+#           InstanceType: t2.medium
+#           ImageId: ami-0ea0f26a6d50850c5
+#       ray.worker.default:
+#         node_config:
+#           InstanceType: t2.medium
+#           ImageId: ami-0ea0f26a6d50850c5
+
+
+stop_cluster: false
+ray:
+  cluster:
+    provider:
+      cache_stopped_nodes:
+        true
+
+    # Mount our code to the execution directory on both the head- and worker nodes.
+    # See: https://docs.ray.io/en/master/cluster/vms/references/ray-cluster-configuration.html#cluster-configuration-file-mounts
+    file_mounts:
+      /home/ubuntu: benchmark.py
+
+sync_down:
+  source_dir: /home/ubuntu/multirun
+  target_dir: .
