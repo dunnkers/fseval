@@ -10,4 +10,4 @@ defaults:
 n_bootstraps: 1
 callbacks:
   to_sql:
-    url: sqlite:////home/ubuntu/multirun/results.sqlite # any well-defined database URL
+    url: sqlite:////home/ubuntu/results/results.sqlite # any well-defined database URL

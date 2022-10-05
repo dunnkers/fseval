@@ -5,22 +5,6 @@ env_setup:
   pip_packages:
     fseval: 3.0.3
 
-# ray:
-#   cluster:
-#     provider:
-#       region: eu-west-1
-#       availability_zone: eu-west-1a,eu-west-1b,eu-west-1c
-#     available_node_types:
-#       ray.head.default:
-#         node_config:
-#           InstanceType: t2.medium
-#           ImageId: ami-0ea0f26a6d50850c5
-#       ray.worker.default:
-#         node_config:
-#           InstanceType: t2.medium
-#           ImageId: ami-0ea0f26a6d50850c5
-
-
 stop_cluster: false
 ray:
   cluster:
@@ -33,6 +17,9 @@ ray:
     file_mounts:
       /home/ubuntu: benchmark.py
 
+    initialization_commands:
+      - mkdir -p /home/ubuntu/results
+
 sync_down:
-  source_dir: /home/ubuntu/multirun
+  source_dir: /home/ubuntu/results
   target_dir: .
