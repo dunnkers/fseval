@@ -1,0 +1,20 @@
+defaults:
+  - ray_aws
+
+env_setup:
+  pip_packages:
+    fseval: 3.0.3
+
+ray:
+  cluster:
+    # Mount our code to the execution directory on both the head- and worker nodes.
+    # See: https://docs.ray.io/en/master/cluster/vms/references/ray-cluster-configuration.html#cluster-configuration-file-mounts
+    file_mounts:
+      /home/ubuntu: benchmark.py
+
+    initialization_commands:
+      - mkdir -p /home/ubuntu/results
+
+sync_down:
+  source_dir: /home/ubuntu/results
+  target_dir: .
