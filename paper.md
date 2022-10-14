@@ -43,16 +43,16 @@ at: <https://github.com/dunnkers/fseval>.
 
 # Statement of Need
 
-Feature Selection (FS) and Feature Ranking (FR) are important and
+Feature Selection (FS) and Feature Ranking (FR) are 
 extensively researched topics within machine learning
-[@guyon_introduction_2003]. FS methods determine subsets of relevant
-features in a dataset, whereas FR methods rank all features in a dataset
+[@venkatesh2019review; @guyon_introduction_2003]. FS methods determine subsets of relevant
+features in a dataset, whereas FR methods rank the features in a dataset
 relative to each other in terms of their relevance. When a new FS or FR
 method is developed, a benchmarking scheme is necessary to empirically
 validate its effectiveness. Often, the benchmark is conducted as
 follows: features are ranked by importance, then the predictive quality
 of the feature subsets containing the top ranked features is evaluated
-using a validation estimator. Some papers let the competing FS or FR
+using a validation estimator. Some studies let the competing FS or FR
 algorithms pick out a fixed number of top $k$ features and validate the
 performance of that feature subset
 [@roffo_infinite_2015; @zhao_searching_2007; @bradley_feature_1998],
@@ -62,11 +62,11 @@ containing the highest ranked features
 FS algorithms that only make a binary prediction on which features to
 keep, are always evaluated in the former way.
 
-There is a clear case for performing Feature Selection. Feature selection improves the classification performance in many tasks, especially those with a large number of features and limited observations. In those applications, it is difficult to determine which FS method is suitable in the general case. Therefore, large empirical comparisons of several FS methods and classifiers are routinely performed. For instance, in microarray data [@cilia2019experimental], medical imaging [@sun2019comparison; @tohka2016comparison; @ashok2016comparison], and text classification [@liu2017multi; @kou2020evaluation]. Therefore, it is valuable to find out emperically which FR- or FS method works best. This requires running a benchmark to do so.
+There is a clear case for performing Feature Selection, as it has been shown to improve classification performance in many tasks, especially those with a large number of features and limited observations. In those applications, it is difficult to determine which FS method is suitable in the general case. Therefore, large empirical comparisons of several FS methods and classifiers are routinely performed. For instance, in microarray data [@cilia2019experimental], medical imaging [@sun2019comparison; @tohka2016comparison; @ashok2016comparison], and text classification [@liu2017multi; @kou2020evaluation]. Therefore, it is valuable to find out emperically which FR- or FS method works best. This requires running a benchmark to do so.
 
 `fseval` is an open-source Python package that helps researchers
-implement such benchmarks efficiently, which avoids the need for
-implementing a benchmarking pipeline from scratch to test new methods.
+perform such benchmarks efficiently by eliminating the need for
+implementing benchmarking pipelines from scratch to test new methods.
 The pipeline only requires a well-defined configuration file to run -
 the rest of the pipeline is automatically executed. Because the entire
 experiment setup is deterministic and captured in a configuration file,
@@ -74,7 +74,7 @@ results of any experiment can be reproduced given the configuration
 file. This can be very convenient to researchers in order to prove the
 integrity of their benchmarks.
 
-Up to our knowledge, there is only one package that aims to accomplish the same goal (`featsel`, [@reis_featsel_2017]). Compared to this tool, `fseval` is easier to install and use, has better documentation, and is better maintained. `fseval` also has more extensive functionalities compared to `featsel`: with support for easily configurable and reproducible pipeline configuration using either YAML or Python and distributed-processing support. Due to the lack of functionality and the fact that the refered-to library is out-of-date, we consider there to be a gap in the field, which our library aims to fill.
+To the best of our knowledge, there is only one package that aims to accomplish a similar goal (`featsel`, [@reis_featsel_2017]). Compared to this tool, `fseval` is easier to install and use, has better documentation, and is better maintained. `fseval` also has more extensive functionalities compared to `featsel`: with support for easily configurable and reproducible pipeline configuration using either YAML or Python and distributed-processing support. Due to the lack of functionality and the fact that the refered-to library is out-of-date, we consider there to be a gap in the field, which our library aims to fill.
 
 - The **target audiences** are researchers in the domains of Feature Selection and Feature Ranking, as well as businesses that are looking for the best FR- or FS method to use for their use case.
 - The **scope** of `fseval` is limited to
@@ -107,7 +107,7 @@ protocols that feature selection researchers use.
     adapters to create **synthetic** datasets. Datasets might also
     define dataset feature importance *ground truths*, which can be used
     to compute metrics in the scoring stage
-    (Section '[Scoring](#section:scoring){reference-type="ref"
+    (Section '[Scoring](#section:scoring){reference-type="ref"
     reference="section:scoring"}').
 
 -   **Built-in integrations**. `fseval` allows exporting benchmark
@@ -133,7 +133,7 @@ protocols that feature selection researchers use.
 # The Pipeline
 
 `fseval` executes a predefined sequence of steps, as can be seen in
-Figure [1](#fig:pipeline){reference-type="ref"
+Figure [1](#fig:pipeline){reference-type="ref"
 reference="fig:pipeline"}.
 
 ![A schematic of the benchmarking pipeline. The input of the pipeline is
