@@ -1,7 +1,7 @@
 # Contributing to `fseval`
 Awesome that you are looking to contribute to `fseval`! Be it just a small spelling-correction, a bugfix, or a bigger and more structural change; all contributions are welcome. Let's make the process as easy and transparent for you as possible.
 
-Please see the [developer guide](https://dunnkers.com/fseval/docs/main/) on the website.
+Please see the [developer guide](https://dunnkers.com/fseval/docs/contributing/) on the website.
 
 ## Pull Requests
 We welcome your pull requests.
