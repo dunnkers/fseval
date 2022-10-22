@@ -1,0 +1,6 @@
+name: MultiSURF
+estimator:
+  _target_: skrebate.MultiSURF
+_estimator_type: classifier
+multioutput: false
+estimates_feature_importances: true

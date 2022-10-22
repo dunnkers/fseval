@@ -1,0 +1,6 @@
+fseval
+-e git+https://github.com/dunnkers/infinite-selection.git@6c9db1d5fe1b12bc34eb2af5893a4f3ca385aaff#egg=infinite_selection
+-e git+https://github.com/dunnkers/stability-selection.git@baf54e7526bbce57d80871fcd93cdfdd67972a43#egg=stability_selection
+Boruta>=0.3
+skrebate>=0.62
+xgboost>=1
