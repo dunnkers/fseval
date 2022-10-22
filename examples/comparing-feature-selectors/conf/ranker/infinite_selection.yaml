@@ -1,0 +1,6 @@
+name: Infinite Selection
+estimator:
+  _target_: benchmark.InfiniteSelectionEstimator
+_estimator_type: classifier
+estimates_feature_importances: true
+estimates_feature_ranking: true

@@ -1,0 +1,9 @@
+defaults:
+  - base_pipeline_config
+  - _self_
+  - override dataset: synthetic
+  - override validator: knn
+  - override /callbacks:
+      - to_sql
+
+n_bootstraps: 1

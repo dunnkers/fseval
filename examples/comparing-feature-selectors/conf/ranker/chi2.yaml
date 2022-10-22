@@ -1,0 +1,6 @@
+name: Chi-Squared
+estimator:
+  _target_: benchmark.Chi2Classifier
+_estimator_type: classifier
+requires_positive_X: true
+estimates_feature_importances: true
