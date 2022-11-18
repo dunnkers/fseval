@@ -62,7 +62,7 @@ containing the highest ranked features
 FS algorithms that only make a binary prediction on which features to
 keep, are always evaluated in the former way.
 
-There is a clear case for performing Feature Selection, as it has been shown to improve classification performance in many tasks, especially those with a large number of features and limited observations. In those applications, it is difficult to determine which FS method is suitable in the general case. Therefore, large empirical comparisons of several FS methods and classifiers are routinely performed. For instance, in microarray data [@cilia2019experimental], medical imaging [@sun2019comparison; @tohka2016comparison; @ashok2016comparison], and text classification [@liu2017multi; @kou2020evaluation]. Therefore, it is valuable to find out emperically which FR- or FS method works best. This requires running a benchmark to do so.
+There is a clear case for performing Feature Selection, as it has been shown to improve classification performance in many tasks, especially those with a large number of features and limited observations. In those applications, it is difficult to determine which FS method is suitable in the general case. Therefore, large empirical comparisons of several FS methods and classifiers are routinely performed. For instance, in microarray data [@cilia2019experimental], medical imaging [@sun2019comparison; @tohka2016comparison], and text classification [@liu2017multi; @kou2020evaluation]. Therefore, it is valuable to find out emperically which FR- or FS method works best. This requires running a benchmark to do so.
 
 `fseval` is an open-source Python package that helps researchers
 perform such benchmarks efficiently by eliminating the need for
