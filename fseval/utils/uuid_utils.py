@@ -1,6 +1,7 @@
+from typing import List, Optional
 from shortuuid import ShortUUID
 
-SHORT_UUID_ALPHABET = list("0123456789abcdefghijklmnopqrstuvwxyz")
+SHORT_UUID_ALPHABET: Optional[List[str]] = list("0123456789abcdefghijklmnopqrstuvwxyz")
 
 
 def generate_shortuuid() -> str:
