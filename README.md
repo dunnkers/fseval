@@ -8,7 +8,7 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/dunnkers/fseval.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/dunnkers/fseval/context:python) ![PyPI - License](https://img.shields.io/pypi/l/fseval)
 [![DOI](https://zenodo.org/badge/274001213.svg)](https://zenodo.org/badge/latestdoi/274001213)
 [![Open in Remote - Containers](https://img.shields.io/static/v1?label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/dunnkers/fseval)
-
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04611/status.svg)](https://doi.org/10.21105/joss.04611)
 
 Benchmarking framework for Feature Selection and Feature Ranking algorithms 🚀
 
