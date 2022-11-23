@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use fseval, please cite it as below."
+authors:
+- family-names: "Overschie"
+  given-names: "Jeroen Gerard Sebastiaan"
+  orcid: "https://orcid.org/0000-0003-3304-3800"
+- family-names: "Alsahaf"
+  given-names: "Ahmad"
+  orcid: "https://orcid.org/0000-0002-0770-1390"
+- family-names: "Azzopardi"
+  given-names: "George"
+  orcid: "https://orcid.org/0000-0001-6552-2596"
+title: "fseval"
+version: 3.1.0
+doi: 10.21105/joss.04611
+date-released: 2022-11-23
+url: "https://joss.theoj.org/papers/10.21105/joss.04611"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Overschie"
+    given-names: "Jeroen Gerard Sebastiaan"
+    orcid: "https://orcid.org/0000-0003-3304-3800"
+  - family-names: "Alsahaf"
+    given-names: "Ahmad"
+    orcid: "https://orcid.org/0000-0002-0770-1390"
+  - family-names: "Azzopardi"
+    given-names: "George"
+    orcid: "https://orcid.org/0000-0001-6552-2596"
+  doi: "10.21105/joss.04611"
+  journal: "Journal of Open Source Software"
+  month: 11
+  start: 1
+  end: 5
+  title: "fseval: A Benchmarking Framework for Feature Selection and Feature Ranking Algorithms"
+  volume: 7
+  number: 79
+  publisher: "The Open Journal"
+  pages: 4611
+  year: 2022
