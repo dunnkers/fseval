@@ -9,7 +9,9 @@ tags:
   - software
   - python
 authors:
-  - name: Jeroen G. S. Overschie
+  - name:
+      given: Jeroen G. S.
+      surname: Overschie
     orcid: 0000-0003-3304-3800
     affiliation: 1
   - name: Ahmad Alsahaf
