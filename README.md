@@ -45,13 +45,22 @@ You can now import fseval `import fseval` in your Python code, or use the `fseva
 See the [documentation](https://dunnkers.com/fseval).
 
 ## About
-Built at the University of Groningen. It stemmed from a previous project that proposed the feature selection algorithm called FeatBoost (see full citation below). The open source Python code of FeatBoost is available in https://github.com/amjams/FeatBoost.
+Built at the University of Groningen and published in **The Journal of Open Source Software** (JOSS):
+- https://joss.theoj.org/papers/10.21105/joss.04611
+
+<details>
+<summary>
+Project has some early roots in another project, which is a feature selection algorithm called FeatBoost (see full citation below).
+</summary>
 
 
 A. Alsahaf, N. Petkov, V. Shenoy, G. Azzopardi, "A framework for feature selection through boosting", Expert Systems with Applications,
 Volume 187, 2022, 115895, ISSN 0957-4174, https://doi.org/10.1016/j.eswa.2021.115895.
-
+    
+The open source Python code of FeatBoost is available in https://github.com/amjams/FeatBoost.
+</details>
+   
 
 ---
 
-<p align="center">2022 — <a href="https://dunnkers.com/">Jeroen Overschie</a></p>
+<p align="center">2023 — <a href="https://dunnkers.com/">Jeroen Overschie</a></p>
